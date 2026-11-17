@@ -1,5 +1,7 @@
 import "server-only";
+import { cache } from "react";
 import { requireUser } from "@/lib/supabase/server";
+import type { ResumoInicio } from "@/lib/modulos";
 import type { Atividade, Receptividade, Tag, Turma } from "@/lib/types";
 
 const ATIVIDADE_SELECT =
@@ -138,3 +140,33 @@ function sortByNome<T extends { nome: string }>(items: T[]) {
     a.nome.localeCompare(b.nome, "pt-BR", { numeric: true, sensitivity: "base" }),
   );
 }
+
+/** Números rápidos para a tela de início (só contagens, sem carregar atividades). */
+export const getResumoInicio = cache(async (): Promise<ResumoInicio> => {
+  const { supabase } = await requireUser();
+  const contar = (tabela: string, receptividade?: Receptividade) => {
+    let query = supabase.from(tabela).select("id", { count: "exact", head: true });
+    if (receptividade) query = query.eq("receptividade", receptividade);
+    return query;
+  };
+
+  const [atividades, boas, neutras, turmas, tags, ultima] = await Promise.all([
+    contar("atividades"),
+    contar("atividades", "boa"),
+    contar("atividades", "neutra"),
+    contar("turmas"),
+    contar("tags"),
+    supabase.from("atividades").select("data").order("data", { ascending: false }).limit(1),
+  ]);
+  for (const r of [atividades, boas, neutras, turmas, tags, ultima]) if (r.error) throw r.error;
+
+  const total = atividades.count ?? 0;
+  return {
+    atividades: total,
+    turmas: turmas.count ?? 0,
+    tags: tags.count ?? 0,
+    /** Mesma fórmula de `stats.ts`: boa = 1, neutra = ½, ruim = 0. */
+    aderencia: total ? (((boas.count ?? 0) + (neutras.count ?? 0) * 0.5) / total) * 100 : null,
+    ultimaData: (ultima.data?.[0]?.data as string | undefined) ?? null,
+  };
+});

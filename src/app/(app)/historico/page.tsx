@@ -78,7 +78,7 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/historico"
           ) : (
             <>
               Nada registrado ainda.{" "}
-              <Link href="/" className="font-medium text-accent hover:underline">
+              <Link href="/registrar" className="font-medium text-accent hover:underline">
                 Registrar a primeira atividade
               </Link>
             </>

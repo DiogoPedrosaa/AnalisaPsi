@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Menu lateral escondido no desktop (`data-menu="fechado"` no <html>, ver components/nav.tsx) */
+@custom-variant menu-fechado ([data-menu="fechado"] &);
+
 :root {
   color-scheme: light;
   --page: #f6f4ef;

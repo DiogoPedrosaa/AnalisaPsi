@@ -115,14 +115,41 @@ Definidos com `@utility` em [globals.css](src/app/globals.css). Use-os em vez de
 ## Layout
 
 - Largura máxima do conteúdo: `max-w-5xl`, com `px-4` nas laterais.
-- **Cabeçalho** fixo no topo (`h-14`, `bg-page/90 backdrop-blur`, borda inferior), com logo, navegação
-  (a partir de `md`) e "Sair".
-- **Celular:** navegação em barra inferior fixa com 4 ícones + rótulos (`text-[11px]`), respeitando
-  `env(safe-area-inset-bottom)`. Por isso o `main` tem `pb-28` no celular.
-- Telas de duas colunas só a partir de `lg` (ex.: formulário + últimos registros).
+- **Menu lateral** ([src/components/nav.tsx](src/components/nav.tsx)): `aside` fixo à esquerda (`w-64`,
+  `bg-card`, borda direita `line`) com logo no topo, Início + módulos no meio e "Sair" no rodapé.
+  - **Desktop (a partir de `md`):** aberto por padrão; o conteúdo ganha `md:pl-64`. Pode ser escondido a
+    qualquer momento pelo botão da barra do topo, pela seta no topo do menu ou com **Ctrl/⌘ + B**.
+    A escolha fica salva no `localStorage` (`CHAVE_MENU`) e vira `data-menu="fechado"` no `<html>`,
+    aplicado por um script inline no `<head>` antes da primeira pintura (sem "piscar").
+  - Para estilizar o estado escondido, use a variante **`menu-fechado:`** (definida em `globals.css`),
+    sempre junto de `md:` — ex.: `md:menu-fechado:pl-0`, `md:menu-fechado:-translate-x-full`.
+  - **Celular:** o menu vira gaveta por cima do conteúdo (`z-40`), com fundo `bg-ink/30` que fecha ao
+    tocar; também fecha ao escolher um item ou apertar Esc.
+  - Menu escondido também fica `invisible`, para os links saírem da ordem do Tab.
+- **Barra do topo** (`h-14`, `sticky`, `bg-page/90 backdrop-blur`, borda inferior): botão de mostrar/esconder
+  o menu e, quando o menu não está visível, o logo.
+- Telas de duas colunas só a partir de `lg` (ex.: formulário + últimos registros, login).
 - Espaçamento vertical entre blocos: `space-y-6` (seções), `gap-3` (grades de cartões), `gap-2` (chips).
-- Item de navegação ativo: `bg-accent-soft text-accent` no topo, `text-accent` na barra inferior,
-  sempre com `aria-current="page"`.
+- Item de menu: `rounded-xl px-3 py-2.5 text-sm font-medium` com ícone `size-5`; ativo
+  `bg-accent-soft text-accent`, sempre com `aria-current="page"`. Qual item está ativo é decidido por
+  `itemAtivo()` ([src/lib/modulos.ts](src/lib/modulos.ts)).
+
+## Telas de entrada
+
+- **Módulos** são definidos uma vez em `MODULOS` ([src/lib/modulos.ts](src/lib/modulos.ts)) — rota,
+  rótulo, descrição e ícone — e alimentam o menu, o Início e o login. Módulo novo entra só ali.
+- **Início (`/`):** cartão de boas-vindas (`card p-6 sm:p-8`, círculo decorativo `bg-accent-soft` no canto),
+  com a data em `text-sm font-medium text-accent`, saudação por horário ("Bom dia, Ana! 👋",
+  `text-2xl sm:text-3xl font-bold`), uma frase de status e as ações "Registrar atividade" (`btn-primary`)
+  e "Ver o painel" (`btn-ghost`). Abaixo, a grade de **cartões de módulo**.
+- **Cartão de módulo:** `card group flex gap-4 p-5` clicável inteiro, `hover:border-accent/50`; ícone em
+  quadrado `size-11 rounded-xl bg-accent-soft text-accent`, título `font-semibold` com seta que anda e fica
+  `accent` no hover, descrição `text-sm text-ink-2` e uma linha de números `text-xs text-muted tabular-nums`
+  (`detalheModulo()`), que mostra um skeleton enquanto carrega.
+- **Login:** duas colunas a partir de `lg`: à esquerda logo, chamada (`text-3xl font-bold`) e a vitrine dos
+  módulos em cartões pequenos (não clicáveis); à direita o cartão do formulário com "Que bom ver você! 👋".
+  No celular, o formulário vem primeiro e a vitrine depois.
+- Saudações e mensagens de boas-vindas evitam marcar gênero: "Boas-vindas", "Que bom ver você".
 
 ## Bordas, sombras e ícones
 
@@ -130,7 +157,8 @@ Definidos com `@utility` em [globals.css](src/app/globals.css). Use-os em vez de
   `rounded-lg`/`rounded-md` para itens pequenos, `rounded-full` para chips e badges.
 - Sombras quase não são usadas: só `shadow-sm` no cartão de login. A separação vem de bordas `line`.
 - Ícones: SVG inline em traço (`stroke="currentColor"`, `strokeWidth={2}`, pontas arredondadas,
-  `size-5`), sempre com `aria-hidden`. Não há biblioteca de ícones.
+  `size-5`), sempre com `aria-hidden`. Use `<Icone d="…" />` ([src/components/icone.tsx](src/components/icone.tsx)).
+  Não há biblioteca de ícones.
 - Logo: quadrado arredondado `accent` com três barras crescentes ([src/components/logo.tsx](src/components/logo.tsx)).
 
 ## Estados

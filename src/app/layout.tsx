@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { CHAVE_MENU } from "@/lib/modulos";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,7 +30,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Esconde o menu lateral antes da primeira pintura, se a pessoa deixou ele fechado. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem("${CHAVE_MENU}")==="fechado")document.documentElement.dataset.menu="fechado"}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="flex min-h-full flex-col font-sans">{children}</body>
     </html>
   );

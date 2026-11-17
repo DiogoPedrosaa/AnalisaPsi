@@ -78,7 +78,7 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/dashboard"
           </p>
           <p className="mt-3 font-medium">Ainda não há atividades {periodo || turmaId ? "com esses filtros" : "registradas"}.</p>
           <p className="mt-1 text-sm text-ink-2">Os gráficos aparecem assim que você registrar as primeiras atividades.</p>
-          <Link href="/" className="btn-primary mt-5">
+          <Link href="/registrar" className="btn-primary mt-5">
             Registrar atividade
           </Link>
         </div>
