@@ -1,26 +1,116 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  color-scheme: light;
+  --page: #f6f4ef;
+  --card: #ffffff;
+  --card-2: #f1eee7;
+  --ink: #1f1d1a;
+  --ink-2: #57534c;
+  --muted: #8a857c;
+  --line: #e6e2d9;
+  --accent: #4f3fc4;
+  --accent-ink: #ffffff;
+  --accent-soft: #ebe8fb;
+  --danger: #c4302f;
+  --success: #1d7a3a;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Receptividade (diverging: azul ↔ cinza ↔ vermelho) */
+  --boa: #2a78d6;
+  --neutra: #b9b7ae;
+  --ruim: #e34948;
+
+  /* Cores das tags (paleta categórica, ordem fixa) */
+  --tag-1: #2a78d6;
+  --tag-2: #eb6834;
+  --tag-3: #1baf7a;
+  --tag-4: #eda100;
+  --tag-5: #e87ba4;
+  --tag-6: #008300;
+  --tag-7: #6250d6;
+  --tag-8: #e34948;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+    --page: #0f0f0e;
+    --card: #1a1a19;
+    --card-2: #242422;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #8f8b82;
+    --line: #2f2f2c;
+    --accent: #9085e9;
+    --accent-ink: #0f0f0e;
+    --accent-soft: #29254a;
+    --danger: #ef7b7a;
+    --success: #5cc97c;
+
+    --boa: #3987e5;
+    --neutra: #6b6a64;
+    --ruim: #e66767;
+
+    --tag-1: #3987e5;
+    --tag-2: #d95926;
+    --tag-3: #199e70;
+    --tag-4: #c98500;
+    --tag-5: #d55181;
+    --tag-6: #008300;
+    --tag-7: #9085e9;
+    --tag-8: #e66767;
   }
 }
 
+@theme inline {
+  --color-page: var(--page);
+  --color-card: var(--card);
+  --color-card-2: var(--card-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-boa: var(--boa);
+  --color-neutra: var(--neutra);
+  --color-ruim: var(--ruim);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--page);
+  color: var(--ink);
+}
+
+/* Inputs de data herdam o esquema de cores */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+@utility card {
+  @apply rounded-2xl border border-line bg-card;
+}
+@utility input {
+  @apply w-full rounded-xl border border-line bg-card px-3.5 py-2.5 text-base text-ink outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/25;
+}
+@utility label {
+  @apply mb-1.5 block text-sm font-medium text-ink-2;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-accent text-accent-ink hover:opacity-90;
+}
+@utility btn-ghost {
+  @apply btn text-ink-2 hover:bg-card-2 hover:text-ink;
+}
+@utility chip {
+  @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40;
 }
