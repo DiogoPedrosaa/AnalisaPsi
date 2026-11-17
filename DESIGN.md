@@ -87,6 +87,15 @@ Definidos com `@utility` em [globals.css](src/app/globals.css). Use-os em vez de
 | `btn-ghost` | Ações secundárias: cancelar, sair, limpar filtros. |
 | `chip` | Opções selecionáveis em forma de pílula (turmas, tags, atalhos de data). |
 
+### Interruptor (liga/desliga)
+
+Para preferências do tipo sim/não (ex.: "Lembrar de mim" no login). É um `<label>` com
+`<input type="checkbox" role="switch" class="peer sr-only">` seguido do trilho desenhado:
+`h-6 w-10 rounded-full border border-line bg-card-2`, bolinha `size-4.5 bg-muted`; ligado vira
+`peer-checked:bg-accent peer-checked:border-accent` com bolinha `bg-accent-ink` deslocada
+(`peer-checked:after:translate-x-4`). Foco com `peer-focus-visible:ring-2 ring-accent/40`. Ao lado, rótulo
+`text-sm font-medium` e, se preciso, uma explicação curta em `text-xs text-muted`.
+
 ### Estados de chip
 
 - Turma selecionada: `border-accent bg-accent text-accent-ink`.

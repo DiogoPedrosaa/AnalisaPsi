@@ -1,7 +1,9 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { COOKIE_LEMBRAR } from "@/lib/sessao";
 import { createClient, requireUser } from "@/lib/supabase/server";
 import type { ActionResult, AtividadeInput, Tag, Turma } from "@/lib/types";
 
@@ -136,15 +138,15 @@ export async function excluirTag(id: string): Promise<ActionResult> {
 // Autenticação
 // ---------------------------------------------------------------------------
 
-export async function entrar(
-  _prev: { error?: string; email?: string } | undefined,
-  formData: FormData,
-): Promise<{ error?: string; email?: string }> {
+type EstadoLogin = { error?: string; email?: string; lembrar?: boolean };
+
+export async function entrar(_prev: EstadoLogin | undefined, formData: FormData): Promise<EstadoLogin> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  if (!email || !password) return { error: "Preencha e-mail e senha.", email };
+  const lembrar = formData.get("lembrar") === "on";
+  if (!email || !password) return { error: "Preencha e-mail e senha.", email, lembrar };
 
-  const supabase = await createClient();
+  const supabase = await createClient({ lembrar });
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
     const msg =
@@ -153,13 +155,25 @@ export async function entrar(
         : error.code === "email_not_confirmed"
           ? "Confirme seu e-mail antes de entrar."
           : "Não foi possível entrar agora. Tente de novo.";
-    return { error: msg, email };
+    return { error: msg, email, lembrar };
   }
+
+  // Guarda a escolha para as renovações do token. Sem lembrar, o próprio cookie também é de sessão.
+  const cookieStore = await cookies();
+  if (lembrar) cookieStore.delete(COOKIE_LEMBRAR);
+  else
+    cookieStore.set(COOKIE_LEMBRAR, "0", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+    });
   redirect("/");
 }
 
 export async function sair() {
   const supabase = await createClient();
   await supabase.auth.signOut();
+  (await cookies()).delete(COOKIE_LEMBRAR);
   redirect("/login");
 }

@@ -2,9 +2,12 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { ajustarCookieSessao, COOKIE_LEMBRAR, querLembrar } from "@/lib/sessao";
 
-export async function createClient() {
+/** `lembrar` força o modo de "Lembrar de mim" (usado no login); sem ele, vale o cookie de preferência. */
+export async function createClient(opcoes?: { lembrar?: boolean }) {
   const cookieStore = await cookies();
+  const lembrar = opcoes?.lembrar ?? querLembrar(cookieStore.get(COOKIE_LEMBRAR)?.value);
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,7 +20,7 @@ export async function createClient() {
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
+              cookieStore.set(name, value, ajustarCookieSessao(options, lembrar)),
             );
           } catch {
             // Chamado a partir de um Server Component: o proxy já renova a sessão.
