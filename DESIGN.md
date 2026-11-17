@@ -83,6 +83,7 @@ Definidos com `@utility` em [globals.css](src/app/globals.css). Use-os em vez de
 | `input` | Inputs, selects e textareas. Foco com borda e anel `accent`. |
 | `label` | Rótulo acima de campo ou `legend` de fieldset. |
 | `btn-primary` | Ação principal da tela (uma por contexto). |
+| `btn-danger` | Confirmação de ação destrutiva (só dentro do modal de exclusão). |
 | `btn-ghost` | Ações secundárias: cancelar, sair, limpar filtros. |
 | `chip` | Opções selecionáveis em forma de pílula (turmas, tags, atalhos de data). |
 
@@ -107,8 +108,19 @@ Definidos com `@utility` em [globals.css](src/app/globals.css). Use-os em vez de
 - **Destaque (painel):** `card` com faixa vertical de 4px à esquerda (`bg-boa` para melhor,
   `bg-ruim` para pior), rótulo pequeno e valor grande (`text-xl sm:text-2xl font-bold`).
 - **Caixa de resumo:** `card border-accent/30 bg-accent-soft/60`, texto `leading-relaxed`.
-- **Lista de atividades:** agrupada por dia, cada grupo é um `card divide-y divide-line`;
-  ações "Editar" / "Apagar" pequenas (`text-xs`), apagar com hover `text-danger` e `confirm()`.
+- **Lista de atividades:** agrupada por dia, cada grupo é um `card divide-y divide-line`, com as ações
+  de editar/apagar em ícone abaixo do selo de receptividade.
+- **Ações de editar e apagar** ([src/components/acoes.tsx](src/components/acoes.tsx)): sempre ícones, nunca
+  texto. `<BotaoEditar>` usa a caneta (`Pencil`) do Lucide, com `href` (link) ou `onClick` (ex.: renomear
+  inline); `<BotaoApagar>` usa a lixeira (`Trash2`). Ambos são botões `size-8 rounded-lg` com ícone `size-4`
+  em `text-ink-2`; hover `bg-card-2` na caneta e `bg-ruim/10 text-danger` na lixeira. Como não têm texto,
+  `rotulo` é obrigatório e vira `aria-label` + `title` (ex.: `Apagar “Colagem”`).
+- **Modal de confirmação de exclusão:** toda exclusão passa por ele, e ele já vem dentro do `<BotaoApagar>`;
+  nunca use `confirm()`. É um `<dialog>` nativo (`showModal()`, Esc fecha, clique fora fecha) com
+  `card max-w-sm p-6 shadow-sm`, fundo `backdrop:bg-ink/40`, lixeira num círculo `bg-ruim/10 text-danger`,
+  título "Apagar …?" e uma frase dizendo o que acontece (inclusive com as atividades ligadas).
+  Botões: "Cancelar" (`btn-ghost`, com foco inicial) e "Apagar" (`btn-danger`, vira "Apagando…").
+  Erro aparece dentro do modal. Os textos ficam em [src/lib/exclusao.ts](src/lib/exclusao.ts).
 - **Filtros:** selects com `input py-2 text-sm` que atualizam a URL; filtro ativo ganha
   `border-accent`; botão "Limpar filtros" aparece só quando há filtro.
 
@@ -155,10 +167,11 @@ Definidos com `@utility` em [globals.css](src/app/globals.css). Use-os em vez de
 
 - Raios: `rounded-2xl` para cartões e botões grandes, `rounded-xl` para inputs, botões e avisos,
   `rounded-lg`/`rounded-md` para itens pequenos, `rounded-full` para chips e badges.
-- Sombras quase não são usadas: só `shadow-sm` no cartão de login. A separação vem de bordas `line`.
-- Ícones: SVG inline em traço (`stroke="currentColor"`, `strokeWidth={2}`, pontas arredondadas,
-  `size-5`), sempre com `aria-hidden`. Use `<Icone d="…" />` ([src/components/icone.tsx](src/components/icone.tsx)).
-  Não há biblioteca de ícones.
+- Sombras quase não são usadas: só `shadow-sm` no cartão de login e no modal. A separação vem de bordas `line`.
+- Ícones: em traço (`stroke="currentColor"`, `strokeWidth={2}`, pontas arredondadas, `size-5`, ou
+  `size-4` em botões pequenos), sempre com `aria-hidden`. Para ícones novos, use o **Lucide**
+  (`lucide-react`, ex.: `<Pencil className="size-4" aria-hidden />`). Os ícones antigos do menu e dos
+  módulos ainda usam `<Icone d="…" />` ([src/components/icone.tsx](src/components/icone.tsx)), com o mesmo traço.
 - Logo: quadrado arredondado `accent` com três barras crescentes ([src/components/logo.tsx](src/components/logo.tsx)).
 
 ## Estados

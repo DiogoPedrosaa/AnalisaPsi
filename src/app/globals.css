@@ -111,6 +111,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 @utility btn-primary {
   @apply btn bg-accent text-accent-ink hover:opacity-90;
 }
+@utility btn-danger {
+  @apply btn bg-danger text-accent-ink hover:opacity-90;
+}
 @utility btn-ghost {
   @apply btn text-ink-2 hover:bg-card-2 hover:text-ink;
 }

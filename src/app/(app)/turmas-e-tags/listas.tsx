@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { BotaoApagar, BotaoEditar } from "@/components/acoes";
 import { corDaTag, TagDot } from "@/components/tag-chip";
 import {
   atualizarTag,
@@ -10,6 +11,7 @@ import {
   excluirTurma,
   renomearTurma,
 } from "@/lib/actions";
+import { avisoExcluirTag, avisoExcluirTurma, type AvisoExclusao } from "@/lib/exclusao";
 import type { ActionResult } from "@/lib/types";
 
 type TurmaItem = { id: string; nome: string; total: number };
@@ -33,11 +35,7 @@ export function ListaTurmas({ turmas }: { turmas: TurmaItem[] }) {
             total={t.total}
             renomear={(nome) => renomearTurma(t.id, nome)}
             excluir={() => excluirTurma(t.id)}
-            avisoExcluir={
-              t.total
-                ? `Apagar a turma “${t.nome}”?\n\nAs ${plural(t.total)} dessa turma também serão apagadas. Isso não pode ser desfeito.`
-                : `Apagar a turma “${t.nome}”?`
-            }
+            avisoExcluir={avisoExcluirTurma(t.nome, t.total)}
           />
         ))}
       </ul>
@@ -61,11 +59,7 @@ export function ListaTags({ tags }: { tags: TagItem[] }) {
             trocarCor={(cor) => atualizarTag(t.id, { cor })}
             renomear={(nome) => atualizarTag(t.id, { nome })}
             excluir={() => excluirTag(t.id)}
-            avisoExcluir={
-              t.total
-                ? `Apagar a tag “${t.nome}”?\n\nEla será removida de ${plural(t.total)} (as atividades continuam salvas).`
-                : `Apagar a tag “${t.nome}”?`
-            }
+            avisoExcluir={avisoExcluirTag(t.nome, t.total)}
           />
         ))}
       </ul>
@@ -117,7 +111,7 @@ function Item({
   renomear: (nome: string) => Promise<ActionResult>;
   excluir: () => Promise<ActionResult>;
   trocarCor?: (cor: number) => Promise<ActionResult>;
-  avisoExcluir: string;
+  avisoExcluir: AvisoExclusao;
 }) {
   const [editando, setEditando] = useState(false);
   const [escolhendoCor, setEscolhendoCor] = useState(false);
@@ -184,23 +178,16 @@ function Item({
               <p className="truncate font-medium">{nome}</p>
               <p className="text-xs text-muted">{plural(total)}</p>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                setRascunho(nome);
-                setEditando(true);
-              }}
-              className="rounded-md px-2 py-1 text-xs font-medium text-ink-2 hover:bg-card-2 hover:text-ink"
-            >
-              Renomear
-            </button>
-            <button
-              type="button"
-              onClick={() => confirm(avisoExcluir) && rodar(excluir)}
-              className="rounded-md px-2 py-1 text-xs font-medium text-ink-2 hover:bg-ruim/10 hover:text-danger"
-            >
-              Apagar
-            </button>
+            <div className="flex shrink-0 gap-0.5">
+              <BotaoEditar
+                rotulo={`Renomear “${nome}”`}
+                onClick={() => {
+                  setRascunho(nome);
+                  setEditando(true);
+                }}
+              />
+              <BotaoApagar rotulo={`Apagar “${nome}”`} aviso={avisoExcluir} apagar={excluir} />
+            </div>
           </>
         )}
       </div>
