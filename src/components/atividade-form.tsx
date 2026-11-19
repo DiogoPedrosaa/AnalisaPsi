@@ -162,7 +162,7 @@ export function AtividadeForm({ turmas: turmasIniciais, tags: tagsIniciais, suge
       {/* Tags */}
       <fieldset>
         <legend className="label">
-          Tags <span className="font-normal text-muted">(pode marcar mais de uma)</span>
+          Tags <span className="font-normal tracking-normal text-muted normal-case">(pode marcar mais de uma)</span>
         </legend>
         <div className="flex flex-wrap gap-2">
           {tags.map((t) => {
@@ -213,7 +213,7 @@ export function AtividadeForm({ turmas: turmasIniciais, tags: tagsIniciais, suge
                 <span className="text-3xl leading-none" aria-hidden>
                   {r.emoji}
                 </span>
-                <span className="text-sm font-semibold">{r.label}</span>
+                <span className="font-display text-xl leading-none">{r.label}</span>
                 <span className="hidden text-xs text-ink-2 sm:block">{r.descricao}</span>
               </button>
             );
@@ -270,7 +270,7 @@ export function AtividadeForm({ turmas: turmasIniciais, tags: tagsIniciais, suge
         {mostrarObs ? (
           <>
             <label htmlFor="obs" className="label">
-              Observação <span className="font-normal text-muted">(opcional)</span>
+              Observação <span className="font-normal tracking-normal text-muted normal-case">(opcional)</span>
             </label>
             <textarea
               id="obs"
@@ -301,7 +301,7 @@ export function AtividadeForm({ turmas: turmasIniciais, tags: tagsIniciais, suge
       )}
 
       <div className="flex gap-3">
-        <button type="submit" disabled={salvando} className="btn-primary flex-1 py-3.5 text-base sm:flex-none sm:px-8">
+        <button type="submit" disabled={salvando} className="btn-primary flex-1 py-3.5 text-sm sm:flex-none sm:px-8">
           {salvando ? "Salvando…" : editando ? "Salvar alterações" : "Salvar atividade"}
         </button>
         {editando && (

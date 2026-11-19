@@ -12,8 +12,8 @@ export default function RegistrarPage() {
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
       <section>
-        <h1 className="text-2xl font-bold tracking-tight">Registrar atividade</h1>
-        <p className="mt-1 mb-5 text-sm text-ink-2">Leva menos de um minuto. O dia da semana é preenchido sozinho.</p>
+        <h1 className="titulo-pagina">Registrar atividade</h1>
+        <p className="subtitulo-pagina">Leva menos de um minuto. O dia da semana é preenchido sozinho.</p>
         <div className="card p-5 sm:p-6">
           <Suspense fallback={<SkeletonBloco linhas={6} />}>
             <Formulario />
@@ -23,7 +23,7 @@ export default function RegistrarPage() {
 
       <section>
         <div className="mb-3 flex items-baseline justify-between lg:mt-[4.25rem]">
-          <h2 className="text-lg font-semibold">Últimos registros</h2>
+          <h2 className="titulo-secao">Últimos registros</h2>
           <Link href="/historico" className="text-sm font-medium text-accent hover:underline">
             Ver tudo
           </Link>

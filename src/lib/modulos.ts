@@ -68,6 +68,20 @@ function plural(n: number, singular: string, pluralForma: string) {
   return `${n} ${n === 1 ? singular : pluralForma}`;
 }
 
+export type Selo = { valor: string; rotulo: string };
+
+/**
+ * Os três selos em forma de flor do cartão de boas-vindas: atividades, turmas e aderência geral.
+ * Sem atividades, a aderência vira "—" (não existe aderência de zero registros).
+ */
+export function selosDoInicio(r: ResumoInicio): Selo[] {
+  return [
+    { valor: String(r.atividades), rotulo: r.atividades === 1 ? "atividade" : "atividades" },
+    { valor: String(r.turmas), rotulo: r.turmas === 1 ? "turma" : "turmas" },
+    { valor: r.aderencia === null ? "—" : `${Math.round(r.aderencia)}%`, rotulo: "aderência" },
+  ];
+}
+
 /** Linha de apoio de cada cartão da tela de início, com os números do usuário. */
 export function detalheModulo(href: string, r: ResumoInicio, hoje: string) {
   switch (href) {

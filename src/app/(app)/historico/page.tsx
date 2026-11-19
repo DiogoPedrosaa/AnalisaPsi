@@ -16,8 +16,8 @@ const LIMITE = 300;
 export default function HistoricoPage({ searchParams }: PageProps<"/historico">) {
   return (
     <>
-      <h1 className="text-2xl font-bold tracking-tight">Histórico</h1>
-      <p className="mt-1 mb-5 text-sm text-ink-2">Tudo o que já foi registrado, do mais recente para o mais antigo.</p>
+      <h1 className="titulo-pagina">Histórico</h1>
+      <p className="subtitulo-pagina">Tudo o que já foi registrado, do mais recente para o mais antigo.</p>
       <Suspense fallback={<SkeletonBloco linhas={6} />}>
         <Conteudo searchParams={searchParams} />
       </Suspense>

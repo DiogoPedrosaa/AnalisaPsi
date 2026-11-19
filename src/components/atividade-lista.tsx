@@ -21,7 +21,7 @@ export function AtividadeLista({ atividades }: { atividades: Atividade[] }) {
     <div className="space-y-6">
       {grupos.map((g) => (
         <section key={g.data}>
-          <h3 className="mb-2 text-sm font-semibold text-ink-2 first-letter:uppercase">
+          <h3 className="rotulo mb-2">
             {formatarDataLonga(g.data, true)}
           </h3>
           <ul className="card divide-y divide-line overflow-hidden">

@@ -22,8 +22,8 @@ const PERIODOS = [
 export default function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
   return (
     <>
-      <h1 className="text-2xl font-bold tracking-tight">Painel</h1>
-      <p className="mt-1 mb-5 text-sm text-ink-2">O que está funcionando melhor — por turma, por tipo de atividade e por dia.</p>
+      <h1 className="titulo-pagina">Painel</h1>
+      <p className="subtitulo-pagina">O que está funcionando melhor — por turma, por tipo de atividade e por dia.</p>
       <Suspense fallback={<SkeletonBloco linhas={8} />}>
         <Conteudo searchParams={searchParams} />
       </Suspense>
@@ -85,7 +85,8 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/dashboard"
       ) : (
         <>
           {/* Resumo em texto */}
-          <div className="card border-accent/30 bg-accent-soft/60 p-5">
+          <div className="card furos mt-4 border-cereja/40 bg-accent-soft/60 p-5 pt-7">
+            <p className="mb-2 -rotate-1 font-script text-2xl leading-none text-cereja">em resumo…</p>
             <p className="leading-relaxed">
               {resumo({ total: stats.geral.total, melhorTurma: turmaSelecionada ? undefined : melhorTurma, melhorTag, piorTag, melhorDia, piorDia })}
             </p>
@@ -139,7 +140,7 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/dashboard"
 function Secao({ titulo, subtitulo, children }: { titulo: string; subtitulo: string; children: React.ReactNode }) {
   return (
     <section className="card p-5">
-      <h2 className="text-lg font-semibold">{titulo}</h2>
+      <h2 className="titulo-secao">{titulo}</h2>
       <p className="mb-5 text-sm text-ink-2">{subtitulo}</p>
       {children}
     </section>
@@ -167,10 +168,10 @@ function Destaque({
       {sinal && (
         <span aria-hidden className={`absolute inset-y-0 left-0 w-1 ${sinal === "melhor" ? "bg-boa" : "bg-ruim"}`} />
       )}
-      <p className="text-xs font-medium text-ink-2">{titulo}</p>
+      <p className="rotulo">{titulo}</p>
       {principal ? (
         <>
-          <p className="mt-1.5 flex items-center gap-2 text-xl leading-tight font-bold sm:text-2xl">
+          <p className="mt-2 flex items-center gap-2 font-display text-2xl leading-tight sm:text-3xl">
             {mostrarCor && grupo && <TagDot cor={grupo.cor} className="size-3" />}
             <span className="truncate">{principal}</span>
           </p>

@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Editar atividade" };
 export default function EditarAtividadePage({ params }: PageProps<"/atividades/[id]">) {
   return (
     <div className="max-w-2xl">
-      <h1 className="mb-5 text-2xl font-bold tracking-tight">Editar atividade</h1>
+      <h1 className="titulo-pagina mb-6">Editar atividade</h1>
       <div className="card p-5 sm:p-6">
         <Suspense fallback={<SkeletonBloco linhas={6} />}>
           <Formulario params={params} />

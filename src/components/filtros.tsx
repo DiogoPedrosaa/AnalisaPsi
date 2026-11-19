@@ -34,7 +34,7 @@ export function Filtros({ campos }: { campos: CampoFiltro[] }) {
     <div className={`flex flex-wrap items-end gap-3 transition ${pendente ? "opacity-60" : ""}`}>
       {campos.map((c) => (
         <label key={c.nome} className="min-w-36 flex-1 sm:flex-none">
-          <span className="mb-1 block text-xs font-medium text-ink-2">{c.rotulo}</span>
+          <span className="rotulo mb-1 block">{c.rotulo}</span>
           <select
             value={c.valor}
             onChange={(e) => aplicar(c.nome, e.target.value)}

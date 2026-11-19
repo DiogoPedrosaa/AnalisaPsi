@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { detalheModulo, itemAtivo, MODULOS, nomeDeExibicao, type ResumoInicio } from "@/lib/modulos";
+import { detalheModulo, itemAtivo, MODULOS, nomeDeExibicao, type ResumoInicio, selosDoInicio } from "@/lib/modulos";
 
 describe("itemAtivo", () => {
   it("Início só fica ativo na raiz", () => {
@@ -82,5 +82,33 @@ describe("detalheModulo", () => {
 
   it("todo módulo tem uma linha de detalhe", () => {
     for (const m of MODULOS) expect(detalheModulo(m.href, cheio, hoje)).not.toBe("");
+  });
+});
+
+describe("selosDoInicio", () => {
+  const base: ResumoInicio = { atividades: 12, turmas: 3, tags: 5, aderencia: 78.4, ultimaData: "2026-11-18" };
+
+  it("mostra atividades, turmas e aderência arredondada, nessa ordem", () => {
+    expect(selosDoInicio(base)).toEqual([
+      { valor: "12", rotulo: "atividades" },
+      { valor: "3", rotulo: "turmas" },
+      { valor: "78%", rotulo: "aderência" },
+    ]);
+  });
+
+  it("usa o singular quando há só uma", () => {
+    const [atividades, turmas] = selosDoInicio({ ...base, atividades: 1, turmas: 1 });
+    expect(atividades.rotulo).toBe("atividade");
+    expect(turmas.rotulo).toBe("turma");
+  });
+
+  it("sem atividades, a aderência vira travessão em vez de 0%", () => {
+    const selos = selosDoInicio({ atividades: 0, turmas: 0, tags: 0, aderencia: null, ultimaData: null });
+    expect(selos.map((s) => s.valor)).toEqual(["0", "0", "—"]);
+    expect(selos[0].rotulo).toBe("atividades");
+  });
+
+  it("arredonda 99,5% para 100%", () => {
+    expect(selosDoInicio({ ...base, aderencia: 99.5 })[2].valor).toBe("100%");
   });
 });

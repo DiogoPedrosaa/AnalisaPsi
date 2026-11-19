@@ -9,8 +9,8 @@ export const metadata: Metadata = { title: "Turmas e tags" };
 export default function TurmasETagsPage() {
   return (
     <>
-      <h1 className="text-2xl font-bold tracking-tight">Turmas e tags</h1>
-      <p className="mt-1 mb-5 text-sm text-ink-2">
+      <h1 className="titulo-pagina">Turmas e tags</h1>
+      <p className="subtitulo-pagina">
         Cadastre, renomeie ou apague. Renomear não afeta as atividades já registradas.
       </p>
       <Suspense

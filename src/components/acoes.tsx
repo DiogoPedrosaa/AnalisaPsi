@@ -70,14 +70,14 @@ export function BotaoApagar({
         aria-describedby={`${id}-descricao`}
         onCancel={(e) => pendente && e.preventDefault()}
         onClick={(e) => e.target === e.currentTarget && !pendente && dialogo.current?.close()}
-        className="card m-auto w-[calc(100%-2rem)] max-w-sm p-6 text-ink shadow-sm backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
+        className="card m-auto w-[calc(100%-2rem)] max-w-sm p-6 text-ink shadow-[4px_4px_0_0_var(--sombra)] backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
       >
         <div className="flex gap-4">
           <span className="grid size-10 shrink-0 place-items-center rounded-full bg-ruim/10 text-danger">
             <Trash2 className="size-5" strokeWidth={2} aria-hidden />
           </span>
           <div className="min-w-0">
-            <h2 id={`${id}-titulo`} className="text-lg font-semibold">
+            <h2 id={`${id}-titulo`} className="titulo-secao">
               {aviso.titulo}
             </h2>
             <p id={`${id}-descricao`} className="mt-1 text-sm leading-relaxed text-ink-2">
