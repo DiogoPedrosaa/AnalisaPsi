@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { requireUser } from "@/lib/supabase/server";
 import type { ResumoInicio } from "@/lib/modulos";
+import { resumirPasta } from "@/lib/pastas";
 import type { Atividade, Receptividade, Tag, Turma } from "@/lib/types";
 
 const ATIVIDADE_SELECT =
@@ -73,6 +74,28 @@ export async function getTurmasETagsComContagem() {
       })),
     ),
   };
+}
+
+/** Uma turma pelo id (null se não existir ou não for da usuária). */
+export const getTurma = cache(async (id: string): Promise<Turma | null> => {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.from("turmas").select("id, nome").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data;
+});
+
+/** Turmas com o resumo das atividades de cada uma (tela de pastas). */
+export async function getPastasDeTurmas() {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.from("turmas").select("id, nome, atividades(data, receptividade)");
+  if (error) throw error;
+  return sortByNome(
+    data.map((t) => ({
+      id: t.id as string,
+      nome: t.nome as string,
+      resumo: resumirPasta(t.atividades as { data: string; receptividade: Receptividade }[]),
+    })),
+  );
 }
 
 export type FiltrosAtividades = {

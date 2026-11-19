@@ -103,7 +103,7 @@ export function SecaoModulos({ children }: { children: React.ReactNode }) {
 /** Cartões dos módulos (borda cereja, ícone dentro de uma flor). Sem `resumo`, a linha de números fica carregando. */
 export function Modulos({ resumo, hoje }: { resumo?: ResumoInicio; hoje?: string }) {
   return (
-    <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {MODULOS.map((m) => (
         <Link
           key={m.href}

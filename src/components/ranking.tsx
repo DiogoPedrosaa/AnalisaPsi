@@ -14,6 +14,31 @@ function detalhe(g: Grupo) {
     .join(" · ");
 }
 
+/** Barra empilhada boa / neutra / ruim (trilho `card-2`), proporcional às contagens. */
+export function BarraReceptividade({
+  contagem: c,
+  className = "h-2.5",
+}: {
+  contagem: { total: number; boa: number; neutra: number; ruim: number };
+  className?: string;
+}) {
+  return (
+    <div className={`flex gap-[2px] overflow-hidden rounded-full bg-card-2 ${className}`}>
+      {c.total > 0 &&
+        ORDEM_RECEPTIVIDADE.map((k) =>
+          c[k] > 0 ? (
+            <div
+              key={k}
+              className={RECEPTIVIDADE[k].bg}
+              style={{ width: `${(c[k] / c.total) * 100}%` }}
+              title={`${RECEPTIVIDADE[k].label}: ${c[k]} (${pct((c[k] / c.total) * 100)})`}
+            />
+          ) : null,
+        )}
+    </div>
+  );
+}
+
 /**
  * Lista de grupos com barra empilhada (boa / neutra / ruim) e a aderência à direita.
  * `destaque` marca o melhor e o pior da lista.
@@ -61,18 +86,7 @@ export function Ranking({
               </span>
             </div>
 
-            <div className="flex h-2.5 gap-[2px] overflow-hidden rounded-full bg-card-2">
-              {ORDEM_RECEPTIVIDADE.map((k) =>
-                g[k] > 0 ? (
-                  <div
-                    key={k}
-                    className={RECEPTIVIDADE[k].bg}
-                    style={{ width: `${(g[k] / g.total) * 100}%` }}
-                    title={`${RECEPTIVIDADE[k].label}: ${g[k]} (${pct((g[k] / g.total) * 100)})`}
-                  />
-                ) : null,
-              )}
-            </div>
+            <BarraReceptividade contagem={g} />
 
             <p className="mt-1 text-xs text-muted">
               {g.total === 0 ? (

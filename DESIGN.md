@@ -188,6 +188,9 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
 - **ReceptividadeBadge:** pílula com emoji + rótulo, borda e fundo suave na cor da receptividade.
 - **Seletor de receptividade:** grade de 3 botões grandes (`rounded-2xl border-2`) com emoji
   `text-3xl`, rótulo e descrição (descrição só a partir de `sm`).
+- **BarraReceptividade** ([src/components/ranking.tsx](src/components/ranking.tsx)): barra empilhada
+  boa/neutra/ruim usada no Ranking, nas pastas e no topo da página da pasta. Altura por `className`
+  (padrão `h-2.5`).
 - **Ranking:** nome à esquerda, aderência em negrito à direita, barra empilhada
   boa/neutra/ruim (`h-2.5 rounded-full`, `gap-[2px]`, trilho `bg-card-2`) e linha de detalhe em
   `text-xs text-muted`. Melhor/pior ganham selo `▲ melhor` / `▼ pior`. Grupos sem dados ficam com
@@ -197,7 +200,26 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
 - **Caixa de resumo:** `card furos border-cereja/40 bg-accent-soft/60`, com o recadinho "em resumo…"
   (`font-script text-cereja`) e o texto `leading-relaxed`.
 - **Lista de atividades:** agrupada por dia, cada grupo é um `card divide-y divide-line`, com as ações
-  de editar/apagar em ícone abaixo do selo de receptividade.
+  de editar/apagar em ícone abaixo do selo de receptividade. Dentro da pasta de uma turma, o nome da
+  turma some de cada item (`mostrarTurma={false}`) e a edição volta para a pasta (`voltarPara`).
+- **Descrição recolhida:** descrições longas (`observacaoLonga()` em [src/lib/observacao.ts](src/lib/observacao.ts):
+  mais de 280 caracteres ou 4 linhas) aparecem com `line-clamp-4` e um botão de texto "Ler tudo" /
+  "Mostrar menos" (`text-xs font-semibold text-accent`, com `aria-expanded`).
+- **Campo de descrição (formulário):** sempre aberto, porque os relatos costumam ser longos (planejamento
+  + como foi). `textarea` com `field-sizing-content min-h-48 max-h-[70vh] resize-y leading-relaxed`;
+  limite em `MAX_OBSERVACAO` (20.000, igual ao banco). O contador "18.000 de 20.000 caracteres"
+  (`text-xs text-muted`, à direita) só aparece a partir de 90% do limite (`avisoTamanho()`).
+- **Pasta** ([src/components/pasta.tsx](src/components/pasta.tsx)): cartão de turma em forma de pasta de
+  arquivo. Uma aba (`rounded-t-xl border-2 border-b-0 border-line`, `h-8`, `-mb-0.5` para cobrir a borda
+  do corpo) com ícone de pasta e o número de atividades em `rotulo`, colorida em rodízio
+  `rosa-claro` → `lavanda` → `pessego` → `ceu` (enfeite, sem significado); o corpo é um `card rounded-tl-none`
+  com o nome em `font-display text-3xl`, `detalhePasta()` em `text-sm text-ink-2`, a `BarraReceptividade`
+  (`h-2`), a aderência (ou "poucos dados" em itálico) e "abrir →" em `font-script`. Hover: sobe 4px com
+  sombra de recorte `vinho` feita com `drop-shadow` sem desfoque (segue o contorno da aba). Grade
+  1 → 2 → 3 colunas (`gap-x-3 gap-y-5`).
+- **Página da pasta (`/turmas/[id]`):** link "← Todas as pastas" (`btn-ghost`), `rotulo` "Pasta da turma",
+  o nome da turma como `titulo-pagina`, o resumo com `BarraReceptividade` (`max-w-sm`) e os filtros de tag
+  e receptividade mostrando só as opções que existem na turma, com a contagem entre parênteses.
 - **Ações de editar e apagar** ([src/components/acoes.tsx](src/components/acoes.tsx)): sempre ícones, nunca
   texto. `<BotaoEditar>` usa a caneta (`Pencil`) do Lucide, com `href` (link) ou `onClick` (ex.: renomear
   inline); `<BotaoApagar>` usa a lixeira (`Trash2`). Ambos são botões `size-8 rounded-lg` com ícone `size-4`
@@ -253,7 +275,7 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
   `<Brilho>` enfeitam; uma `faixa-xadrez` fecha o cartão embaixo.
 - **Seção de módulos** (`<SecaoModulos>`): `grade-rosa` com `<BordaRasgada>` em cima e embaixo, título à mão
   "Por onde começamos hoje…" (`font-script text-creme` com sombra `vinho`) e a grade de cartões
-  (1 → 2 → 4 colunas). Vai até a borda da tela no celular (`-mx-4 sm:mx-0`).
+  (1 → 2 → 3 colunas). Vai até a borda da tela no celular (`-mx-4 sm:mx-0`).
 - **Cartão de módulo:** clicável inteiro, `rounded-2xl border-[3px] border-cereja bg-card`, centralizado:
   ícone dentro de `<Flor>` (gira no hover), `etiqueta` com o nome, descrição `text-sm text-ink-2`, linha de
   números `text-xs text-muted tabular-nums` (`detalheModulo()`, com skeleton enquanto carrega) e "abrir →"

@@ -15,3 +15,13 @@ export function uuidParam(valor: string | string[] | undefined) {
   const v = param(valor);
   return v && isUuid(v) ? v : undefined;
 }
+
+/**
+ * Caminho para onde voltar depois de editar uma atividade (`?voltar=/turmas/…`).
+ * Só aceita caminhos internos do app; qualquer outra coisa cai no Histórico.
+ */
+export function caminhoDeVolta(valor: string | string[] | undefined, padrao = "/historico") {
+  const v = param(valor);
+  if (!v || !v.startsWith("/") || v.startsWith("//") || v.includes("\\")) return padrao;
+  return v;
+}

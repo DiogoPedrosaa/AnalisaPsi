@@ -52,8 +52,9 @@ distorça o resultado (`src/lib/stats.ts`).
 
 1. **Crie um projeto no [Supabase](https://supabase.com/dashboard).**
 
-2. **Crie o banco:** no Supabase, abra **SQL Editor**, cole todo o conteúdo de
-   [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) e clique em **Run**.
+2. **Crie o banco:** no Supabase, abra **SQL Editor** e rode, em ordem, cada arquivo de
+   [`supabase/migrations/`](supabase/migrations/) (`0001_init.sql`, `0002_observacao_longa.sql`…):
+   cole o conteúdo e clique em **Run**.
 
 3. **Crie a usuária:** **Authentication → Users → Add user → Create new user**
    (marque *Auto Confirm User*). Ela já começa com as tags padrão

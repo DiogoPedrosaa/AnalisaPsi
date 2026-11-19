@@ -6,6 +6,7 @@ import { ORDEM_RECEPTIVIDADE, RECEPTIVIDADE } from "@/components/receptividade";
 import { TagDot } from "@/components/tag-chip";
 import { criarTag, criarTurma, salvarAtividade } from "@/lib/actions";
 import { adicionarDias, hojeLocal, nomeDiaSemana } from "@/lib/dates";
+import { avisoTamanho, MAX_OBSERVACAO } from "@/lib/observacao";
 import type { Atividade, Receptividade, Tag, Turma } from "@/lib/types";
 
 export type Sugestao = { titulo: string; tagIds: string[] };
@@ -16,6 +17,8 @@ type Props = {
   sugestoes?: Sugestao[];
   /** Quando presente, o formulário edita essa atividade. */
   atividade?: Atividade;
+  /** Para onde ir depois de salvar a edição (padrão: Histórico). */
+  voltarPara?: string;
 };
 
 const semInscricao = () => () => {};
@@ -25,7 +28,13 @@ function useHoje() {
   return useSyncExternalStore(semInscricao, () => hojeLocal(), () => "");
 }
 
-export function AtividadeForm({ turmas: turmasIniciais, tags: tagsIniciais, sugestoes = [], atividade }: Props) {
+export function AtividadeForm({
+  turmas: turmasIniciais,
+  tags: tagsIniciais,
+  sugestoes = [],
+  atividade,
+  voltarPara = "/historico",
+}: Props) {
   const router = useRouter();
   const editando = Boolean(atividade);
   const tituloRef = useRef<HTMLInputElement>(null);
@@ -42,7 +51,6 @@ export function AtividadeForm({ turmas: turmasIniciais, tags: tagsIniciais, suge
   const [receptividade, setReceptividade] = useState<Receptividade | null>(atividade?.receptividade ?? null);
   const [dataEscolhida, setDataEscolhida] = useState<string | null>(atividade?.data ?? null);
   const [observacao, setObservacao] = useState(atividade?.observacao ?? "");
-  const [mostrarObs, setMostrarObs] = useState(Boolean(atividade?.observacao));
 
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<string | null>(null);
@@ -87,7 +95,7 @@ export function AtividadeForm({ turmas: turmasIniciais, tags: tagsIniciais, suge
       if (!res.ok) return setErro(res.error);
 
       if (editando) {
-        router.push("/historico");
+        router.push(voltarPara);
         return;
       }
 
@@ -98,7 +106,6 @@ export function AtividadeForm({ turmas: turmasIniciais, tags: tagsIniciais, suge
       setTagIds([]);
       setReceptividade(null);
       setObservacao("");
-      setMostrarObs(false);
       tituloRef.current?.focus();
     });
   }
@@ -265,27 +272,24 @@ export function AtividadeForm({ turmas: turmasIniciais, tags: tagsIniciais, suge
         </p>
       </div>
 
-      {/* Observação */}
+      {/* Descrição: sempre aberta, porque os relatos costumam ser longos. */}
       <div>
-        {mostrarObs ? (
-          <>
-            <label htmlFor="obs" className="label">
-              Observação <span className="font-normal tracking-normal text-muted normal-case">(opcional)</span>
-            </label>
-            <textarea
-              id="obs"
-              value={observacao}
-              onChange={(e) => setObservacao(e.target.value)}
-              className="input min-h-24 resize-y"
-              placeholder="O que funcionou, o que mudaria da próxima vez…"
-              maxLength={1000}
-              autoFocus={!editando}
-            />
-          </>
-        ) : (
-          <button type="button" onClick={() => setMostrarObs(true)} className="text-sm font-medium text-accent hover:underline">
-            + Adicionar observação
-          </button>
+        <label htmlFor="obs" className="label">
+          Descrição <span className="font-normal tracking-normal text-muted normal-case">(opcional)</span>
+        </label>
+        <textarea
+          id="obs"
+          value={observacao}
+          onChange={(e) => setObservacao(e.target.value)}
+          className="input field-sizing-content max-h-[70vh] min-h-48 resize-y leading-relaxed"
+          placeholder="Planejamento, como foi a aplicação, o que funcionou, o que mudaria da próxima vez…"
+          maxLength={MAX_OBSERVACAO}
+          aria-describedby={avisoTamanho(observacao.length) ? "obs-tamanho" : undefined}
+        />
+        {avisoTamanho(observacao.length) && (
+          <p id="obs-tamanho" className="mt-1 text-right text-xs text-muted tabular-nums">
+            {avisoTamanho(observacao.length)}
+          </p>
         )}
       </div>
 

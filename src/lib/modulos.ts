@@ -15,6 +15,12 @@ export const MODULOS = [
     icon: "M4 6h16M4 12h16M4 18h10",
   },
   {
+    href: "/turmas",
+    label: "Pastas",
+    descricao: "Uma pasta para cada turma, com tudo o que já foi feito nela.",
+    icon: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z",
+  },
+  {
     href: "/dashboard",
     label: "Painel",
     descricao: "Descubra o que funciona melhor por turma, por tipo de atividade e por dia.",
@@ -89,6 +95,8 @@ export function detalheModulo(href: string, r: ResumoInicio, hoje: string) {
       return r.ultimaData ? `Último registro ${quandoFoi(r.ultimaData, hoje)}` : "Nenhum registro ainda";
     case "/historico":
       return plural(r.atividades, "atividade registrada", "atividades registradas");
+    case "/turmas":
+      return plural(r.turmas, "pasta de turma", "pastas de turma");
     case "/dashboard":
       return r.aderencia === null ? "Aparece após os primeiros registros" : `Aderência geral de ${Math.round(r.aderencia)}%`;
     case "/turmas-e-tags":

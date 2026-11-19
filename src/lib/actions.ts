@@ -3,6 +3,7 @@
 import { refresh } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { MAX_OBSERVACAO } from "@/lib/observacao";
 import { COOKIE_LEMBRAR } from "@/lib/sessao";
 import { createClient, requireUser } from "@/lib/supabase/server";
 import type { ActionResult, AtividadeInput, Tag, Turma } from "@/lib/types";
@@ -27,6 +28,8 @@ export async function salvarAtividade(input: AtividadeInput): Promise<ActionResu
   if (!RECEPTIVIDADES.includes(input.receptividade))
     return { ok: false, error: "Marque como a turma recebeu a atividade." };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.data)) return { ok: false, error: "Data inválida." };
+  if (input.observacao.trim().length > MAX_OBSERVACAO)
+    return { ok: false, error: `A descrição passou de ${MAX_OBSERVACAO.toLocaleString("pt-BR")} caracteres.` };
 
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("salvar_atividade", {

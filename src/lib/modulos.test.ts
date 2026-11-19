@@ -14,6 +14,8 @@ describe("itemAtivo", () => {
 
   it("não confunde rotas com o mesmo prefixo", () => {
     expect(itemAtivo("/historico-antigo", "/historico")).toBe(false);
+    expect(itemAtivo("/turmas-e-tags", "/turmas")).toBe(false);
+    expect(itemAtivo("/turmas/abc", "/turmas-e-tags")).toBe(false);
   });
 
   it("a edição de atividade conta como Registrar", () => {
@@ -22,7 +24,7 @@ describe("itemAtivo", () => {
   });
 
   it("cada rota ativa exatamente um módulo", () => {
-    for (const rota of ["/registrar", "/historico", "/dashboard", "/turmas-e-tags", "/atividades/abc"]) {
+    for (const rota of ["/registrar", "/historico", "/turmas", "/turmas/abc", "/dashboard", "/turmas-e-tags", "/atividades/abc"]) {
       expect(MODULOS.filter((m) => itemAtivo(rota, m.href))).toHaveLength(1);
     }
   });
@@ -59,6 +61,7 @@ describe("detalheModulo", () => {
   it("sem dados, convida a começar", () => {
     expect(detalheModulo("/registrar", vazio, hoje)).toBe("Nenhum registro ainda");
     expect(detalheModulo("/historico", vazio, hoje)).toBe("0 atividades registradas");
+    expect(detalheModulo("/turmas", vazio, hoje)).toBe("0 pastas de turma");
     expect(detalheModulo("/dashboard", vazio, hoje)).toBe("Aparece após os primeiros registros");
     expect(detalheModulo("/turmas-e-tags", vazio, hoje)).toBe("0 turmas · 0 tags");
   });
@@ -66,6 +69,7 @@ describe("detalheModulo", () => {
   it("com dados, mostra os números", () => {
     expect(detalheModulo("/registrar", cheio, hoje)).toBe("Último registro ontem");
     expect(detalheModulo("/historico", cheio, hoje)).toBe("12 atividades registradas");
+    expect(detalheModulo("/turmas", cheio, hoje)).toBe("3 pastas de turma");
     expect(detalheModulo("/dashboard", cheio, hoje)).toBe("Aderência geral de 63%");
     expect(detalheModulo("/turmas-e-tags", cheio, hoje)).toBe("3 turmas · 7 tags");
   });
@@ -73,6 +77,7 @@ describe("detalheModulo", () => {
   it("usa o singular quando é um só", () => {
     const um = { ...cheio, atividades: 1, turmas: 1, tags: 1 };
     expect(detalheModulo("/historico", um, hoje)).toBe("1 atividade registrada");
+    expect(detalheModulo("/turmas", um, hoje)).toBe("1 pasta de turma");
     expect(detalheModulo("/turmas-e-tags", um, hoje)).toBe("1 turma · 1 tag");
   });
 
