@@ -2,11 +2,15 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { ajustarCookieSessao, COOKIE_LEMBRAR, querLembrar } from "@/lib/sessao";
 
 /** `lembrar` força o modo de "Lembrar de mim" (usado no login); sem ele, vale o cookie de preferência. */
 export async function createClient(opcoes?: { lembrar?: boolean }) {
   const cookieStore = await cookies();
+  // O auth do Supabase compara a expiração do token com Date.now(); com partialPrefetching,
+  // cookies() resolve durante o prefetch e esse relógio cairia dentro do prerender.
+  await connection();
   const lembrar = opcoes?.lembrar ?? querLembrar(cookieStore.get(COOKIE_LEMBRAR)?.value);
 
   return createServerClient(
