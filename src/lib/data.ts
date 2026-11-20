@@ -1,8 +1,8 @@
 import "server-only";
 import { cache } from "react";
 import { requireUser } from "@/lib/supabase/server";
-import type { ResumoInicio } from "@/lib/modulos";
 import { resumirPasta } from "@/lib/pastas";
+import { ordenarTurmas } from "@/lib/turmas";
 import type { Atividade, Receptividade, Tag, Turma } from "@/lib/types";
 
 const ATIVIDADE_SELECT =
@@ -35,9 +35,9 @@ function toAtividade(row: AtividadeRow): Atividade {
 
 export async function getTurmas(): Promise<Turma[]> {
   const { supabase } = await requireUser();
-  const { data, error } = await supabase.from("turmas").select("id, nome").order("nome");
+  const { data, error } = await supabase.from("turmas").select("id, nome");
   if (error) throw error;
-  return sortByNome(data);
+  return ordenarTurmas(data);
 }
 
 export async function getTags(): Promise<Tag[]> {
@@ -58,7 +58,7 @@ export async function getTurmasETagsComContagem() {
   if (tags.error) throw tags.error;
 
   return {
-    turmas: sortByNome(
+    turmas: ordenarTurmas(
       turmas.data.map((t) => ({
         id: t.id as string,
         nome: t.nome as string,
@@ -84,19 +84,19 @@ export const getTurma = cache(async (id: string): Promise<Turma | null> => {
   return data;
 });
 
-/** Turmas com o resumo das atividades de cada uma (tela de pastas). */
-export async function getPastasDeTurmas() {
+/** Turmas na ordem da escola, com o resumo das atividades de cada uma (pastas da tela de início). */
+export const getPastasDeTurmas = cache(async () => {
   const { supabase } = await requireUser();
   const { data, error } = await supabase.from("turmas").select("id, nome, atividades(data, receptividade)");
   if (error) throw error;
-  return sortByNome(
+  return ordenarTurmas(
     data.map((t) => ({
       id: t.id as string,
       nome: t.nome as string,
       resumo: resumirPasta(t.atividades as { data: string; receptividade: Receptividade }[]),
     })),
   );
-}
+});
 
 export type FiltrosAtividades = {
   turmaId?: string;
@@ -163,33 +163,3 @@ function sortByNome<T extends { nome: string }>(items: T[]) {
     a.nome.localeCompare(b.nome, "pt-BR", { numeric: true, sensitivity: "base" }),
   );
 }
-
-/** Números rápidos para a tela de início (só contagens, sem carregar atividades). */
-export const getResumoInicio = cache(async (): Promise<ResumoInicio> => {
-  const { supabase } = await requireUser();
-  const contar = (tabela: string, receptividade?: Receptividade) => {
-    let query = supabase.from(tabela).select("id", { count: "exact", head: true });
-    if (receptividade) query = query.eq("receptividade", receptividade);
-    return query;
-  };
-
-  const [atividades, boas, neutras, turmas, tags, ultima] = await Promise.all([
-    contar("atividades"),
-    contar("atividades", "boa"),
-    contar("atividades", "neutra"),
-    contar("turmas"),
-    contar("tags"),
-    supabase.from("atividades").select("data").order("data", { ascending: false }).limit(1),
-  ]);
-  for (const r of [atividades, boas, neutras, turmas, tags, ultima]) if (r.error) throw r.error;
-
-  const total = atividades.count ?? 0;
-  return {
-    atividades: total,
-    turmas: turmas.count ?? 0,
-    tags: tags.count ?? 0,
-    /** Mesma fórmula de `stats.ts`: boa = 1, neutra = ½, ruim = 0. */
-    aderencia: total ? (((boas.count ?? 0) + (neutras.count ?? 0) * 0.5) / total) * 100 : null,
-    ultimaData: (ultima.data?.[0]?.data as string | undefined) ?? null,
-  };
-});

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { aderenciaPasta, detalhePasta, filtrarAtividades, resumirPasta, tagsDasAtividades } from "@/lib/pastas";
+import {
+  aderenciaPasta,
+  detalhePasta,
+  filtrarAtividades,
+  hrefDaPasta,
+  pastaMaisRecente,
+  resumirPasta,
+  tagsDasAtividades,
+} from "@/lib/pastas";
 import type { Atividade, Receptividade, Tag } from "@/lib/types";
 
 const turma = { id: "t1", nome: "6º ano" };
@@ -113,5 +121,40 @@ describe("filtrarAtividades", () => {
   it("combina tag e receptividade", () => {
     expect(ids(filtrarAtividades(lista, { tagId: "roda", receptividade: "ruim" }))).toEqual(["b"]);
     expect(ids(filtrarAtividades(lista, { tagId: "jogos", receptividade: "ruim" }))).toEqual([]);
+  });
+});
+
+describe("pastaMaisRecente", () => {
+  const pasta = (id: string, ultimaData: string | null) => ({ id, resumo: { ultimaData } });
+
+  it("abre a pasta com a atividade mais recente", () => {
+    const p = pastaMaisRecente([pasta("6", "2026-11-10"), pasta("7", null), pasta("8", "2026-11-18"), pasta("9", "2026-11-01")]);
+    expect(p?.id).toBe("8");
+  });
+
+  it("sem nenhuma atividade, abre a primeira", () => {
+    expect(pastaMaisRecente([pasta("6", null), pasta("7", null)])?.id).toBe("6");
+  });
+
+  it("em empate de data, fica com a que vem antes na ordem", () => {
+    expect(pastaMaisRecente([pasta("6", "2026-11-18"), pasta("7", "2026-11-18")])?.id).toBe("6");
+  });
+
+  it("lista vazia devolve null", () => {
+    expect(pastaMaisRecente([])).toBeNull();
+  });
+});
+
+describe("hrefDaPasta", () => {
+  it("só a turma", () => {
+    expect(hrefDaPasta("t1")).toBe("/?turma=t1");
+  });
+
+  it("com tag e receptividade", () => {
+    expect(hrefDaPasta("t1", { tagId: "arte", receptividade: "boa" })).toBe("/?turma=t1&tag=arte&receptividade=boa");
+  });
+
+  it("ignora filtros vazios", () => {
+    expect(hrefDaPasta("t1", { tagId: undefined, receptividade: "ruim" })).toBe("/?turma=t1&receptividade=ruim");
   });
 });

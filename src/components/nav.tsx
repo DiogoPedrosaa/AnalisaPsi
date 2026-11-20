@@ -7,9 +7,10 @@ import { Icone } from "@/components/icone";
 import { Brilho } from "@/components/enfeites";
 import { Marca } from "@/components/logo";
 import { sair } from "@/lib/actions";
-import { CHAVE_MENU, ICONE_INICIO, itemAtivo, MODULOS } from "@/lib/modulos";
+import { CHAVE_MENU, itemAtivo, MODULOS } from "@/lib/modulos";
 
-const ITENS = [{ href: "/", label: "Início", icon: ICONE_INICIO }, ...MODULOS];
+const PRINCIPAIS = MODULOS.filter((m) => m.grupo === "principal");
+const MAIS = MODULOS.filter((m) => m.grupo === "mais");
 
 const DESKTOP = "(min-width: 48rem)";
 
@@ -125,25 +126,18 @@ export function MenuLateral() {
           </button>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto px-3 pt-6 pb-3" aria-label="Principal">
-          {ITENS.map((item) => {
-            const ativo = itemAtivo(pathname, item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={fechar}
-                aria-current={ativo ? "page" : undefined}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-bold tracking-[0.14em] uppercase transition ${
-                  ativo ? "bg-accent-soft text-accent" : "text-ink-2 hover:bg-card-2 hover:text-ink"
-                }`}
-              >
-                <Icone d={item.icon} />
-                {item.label}
-                {ativo && <Brilho className="ml-auto size-3.5 text-cereja" />}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto px-3 pt-6 pb-3" aria-label="Principal">
+          <div className="space-y-1">
+            {PRINCIPAIS.map((item) => (
+              <ItemMenu key={item.href} item={item} ativo={itemAtivo(pathname, item.href)} onClick={fechar} />
+            ))}
+          </div>
+          <p className="rotulo mt-6 mb-1 px-3 text-muted">Mais</p>
+          <div className="space-y-0.5">
+            {MAIS.map((item) => (
+              <ItemMenu key={item.href} item={item} ativo={itemAtivo(pathname, item.href)} onClick={fechar} pequeno />
+            ))}
+          </div>
         </nav>
 
         {/* Recorte da estampa com recadinho, só de enfeite */}
@@ -163,5 +157,33 @@ export function MenuLateral() {
         </form>
       </aside>
     </>
+  );
+}
+
+/** Item do menu; os do grupo "Mais" são menores e mais discretos. */
+function ItemMenu({
+  item,
+  ativo,
+  onClick,
+  pequeno = false,
+}: {
+  item: (typeof MODULOS)[number];
+  ativo: boolean;
+  onClick: () => void;
+  pequeno?: boolean;
+}) {
+  return (
+    <Link
+      href={item.href}
+      onClick={onClick}
+      aria-current={ativo ? "page" : undefined}
+      className={`flex items-center gap-3 rounded-lg px-3 font-bold tracking-[0.14em] uppercase transition ${
+        pequeno ? "py-2 text-[11px]" : "py-2.5 text-xs"
+      } ${ativo ? "bg-accent-soft text-accent" : "text-ink-2 hover:bg-card-2 hover:text-ink"}`}
+    >
+      <Icone d={item.icon} className={pequeno ? "size-4" : "size-5"} />
+      {item.label}
+      {ativo && <Brilho className="ml-auto size-3.5 text-cereja" />}
+    </Link>
   );
 }

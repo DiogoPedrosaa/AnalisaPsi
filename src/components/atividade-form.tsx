@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { ORDEM_RECEPTIVIDADE, RECEPTIVIDADE } from "@/components/receptividade";
@@ -7,6 +8,8 @@ import { TagDot } from "@/components/tag-chip";
 import { criarTag, criarTurma, salvarAtividade } from "@/lib/actions";
 import { adicionarDias, hojeLocal, nomeDiaSemana } from "@/lib/dates";
 import { avisoTamanho, MAX_OBSERVACAO } from "@/lib/observacao";
+import { hrefDaPasta } from "@/lib/pastas";
+import { ordenarTurmas, turmaPreSelecionada } from "@/lib/turmas";
 import type { Atividade, Receptividade, Tag, Turma } from "@/lib/types";
 
 export type Sugestao = { titulo: string; tagIds: string[] };
@@ -19,6 +22,8 @@ type Props = {
   atividade?: Atividade;
   /** Para onde ir depois de salvar a edição (padrão: Histórico). */
   voltarPara?: string;
+  /** Turma já marcada ao abrir (vem de "Registrar nesta turma", `?turma=`). */
+  turmaInicial?: string;
 };
 
 const semInscricao = () => () => {};
@@ -34,6 +39,7 @@ export function AtividadeForm({
   sugestoes = [],
   atividade,
   voltarPara = "/historico",
+  turmaInicial,
 }: Props) {
   const router = useRouter();
   const editando = Boolean(atividade);
@@ -43,9 +49,7 @@ export function AtividadeForm({
   const [turmas, setTurmas] = useState(turmasIniciais);
   const [tags, setTags] = useState(tagsIniciais);
 
-  const [turmaId, setTurmaId] = useState(
-    atividade?.turma.id ?? (turmasIniciais.length === 1 ? turmasIniciais[0].id : ""),
-  );
+  const [turmaId, setTurmaId] = useState(atividade?.turma.id ?? turmaPreSelecionada(turmasIniciais, turmaInicial));
   const [titulo, setTitulo] = useState(atividade?.titulo ?? "");
   const [tagIds, setTagIds] = useState<string[]>(atividade?.tags.map((t) => t.id) ?? []);
   const [receptividade, setReceptividade] = useState<Receptividade | null>(atividade?.receptividade ?? null);
@@ -53,7 +57,7 @@ export function AtividadeForm({
   const [observacao, setObservacao] = useState(atividade?.observacao ?? "");
 
   const [erro, setErro] = useState<string | null>(null);
-  const [sucesso, setSucesso] = useState<string | null>(null);
+  const [sucesso, setSucesso] = useState<{ texto: string; turmaId: string } | null>(null);
   const [salvando, startSalvar] = useTransition();
 
   const data = dataEscolhida ?? hoje;
@@ -100,7 +104,7 @@ export function AtividadeForm({
       }
 
       const turma = turmas.find((t) => t.id === turmaId)?.nome;
-      setSucesso(`“${titulo.trim()}” salva para ${turma} (${nomeDiaSemana(data).toLowerCase()}).`);
+      setSucesso({ texto: `“${titulo.trim()}” salva para ${turma} (${nomeDiaSemana(data).toLowerCase()}).`, turmaId });
       // Mantém turma e data para registrar a próxima atividade mais rápido.
       setTitulo("");
       setTagIds([]);
@@ -136,7 +140,7 @@ export function AtividadeForm({
             onCriar={async (nome) => {
               const res = await criarTurma(nome);
               if (!res.ok) return res.error;
-              setTurmas((ts) => [...ts, res.data].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR", { numeric: true })));
+              setTurmas((ts) => ordenarTurmas([...ts, res.data]));
               setTurmaId(res.data.id);
             }}
           />
@@ -300,7 +304,10 @@ export function AtividadeForm({
       )}
       {sucesso && (
         <p role="status" className="rounded-xl bg-success/10 px-4 py-3 text-sm font-medium text-success">
-          ✓ {sucesso}
+          ✓ {sucesso.texto}{" "}
+          <Link href={hrefDaPasta(sucesso.turmaId)} className="font-semibold whitespace-nowrap underline underline-offset-2">
+            Ver na pasta →
+          </Link>
         </p>
       )}
 

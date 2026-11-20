@@ -48,6 +48,15 @@
   --tag-6: #7d8a2e;
   --tag-7: #7d6fd6;
   --tag-8: #d42a3c;
+
+  /* Cores das pastas das turmas (uma por pasta, na ordem 6º → 3º médio) */
+  --pasta-1: #c9dcef;
+  --pasta-2: #fcd3e1;
+  --pasta-3: #d9d3f7;
+  --pasta-4: #dfe6c4;
+  --pasta-5: #ffd6c9;
+  --pasta-6: #f8e7a8;
+  --pasta-7: #c8e8d8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -89,6 +98,14 @@
     --tag-6: #a3b23f;
     --tag-7: #9c90ea;
     --tag-8: #e5566a;
+
+    --pasta-1: #26405a;
+    --pasta-2: #57203a;
+    --pasta-3: #3a3570;
+    --pasta-4: #3b4520;
+    --pasta-5: #5e3226;
+    --pasta-6: #54461a;
+    --pasta-7: #1f4a3c;
   }
 }
 
@@ -116,6 +133,13 @@
   --color-pessego: var(--pessego);
   --color-lavanda: var(--lavanda);
   --color-ceu: var(--ceu);
+  --color-pasta-1: var(--pasta-1);
+  --color-pasta-2: var(--pasta-2);
+  --color-pasta-3: var(--pasta-3);
+  --color-pasta-4: var(--pasta-4);
+  --color-pasta-5: var(--pasta-5);
+  --color-pasta-6: var(--pasta-6);
+  --color-pasta-7: var(--pasta-7);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-instrument-serif);

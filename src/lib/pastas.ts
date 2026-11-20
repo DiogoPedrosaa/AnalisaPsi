@@ -2,7 +2,7 @@ import { quandoFoi } from "@/lib/dates";
 import { MIN_AMOSTRA } from "@/lib/stats";
 import type { Atividade, Receptividade, Tag } from "@/lib/types";
 
-/* Lógica das "pastas" das turmas (tela /turmas e /turmas/[id]). */
+/* Lógica das "pastas" das turmas (tela de início: grade de pastas + caderno da turma aberta). */
 
 export type ResumoPasta = {
   total: number;
@@ -61,4 +61,25 @@ export function filtrarAtividades(atividades: Atividade[], { tagId, receptividad
   return atividades.filter(
     (a) => (!tagId || a.tags.some((t) => t.id === tagId)) && (!receptividade || a.receptividade === receptividade),
   );
+}
+
+/**
+ * Pasta que abre sozinha na tela de início (quando não há `?turma=`): a da atividade mais recente,
+ * que costuma ser a que se quer ver. Sem nenhuma atividade, a primeira da lista. Lista vazia: null.
+ */
+export function pastaMaisRecente<T extends { resumo: { ultimaData: string | null } }>(pastas: readonly T[]): T | null {
+  let escolhida: T | null = null;
+  for (const p of pastas) {
+    const data = p.resumo.ultimaData;
+    if (data && (!escolhida?.resumo.ultimaData || data > escolhida.resumo.ultimaData)) escolhida = p;
+  }
+  return escolhida ?? pastas[0] ?? null;
+}
+
+/** Endereço da pasta aberta na tela de início, com os filtros: "/?turma=…&tag=…&receptividade=…". */
+export function hrefDaPasta(turmaId: string, { tagId, receptividade }: FiltroPasta = {}) {
+  const qs = new URLSearchParams({ turma: turmaId });
+  if (tagId) qs.set("tag", tagId);
+  if (receptividade) qs.set("receptividade", receptividade);
+  return `/?${qs}`;
 }

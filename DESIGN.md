@@ -5,6 +5,9 @@ padrão novo deve ser registrado aqui.
 
 ## Princípios
 
+- **Prático: poucas telas.** O dia a dia cabe em duas telas: **Pastas** (o início) e **Registrar**.
+  Tudo o que dá para resolver na mesma tela fica nela (abrir a pasta de uma turma, filtrar, editar),
+  em vez de virar mais uma aba. Histórico, Painel e Turmas e tags existem, mas ficam no grupo "Mais".
 - **Rápido de usar no celular.** O registro de uma atividade deve levar menos de um minuto, com uma
   mão só. Alvos de toque grandes, chips em vez de selects sempre que a lista for curta, e valores
   padrão inteligentes (data de hoje, turma anterior, tags sugeridas).
@@ -84,6 +87,30 @@ Paleta categórica de 8 cores (`--tag-1` … `--tag-8`), em ordem fixa. No banco
 índice (`cor`, de 1 a 8). Para aplicar, use `corDaTag(cor)` ou `<TagDot cor={…} />`
 ([src/components/tag-chip.tsx](src/components/tag-chip.tsx)); nunca guarde o hex.
 
+### Cores das pastas
+
+Cada turma tem a sua pasta colorida: 7 tons pastel (`--pasta-1` … `--pasta-7`, classes `bg-pasta-N`),
+dados pela **posição da turma na lista já ordenada** (`corDaPasta()` em [src/lib/turmas.ts](src/lib/turmas.ts);
+a partir da 8ª turma, repetem). Para aplicar, use `fundoDaPasta(indice)` ([src/components/pasta.tsx](src/components/pasta.tsx)).
+Texto sempre `text-ink` por cima. É enfeite de identificação, não significado.
+
+| Token | Claro | Escuro | Na ordem padrão |
+|---|---|---|---|
+| `pasta-1` | `#c9dcef` céu | `#26405a` | 6º ano |
+| `pasta-2` | `#fcd3e1` rosa | `#57203a` | 7º ano |
+| `pasta-3` | `#d9d3f7` lavanda | `#3a3570` | 8º ano |
+| `pasta-4` | `#dfe6c4` oliva | `#3b4520` | 9º ano |
+| `pasta-5` | `#ffd6c9` pêssego | `#5e3226` | 1º médio |
+| `pasta-6` | `#f8e7a8` manteiga | `#54461a` | 2º médio |
+| `pasta-7` | `#c8e8d8` menta | `#1f4a3c` | 3º médio |
+
+### Ordem das turmas
+
+Turmas aparecem **sempre na ordem da escola**, nunca em ordem alfabética: 1º–9º ano, depois 1º–3º médio,
+depois turmas sem série reconhecível (ex.: 6º, 7º, 8º, 9º, 1º Médio, 2º Médio, 3º Médio). Use
+`ordenarTurmas()` ([src/lib/turmas.ts](src/lib/turmas.ts)), que lê a etapa e a série do nome livre
+("6º Ano", "2ª série do Ensino Médio", "3º EM"). `getTurmas()` e `getPastasDeTurmas()` já devolvem nessa ordem.
+
 ## Tipografia
 
 Três famílias, todas carregadas com `next/font/google` em [src/app/layout.tsx](src/app/layout.tsx):
@@ -131,13 +158,13 @@ Definidos com `@utility` em [globals.css](src/app/globals.css). Use-os em vez de
 
 | Classe | O que é | Onde |
 |---|---|---|
-| `estampa-estrelas` | Listras onduladas rosa/creme/marrom com estrelinhas ([public/estampas/listras-estrelas.webp](public/estampas/listras-estrelas.webp), recorte sem emenda da referência) | Moldura do formulário de login, recorte decorativo do menu |
+| `estampa-estrelas` | Listras onduladas rosa/creme/marrom com estrelinhas ([public/estampas/listras-estrelas.webp](public/estampas/listras-estrelas.webp), recorte sem emenda da referência) | Moldura do formulário de login, recorte decorativo do menu, topo do caderno das turmas do **médio** |
 | `estampa-brilhos` | Listras vermelhas com brilhos de 4 pontas ([SVG](public/estampas/listras-brilhos.svg)) | Disponível |
-| `estampa-ceu` | Listras céu/creme com fio laranja e estrelas de 8 pontas ([SVG](public/estampas/listras-ceu.svg)) | Disponível |
-| `quadriculado` | Papel quadriculado num bloco (o `body` já tem a grade no fundo de tudo) | Cartão de boas-vindas |
-| `grade-rosa` | Grade `cereja` grossa sobre `rosa` | Seção de módulos do Início |
+| `estampa-ceu` | Listras céu/creme com fio laranja e estrelas de 8 pontas ([SVG](public/estampas/listras-ceu.svg)) | Topo do caderno das turmas do **fundamental** |
+| `quadriculado` | Papel quadriculado num bloco (o `body` já tem a grade no fundo de tudo) | Topo da tela de início |
+| `grade-rosa` | Grade `cereja` grossa sobre `rosa` | Disponível |
 | `listras` | Listras verticais `rosa`/`creme` que seguem o tema | Disponível |
-| `faixa-xadrez` | Xadrez `vinho`/`rosa` de 16px, usado como faixa (`h-3`/`h-4`) | Rodapé do cartão de boas-vindas, acima do "Sair" |
+| `faixa-xadrez` | Xadrez `vinho`/`rosa` de 16px, usado como faixa (`h-3`/`h-4`) | Rodapé do topo da tela de início, acima do "Sair" |
 | `vichy` | Xadrez vichy verde-oliva (moldura de foto) | Disponível |
 | `babado` | Bolinhas penduradas embaixo do elemento (`::after`); cor por `--babado` (padrão `rosa`) | Barra do topo e topo do menu |
 | `furos` | Fileira de bolinhas `cereja` na borda de cima, como ticket picotado (`::before`); cor por `--furo` | Caixa "em resumo…" do painel (pede `mt-4 pt-7`) |
@@ -171,8 +198,7 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
 
 - **`<Flor>`:** selo em forma de flor (círculo de borda ondulada). `cor` pinta a flor (`text-pessego`,
   `text-vinho`, `text-rosa-claro`, `text-lavanda`), `className` estiliza o conteúdo por cima. Usos:
-  ícones dos módulos (`size-11` a `size-20`, flor `rosa-claro`, ícone `accent`), selos de números do
-  Início e adesivo "oi!" do login. Se você passar `absolute`, a flor não recebe `relative`.
+  ícones dos módulos na vitrine do login (`size-11`, flor `rosa-claro`, ícone `accent`) e adesivo "oi!" do login. Se você passar `absolute`, a flor não recebe `relative`.
 - **`<BordaRasgada>`:** papel rasgado colado fora de uma seção da mesma cor (`absolute bottom-full`
   em cima; `invertida` + `absolute top-full` embaixo). O rasgo é determinístico pela `semente`.
 - **Adesivos:** `<Cereja>`, `<Estrela>` (5 pontas, "à mão"), `<Estrela8>`, `<Brilho>` (4 pontas),
@@ -189,7 +215,7 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
 - **Seletor de receptividade:** grade de 3 botões grandes (`rounded-2xl border-2`) com emoji
   `text-3xl`, rótulo e descrição (descrição só a partir de `sm`).
 - **BarraReceptividade** ([src/components/ranking.tsx](src/components/ranking.tsx)): barra empilhada
-  boa/neutra/ruim usada no Ranking, nas pastas e no topo da página da pasta. Altura por `className`
+  boa/neutra/ruim usada no Ranking do painel. Altura por `className`
   (padrão `h-2.5`).
 - **Ranking:** nome à esquerda, aderência em negrito à direita, barra empilhada
   boa/neutra/ruim (`h-2.5 rounded-full`, `gap-[2px]`, trilho `bg-card-2`) e linha de detalhe em
@@ -209,17 +235,31 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
   + como foi). `textarea` com `field-sizing-content min-h-48 max-h-[70vh] resize-y leading-relaxed`;
   limite em `MAX_OBSERVACAO` (20.000, igual ao banco). O contador "18.000 de 20.000 caracteres"
   (`text-xs text-muted`, à direita) só aparece a partir de 90% do limite (`avisoTamanho()`).
-- **Pasta** ([src/components/pasta.tsx](src/components/pasta.tsx)): cartão de turma em forma de pasta de
-  arquivo. Uma aba (`rounded-t-xl border-2 border-b-0 border-line`, `h-8`, `-mb-0.5` para cobrir a borda
-  do corpo) com ícone de pasta e o número de atividades em `rotulo`, colorida em rodízio
-  `rosa-claro` → `lavanda` → `pessego` → `ceu` (enfeite, sem significado); o corpo é um `card rounded-tl-none`
-  com o nome em `font-display text-3xl`, `detalhePasta()` em `text-sm text-ink-2`, a `BarraReceptividade`
-  (`h-2`), a aderência (ou "poucos dados" em itálico) e "abrir →" em `font-script`. Hover: sobe 4px com
-  sombra de recorte `vinho` feita com `drop-shadow` sem desfoque (segue o contorno da aba). Grade
-  1 → 2 → 3 colunas (`gap-x-3 gap-y-5`).
-- **Página da pasta (`/turmas/[id]`):** link "← Todas as pastas" (`btn-ghost`), `rotulo` "Pasta da turma",
-  o nome da turma como `titulo-pagina`, o resumo com `BarraReceptividade` (`max-w-sm`) e os filtros de tag
-  e receptividade mostrando só as opções que existem na turma, com a contagem entre parênteses.
+- **Pasta** ([src/components/pasta.tsx](src/components/pasta.tsx)): pasta **compacta** da grade do início.
+  Aba de arquivo pequena (`h-3 w-2/5 rounded-t-md border-2 border-b-0`, `-mb-0.5`) e corpo
+  `rounded-xl rounded-tl-none border-2 px-2.5 pt-2 pb-2.5`, ambos na cor da turma (`fundoDaPasta`). Dentro:
+  nome em `font-display text-lg sm:text-xl`, contador de atividades numa bolinha `bg-ink text-page`
+  (`h-5 min-w-5 text-[11px]`) à direita e a etapa curta ("Fund. II", "Médio", de `rotuloEtapa()`) em caixa
+  alta `text-[10px]`. Fechada: borda `line`, hover sobe 2px. **Aberta:** borda `ink`, sobe 4px, sombra de
+  recorte `--sombra` via `drop-shadow` sem desfoque (segue o contorno da aba), `aria-current="page"` e
+  uma setinha `cereja` girada 45° embaixo, apontando para o caderno. É um link (`/?turma=…`, `scroll={false}`).
+  Grade: **3 colunas no celular → 4 no `sm` → 7 (todas numa linha) no `lg`**, `gap-x-2 sm:gap-x-3 gap-y-3`.
+- **Caderno da turma** (`<CadernoDaTurma>` em [src/components/inicio.tsx](src/components/inicio.tsx)): o que
+  antes era a página `/turmas/[id]` agora abre logo abaixo das pastas. `card` com sombra de recorte `--line`,
+  em três faixas:
+  1. **Capa:** `estampa-ceu` (fundamental) ou `estampa-estrelas` (médio; sem etapa, a cor da pasta) com um
+     `card` por cima: `etiqueta` com a etapa por extenso, pílula na cor da pasta com "N atividades", nome em
+     `font-display text-4xl`, `detalhePasta()` e o `btn-primary` **"Registrar nesta turma"** (`/registrar?turma=…`,
+     que já abre com a turma marcada). Um `<Brilho>` no canto.
+  2. **Filtros em chips** (`bg-card-2/50`): linha "Tags" (Todas + só as tags usadas na turma, com contagem) e
+     linha "Termômetro da turma" (Boa / Neutra / Ruim com contagem; com zero ficam `opacity-50` e não clicam) e
+     a aderência. Cada chip é um link que muda a URL (`?turma=&tag=&receptividade=`, de `hrefDaPasta()`);
+     tocar no chip ativo tira o filtro. Ativo: tag `border-ink bg-ink text-page`; receptividade `RECEPTIVIDADE[k].soft`.
+  3. **Lista:** `AtividadeLista` sem o nome da turma, voltando para a mesma pasta e filtros ao editar.
+     Filtrando, aparece "3 de 10 atividades" + "Limpar filtros". Pasta vazia: 🗂️, "Nenhuma folha preenchida
+     aqui ainda!" e "Registrar nesta turma".
+- Endereços antigos `/turmas` e `/turmas/[id]` redirecionam para o início (em `next.config.ts`), com os filtros.
+- **Registro salvo:** a mensagem de sucesso termina com o link "Ver na pasta →", que abre a pasta da turma.
 - **Ações de editar e apagar** ([src/components/acoes.tsx](src/components/acoes.tsx)): sempre ícones, nunca
   texto. `<BotaoEditar>` usa a caneta (`Pencil`) do Lucide, com `href` (link) ou `onClick` (ex.: renomear
   inline); `<BotaoApagar>` usa a lixeira (`Trash2`). Ambos são botões `size-8 rounded-lg` com ícone `size-4`
@@ -238,7 +278,10 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
 
 - Largura máxima do conteúdo: `max-w-5xl`, com `px-4` nas laterais.
 - **Menu lateral** ([src/components/nav.tsx](src/components/nav.tsx)): `aside` fixo à esquerda (`w-64`,
-  `bg-card`, borda direita `line`) com logo no topo, Início + módulos no meio e "Sair" no rodapé.
+  `bg-card`, borda direita `line`) com logo no topo, os módulos no meio e "Sair" no rodapé. Os módulos vêm em
+  dois grupos (`grupo` em `MODULOS`): **principais** (Pastas, Registrar) no tamanho normal e, abaixo de um
+  `rotulo` "Mais" em `text-muted`, os demais (Histórico, Painel, Turmas e tags) menores (`py-2 text-[11px]`,
+  ícone `size-4`).
   - **Desktop (a partir de `md`):** aberto por padrão; o conteúdo ganha `md:pl-64`. Pode ser escondido a
     qualquer momento pelo botão da barra do topo, pela seta no topo do menu ou com **Ctrl/⌘ + B**.
     A escolha fica salva no `localStorage` (`CHAVE_MENU`) e vira `data-menu="fechado"` no `<html>`,
@@ -263,23 +306,20 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
 ## Telas de entrada
 
 - **Módulos** são definidos uma vez em `MODULOS` ([src/lib/modulos.ts](src/lib/modulos.ts)) — rota,
-  rótulo, descrição e ícone — e alimentam o menu, o Início e o login. Módulo novo entra só ali.
+  rótulo, descrição, ícone e grupo — e alimentam o menu e a vitrine do login. Módulo novo entra só ali, de
+  preferência no grupo `mais`.
 - As peças visuais do Início ficam em [src/components/inicio.tsx](src/components/inicio.tsx) (recebem dados
   por props); a página só busca os dados.
-- **Início (`/`), cartão de boas-vindas** (`<CartaoBoasVindas>`): `card quadriculado`, com a data entre
-  parênteses em `rotulo`, saudação por horário em `font-display text-5xl sm:text-6xl` com o nome em
-  itálico `accent` na linha de baixo, uma frase de status, "Registrar atividade" (`btn-primary`) e
-  "Ver o painel" (`btn-secundario`), o recadinho "leva menos de um minuto!" com `<SetaRabisco>`, e à
-  direita os **três selos em flor** de `selosDoInicio()` (atividades, turmas, aderência; "—" sem dados),
-  nas cores pêssego, vinho e rosa-claro, levemente girados. Uma `<Cereja>`, uma `<Estrela>` e um
-  `<Brilho>` enfeitam; uma `faixa-xadrez` fecha o cartão embaixo.
-- **Seção de módulos** (`<SecaoModulos>`): `grade-rosa` com `<BordaRasgada>` em cima e embaixo, título à mão
-  "Por onde começamos hoje…" (`font-script text-creme` com sombra `vinho`) e a grade de cartões
-  (1 → 2 → 3 colunas). Vai até a borda da tela no celular (`-mx-4 sm:mx-0`).
-- **Cartão de módulo:** clicável inteiro, `rounded-2xl border-[3px] border-cereja bg-card`, centralizado:
-  ícone dentro de `<Flor>` (gira no hover), `etiqueta` com o nome, descrição `text-sm text-ink-2`, linha de
-  números `text-xs text-muted tabular-nums` (`detalheModulo()`, com skeleton enquanto carrega) e "abrir →"
-  em `font-script`. Hover: sobe 4px e ganha sombra de recorte `vinho`.
+- **Início (`/`) = tela das pastas.** De cima para baixo, numa tela só:
+  1. **Topo** (`<CabecalhoInicio>`): `card quadriculado` compacto com a data entre parênteses em `rotulo`,
+     saudação em `font-display text-4xl sm:text-5xl` com o nome em itálico `accent`, uma frase de status
+     (último registro) e, à direita, o `btn-primary` **"Registrar atividade"** (largura total no celular) com o
+     recadinho "leva menos de um minuto!" (só a partir de `sm`). Uma `<Cereja>` no canto (a partir de `sm`) e
+     uma `faixa-xadrez h-3` embaixo.
+  2. **Pastas das turmas** (`<GradePastas>`): `titulo-secao` + total de turmas e a grade de `Pasta`s.
+  3. **Caderno da turma aberta** (`<CadernoDaTurma>`). Sem `?turma=`, abre a pasta da atividade mais recente
+     (`pastaMaisRecente()`); sem nenhuma atividade, a primeira.
+  Sem turmas cadastradas, a tela mostra um estado vazio com "Cadastrar turmas".
 - **Login:** `<FaixaCorrida>` no topo. Duas colunas a partir de `lg`: à esquerda `<Marca>`, "(Seu caderno
   de atividades)", chamada em `font-display text-5xl` com "funciona" em itálico, recadinho com seta e a
   vitrine dos módulos (cartões pequenos com ícone em flor, não clicáveis); à direita o formulário num

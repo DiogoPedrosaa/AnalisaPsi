@@ -1,43 +1,48 @@
-import { quandoFoi } from "@/lib/dates";
-
-/** Módulos do app: alimentam o menu lateral, a tela de início e a tela de login. */
+/**
+ * Módulos do app: alimentam o menu lateral e a vitrine do login. A tela de início (`/`) é a das
+ * pastas. `principal` fica no topo do menu; `mais` vai num grupo menor abaixo, para o dia a dia
+ * ter só duas telas (pastas e registrar).
+ */
 export const MODULOS = [
+  {
+    href: "/",
+    label: "Pastas",
+    descricao: "Uma pasta colorida para cada turma, com tudo o que já foi feito nela.",
+    icon: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z",
+    grupo: "principal",
+  },
   {
     href: "/registrar",
     label: "Registrar",
     descricao: "Anote a atividade do dia e como a turma recebeu. Leva menos de um minuto.",
     icon: "M12 5v14M5 12h14",
+    grupo: "principal",
   },
   {
     href: "/historico",
     label: "Histórico",
     descricao: "Reveja, filtre e edite tudo o que já foi registrado.",
     icon: "M4 6h16M4 12h16M4 18h10",
-  },
-  {
-    href: "/turmas",
-    label: "Pastas",
-    descricao: "Uma pasta para cada turma, com tudo o que já foi feito nela.",
-    icon: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z",
+    grupo: "mais",
   },
   {
     href: "/dashboard",
     label: "Painel",
     descricao: "Descubra o que funciona melhor por turma, por tipo de atividade e por dia.",
     icon: "M5 20V11M12 20V5M19 20v-6",
+    grupo: "mais",
   },
   {
     href: "/turmas-e-tags",
     label: "Turmas e tags",
     descricao: "Organize suas turmas e os tipos de atividade.",
     icon: "M3 7l4-4h6l8 8-10 10-8-8V7zM8.5 8.5h.01",
+    grupo: "mais",
   },
 ] as const;
 
 /** Chave no localStorage do menu lateral; o script em `app/layout.tsx` lê a mesma chave antes da primeira pintura. */
 export const CHAVE_MENU = "analisapsi:menu";
-
-export const ICONE_INICIO = "M3 11l9-8 9 8M5 9.5V20h5v-6h4v6h5V9.5";
 
 /** Diz se o item de menu `href` corresponde à rota atual. A edição de atividade conta como "Registrar". */
 export function itemAtivo(pathname: string, href: string) {
@@ -58,50 +63,4 @@ export function nomeDeExibicao(email?: string | null, metadados?: Record<string,
   const local = email?.split("@")[0]?.split(/[._+\-\d]/).find(Boolean);
   if (!local) return "";
   return local.charAt(0).toLocaleUpperCase("pt-BR") + local.slice(1).toLocaleLowerCase("pt-BR");
-}
-
-export type ResumoInicio = {
-  atividades: number;
-  turmas: number;
-  tags: number;
-  /** 0–100, ou null se ainda não há atividades. */
-  aderencia: number | null;
-  /** yyyy-mm-dd da atividade mais recente. */
-  ultimaData: string | null;
-};
-
-function plural(n: number, singular: string, pluralForma: string) {
-  return `${n} ${n === 1 ? singular : pluralForma}`;
-}
-
-export type Selo = { valor: string; rotulo: string };
-
-/**
- * Os três selos em forma de flor do cartão de boas-vindas: atividades, turmas e aderência geral.
- * Sem atividades, a aderência vira "—" (não existe aderência de zero registros).
- */
-export function selosDoInicio(r: ResumoInicio): Selo[] {
-  return [
-    { valor: String(r.atividades), rotulo: r.atividades === 1 ? "atividade" : "atividades" },
-    { valor: String(r.turmas), rotulo: r.turmas === 1 ? "turma" : "turmas" },
-    { valor: r.aderencia === null ? "—" : `${Math.round(r.aderencia)}%`, rotulo: "aderência" },
-  ];
-}
-
-/** Linha de apoio de cada cartão da tela de início, com os números do usuário. */
-export function detalheModulo(href: string, r: ResumoInicio, hoje: string) {
-  switch (href) {
-    case "/registrar":
-      return r.ultimaData ? `Último registro ${quandoFoi(r.ultimaData, hoje)}` : "Nenhum registro ainda";
-    case "/historico":
-      return plural(r.atividades, "atividade registrada", "atividades registradas");
-    case "/turmas":
-      return plural(r.turmas, "pasta de turma", "pastas de turma");
-    case "/dashboard":
-      return r.aderencia === null ? "Aparece após os primeiros registros" : `Aderência geral de ${Math.round(r.aderencia)}%`;
-    case "/turmas-e-tags":
-      return `${plural(r.turmas, "turma", "turmas")} · ${plural(r.tags, "tag", "tags")}`;
-    default:
-      return "";
-  }
 }

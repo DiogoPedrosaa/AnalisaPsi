@@ -1,56 +1,65 @@
 import Link from "next/link";
-import { Icone } from "@/components/icone";
-import { BarraReceptividade } from "@/components/ranking";
-import { aderenciaPasta, detalhePasta, type ResumoPasta } from "@/lib/pastas";
+import { corDaPasta } from "@/lib/turmas";
 
-/** Cores das abas das pastas, em rodízio pela posição (enfeite, sem significado). */
-const CORES_ABA = ["bg-rosa-claro", "bg-lavanda", "bg-pessego", "bg-ceu"];
+/** Classes das 7 cores de pasta (`--pasta-1` … `--pasta-7`), escritas por extenso para o Tailwind achar. */
+const CORES_PASTA = ["bg-pasta-1", "bg-pasta-2", "bg-pasta-3", "bg-pasta-4", "bg-pasta-5", "bg-pasta-6", "bg-pasta-7"];
+
+/** Fundo da pasta na posição `indice` da lista ordenada (cada turma tem a sua cor). */
+export function fundoDaPasta(indice: number) {
+  return CORES_PASTA[corDaPasta(indice) - 1];
+}
 
 /**
- * Cartão em forma de pasta de arquivo (ver DESIGN.md › Pasta): aba colorida com a quantidade de
- * atividades, nome da turma em serifa, quando foi a última e a barra de receptividade.
+ * Pasta compacta da grade da tela de início (ver DESIGN.md › Pasta): aba de arquivo pequena na cor
+ * da turma, nome em serifa, quantidade de atividades e a etapa. A pasta aberta ganha borda escura,
+ * sombra de recorte e uma setinha apontando para o caderno abaixo.
  */
 export function Pasta({
-  id,
+  href,
   nome,
-  resumo,
-  hoje,
+  etapa,
+  total,
   indice,
+  aberta,
 }: {
-  id: string;
+  href: string;
   nome: string;
-  resumo: ResumoPasta;
-  hoje: string;
+  etapa: string | null;
+  total: number;
   indice: number;
+  aberta: boolean;
 }) {
-  const aderencia = aderenciaPasta(resumo);
+  const cor = fundoDaPasta(indice);
   return (
     <Link
-      href={`/turmas/${id}`}
-      className="group block rounded-2xl transition hover:-translate-y-1 hover:drop-shadow-[4px_4px_0_var(--vinho)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-vinho/40"
+      href={href}
+      scroll={false}
+      aria-current={aberta ? "page" : undefined}
+      className={`group relative block h-full rounded-xl transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-vinho/40 ${
+        aberta ? "-translate-y-1 drop-shadow-[3px_3px_0_var(--sombra)]" : "hover:-translate-y-0.5"
+      }`}
     >
       <span
         aria-hidden
-        className={`relative z-10 -mb-0.5 flex h-8 w-fit min-w-2/5 items-center gap-1.5 rounded-t-xl border-2 border-b-0 border-line px-4 text-[11px] font-bold tracking-[0.14em] text-ink uppercase tabular-nums ${CORES_ABA[indice % CORES_ABA.length]}`}
+        className={`relative z-10 -mb-0.5 block h-3 w-2/5 rounded-t-md border-2 border-b-0 ${cor} ${aberta ? "border-ink" : "border-line group-hover:border-ink/40"}`}
+      />
+      <span
+        className={`flex h-[calc(100%-0.625rem)] flex-col rounded-xl rounded-tl-none border-2 px-2.5 pt-2 pb-2.5 ${cor} ${
+          aberta ? "border-ink" : "border-line group-hover:border-ink/40"
+        }`}
       >
-        <Icone d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" className="size-3.5" />
-        {resumo.total}
-      </span>
-      <span className="card flex min-h-40 flex-col rounded-tl-none p-5">
-        <span className="font-display text-3xl leading-tight break-words">{nome}</span>
-        <span className="mt-1 text-sm text-ink-2">{detalhePasta(resumo, hoje)}</span>
-
-        <span className="mt-auto block pt-4">
-          {resumo.total > 0 && <BarraReceptividade contagem={resumo} className="h-2" />}
-          <span className="mt-1.5 flex items-baseline justify-between gap-2 text-xs text-muted">
-            <span className={aderencia === "poucos dados" ? "italic" : "tabular-nums"}>{aderencia}</span>
-            <span className="inline-flex items-center gap-1 font-script text-xl leading-none text-cereja">
-              abrir
-              <Icone d="M5 12h14M13 6l6 6-6 6" className="size-4 transition group-hover:translate-x-1" />
-            </span>
+        <span className="flex items-start justify-between gap-1">
+          <span className="min-w-0 font-display text-lg leading-tight break-words sm:text-xl">{nome}</span>
+          <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-ink px-1.5 text-[11px] font-bold text-page tabular-nums">
+            {total}
+            <span className="sr-only">{total === 1 ? " atividade" : " atividades"}</span>
           </span>
         </span>
+        {etapa && <span className="mt-auto pt-1 text-[10px] font-bold tracking-[0.12em] text-ink-2 uppercase">{etapa}</span>}
       </span>
+      {aberta && (
+        <span aria-hidden className="absolute -bottom-2 left-1/2 size-3 -translate-x-1/2 rotate-45 border-r-2 border-b-2 border-ink bg-cereja" />
+      )}
     </Link>
   );
 }

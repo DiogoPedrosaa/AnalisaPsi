@@ -5,10 +5,11 @@ import { AtividadeForm, type Sugestao } from "@/components/atividade-form";
 import { AtividadeLista } from "@/components/atividade-lista";
 import { SkeletonBloco } from "@/components/skeleton";
 import { getAtividades, getTags, getTurmas } from "@/lib/data";
+import { uuidParam } from "@/lib/params";
 
 export const metadata: Metadata = { title: "Registrar" };
 
-export default function RegistrarPage() {
+export default function RegistrarPage({ searchParams }: PageProps<"/registrar">) {
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
       <section>
@@ -16,7 +17,7 @@ export default function RegistrarPage() {
         <p className="subtitulo-pagina">Leva menos de um minuto. O dia da semana é preenchido sozinho.</p>
         <div className="card p-5 sm:p-6">
           <Suspense fallback={<SkeletonBloco linhas={6} />}>
-            <Formulario />
+            <Formulario searchParams={searchParams} />
           </Suspense>
         </div>
       </section>
@@ -36,8 +37,13 @@ export default function RegistrarPage() {
   );
 }
 
-async function Formulario() {
-  const [turmas, tags, anteriores] = await Promise.all([getTurmas(), getTags(), getAtividades({}, 300)]);
+async function Formulario({ searchParams }: { searchParams: PageProps<"/registrar">["searchParams"] }) {
+  const [turmas, tags, anteriores, sp] = await Promise.all([
+    getTurmas(),
+    getTags(),
+    getAtividades({}, 300),
+    searchParams,
+  ]);
 
   // Títulos já usados (mais recentes primeiro) com as tags da última vez.
   const sugestoes: Sugestao[] = [];
@@ -49,7 +55,7 @@ async function Formulario() {
     sugestoes.push({ titulo: a.titulo, tagIds: a.tags.map((t) => t.id) });
   }
 
-  return <AtividadeForm turmas={turmas} tags={tags} sugestoes={sugestoes} />;
+  return <AtividadeForm turmas={turmas} tags={tags} sugestoes={sugestoes} turmaInicial={uuidParam(sp.turma)} />;
 }
 
 async function Recentes() {
