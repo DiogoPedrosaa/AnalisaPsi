@@ -1,43 +1,46 @@
 @import "tailwindcss";
 
-/* Menu lateral escondido no desktop (`data-menu="fechado"` no <html>, ver components/nav.tsx) */
-@custom-variant menu-fechado ([data-menu="fechado"] &);
-
 /*
- * Tema "doceria retrô": papel creme quadriculado, vinho e cereja, rosa-chiclete,
- * lavanda e azul-céu. Ver DESIGN.md.
+ * Tema "papelaria retrô / scrapbook" (o mesmo do Diário de Estágio): papel creme quadriculado de
+ * rosa, contornos cor de cacau, cereja, rosa pastel, lavanda, azul-bebê e verde-oliva; títulos em
+ * Fraunces, corpo em Plus Jakarta Sans, recadinhos em Caveat. Ver DESIGN.md.
  */
 :root {
   color-scheme: light;
-  --page: #fdf6ee;
-  --card: #fffcf7;
-  --card-2: #fbeae6;
-  --ink: #4b0f1c;
-  --ink-2: #7c3442;
-  --muted: #94636b;
-  --line: #f0cdd2;
-  --accent: #8a1430;
-  --accent-ink: #fff3e6;
-  --accent-soft: #fde1e5;
-  --danger: #c41e3a;
-  --success: #2e7d4f;
+  --page: #fdf9f2; /* cream */
+  --card: #fdf9f2; /* cream */
+  --card-2: #f5ede0; /* creamDark */
+  --ink: #4a2b1d; /* cocoa */
+  --ink-2: #6e5448; /* cocoa a 80% */
+  --muted: #836d61; /* cocoa a 68% */
+  --line: #4a2b1d; /* contorno dos adesivos (cocoa); divisórias usam /15 */
+  --accent: #c82333; /* cherry */
+  --accent-ink: #fdf9f2;
+  --accent-soft: #fad2dc; /* pastelPink */
+  --danger: #c82333;
+  --success: #5b6836;
 
-  /* Enfeites (faixas, selos, adesivos, estampas) */
-  --rosa: #f59fc2;
-  --rosa-claro: #fcd3e1;
-  --cereja: #d42a3c;
-  --vinho: #801026;
-  --creme: #fff3e6;
+  /* Enfeites (faixas, fitas, selos, estampas) */
+  --rosa: #f694a8; /* rosa da grade */
+  --rosa-claro: #fad2dc; /* pastelPink */
+  --rosa-forte: #f06a8a; /* hotPink */
+  --cereja: #c82333; /* cherry */
+  --vinho: #8a1522; /* cherryDark */
+  --creme: #fdf9f2;
   --pessego: #ffa18f;
-  --lavanda: #c5c6f6;
-  --ceu: #b5ccde;
-  --grade: #f6dce0;
-  --sombra: #4b0f1c;
+  --lavanda: #d6ccf2; /* lavender */
+  --lavanda-escura: #6a5b94; /* lavenderDark */
+  --ceu: #c7ddf0; /* babyBlue */
+  --ceu-claro: #dcebf7; /* softBlue */
+  --oliva: #6f7d43; /* olive */
+  --oliva-clara: #dce3c3; /* oliveLight */
+  --grade: #fbe2e1; /* linhas do papel quadriculado (hotPink a 16% sobre creme) */
+  --sombra: #4a2b1d; /* sombra de recorte (cocoa) */
 
-  /* Receptividade (diverging: azul ↔ bege ↔ vermelho) */
-  --boa: #3b78c4;
-  --neutra: #cdbab5;
-  --ruim: #e0434f;
+  /* Receptividade (oliva ↔ lavanda ↔ cereja, como o termômetro do diário) */
+  --boa: #6f7d43;
+  --neutra: #d6ccf2;
+  --ruim: #c82333;
 
   /* Cores das tags (paleta categórica, ordem fixa) */
   --tag-1: #3b78c4;
@@ -47,48 +50,53 @@
   --tag-5: #e86fa3;
   --tag-6: #7d8a2e;
   --tag-7: #7d6fd6;
-  --tag-8: #d42a3c;
+  --tag-8: #c82333;
 
-  /* Cores das pastas das turmas (uma por pasta, na ordem 6º → 3º médio) */
-  --pasta-1: #c9dcef;
-  --pasta-2: #fcd3e1;
-  --pasta-3: #d9d3f7;
-  --pasta-4: #dfe6c4;
-  --pasta-5: #ffd6c9;
-  --pasta-6: #f8e7a8;
-  --pasta-7: #c8e8d8;
+  /* Cores das pastas das turmas (as do diário, na ordem 6º → 3º médio) */
+  --pasta-1: #c7ddf0;
+  --pasta-2: #fad2dc;
+  --pasta-3: #d6ccf2;
+  --pasta-4: #dce3c3;
+  --pasta-5: #dcebf7;
+  --pasta-6: #fad2dc;
+  --pasta-7: #d6ccf2;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --page: #1d0b0f;
-    --card: #2a1217;
-    --card-2: #3a1a20;
-    --ink: #fbe8de;
-    --ink-2: #e7bcc0;
-    --muted: #b48d91;
-    --line: #4d2229;
-    --accent: #f7a1bf;
-    --accent-ink: #3a0a16;
-    --accent-soft: #4a1a28;
-    --danger: #ff8a8f;
-    --success: #6fd39a;
+    --page: #1f140f;
+    --card: #2a1c15;
+    --card-2: #3a281e;
+    --ink: #fbefe2;
+    --ink-2: #e3cdb9;
+    --muted: #b09886;
+    --line: #a88a74;
+    --accent: #f06a8a;
+    --accent-ink: #2a0b12;
+    --accent-soft: #4d2030;
+    --danger: #ff7f8a;
+    --success: #b8c78a;
 
-    --rosa: #6e2443;
-    --rosa-claro: #4a1b2b;
-    --cereja: #e5566a;
-    --vinho: #a0284a;
-    --creme: #fff0e4;
+    --rosa: #7a3346;
+    --rosa-claro: #4d2030;
+    --rosa-forte: #f06a8a;
+    --cereja: #ea4a5a;
+    --vinho: #f4a3b0;
+    --creme: #fdf9f2;
     --pessego: #9a4c3e;
-    --lavanda: #3d3a6e;
-    --ceu: #2c4257;
-    --grade: #2a1419;
-    --sombra: #0d0406;
+    --lavanda: #3f3768;
+    --lavanda-escura: #c5b9f0;
+    --ceu: #2a4258;
+    --ceu-claro: #233547;
+    --oliva: #b6c48a;
+    --oliva-clara: #3a4224;
+    --grade: #2b1d16;
+    --sombra: #0c0705;
 
-    --boa: #5b97e0;
-    --neutra: #7a6862;
-    --ruim: #ef6a74;
+    --boa: #a9b97a;
+    --neutra: #8f81c4;
+    --ruim: #ef5d6c;
 
     --tag-1: #5b97e0;
     --tag-2: #e2784c;
@@ -97,15 +105,15 @@
     --tag-5: #ee86b3;
     --tag-6: #a3b23f;
     --tag-7: #9c90ea;
-    --tag-8: #e5566a;
+    --tag-8: #ea4a5a;
 
-    --pasta-1: #26405a;
-    --pasta-2: #57203a;
-    --pasta-3: #3a3570;
-    --pasta-4: #3b4520;
-    --pasta-5: #5e3226;
-    --pasta-6: #54461a;
-    --pasta-7: #1f4a3c;
+    --pasta-1: #2a4258;
+    --pasta-2: #4d2030;
+    --pasta-3: #3f3768;
+    --pasta-4: #3a4224;
+    --pasta-5: #233547;
+    --pasta-6: #4d2030;
+    --pasta-7: #3f3768;
   }
 }
 
@@ -127,12 +135,17 @@
   --color-ruim: var(--ruim);
   --color-rosa: var(--rosa);
   --color-rosa-claro: var(--rosa-claro);
+  --color-rosa-forte: var(--rosa-forte);
   --color-cereja: var(--cereja);
   --color-vinho: var(--vinho);
   --color-creme: var(--creme);
   --color-pessego: var(--pessego);
   --color-lavanda: var(--lavanda);
+  --color-lavanda-escura: var(--lavanda-escura);
   --color-ceu: var(--ceu);
+  --color-ceu-claro: var(--ceu-claro);
+  --color-oliva: var(--oliva);
+  --color-oliva-clara: var(--oliva-clara);
   --color-pasta-1: var(--pasta-1);
   --color-pasta-2: var(--pasta-2);
   --color-pasta-3: var(--pasta-3);
@@ -140,20 +153,38 @@
   --color-pasta-5: var(--pasta-5);
   --color-pasta-6: var(--pasta-6);
   --color-pasta-7: var(--pasta-7);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-instrument-serif);
-  --font-script: var(--font-caveat);
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-script: var(--font-caveat), cursive;
 }
 
-/* Papel quadriculado de caderno no fundo de tudo */
+/* Papel quadriculado (grade rosa de 26px) no fundo de tudo */
 body {
   background-color: var(--page);
   background-image:
-    linear-gradient(var(--grade) 1px, transparent 1px), linear-gradient(90deg, var(--grade) 1px, transparent 1px);
-  background-size: 28px 28px;
-  background-position: -1px -1px;
+    linear-gradient(to right, var(--grade) 1px, transparent 1px), linear-gradient(to bottom, var(--grade) 1px, transparent 1px);
+  background-size: 26px 26px;
   color: var(--ink);
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--rosa-claro);
+  color: var(--ink);
+}
+
+/* Barra de rolagem lavanda com contorno cacau */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--page);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--lavanda);
+  border: 2px solid var(--line);
+  border-radius: 999px;
 }
 
 /* Inputs de data herdam o esquema de cores */
@@ -167,54 +198,115 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 @utility card {
   @apply rounded-2xl border-2 border-line bg-card;
 }
+/* Bloco grande (caderno, seções do painel): cantos de 1.5rem e sombra de recorte de 6px. */
+@utility painel {
+  @apply rounded-3xl border-2 border-line bg-card shadow-[6px_6px_0_0_var(--sombra)];
+}
+/* Cartão-adesivo (sticker-card): contorno grosso e sombra de recorte que cresce no hover. */
+@utility adesivo {
+  border: 2.5px solid var(--line);
+  box-shadow: 4px 4px 0 var(--sombra);
+  transition:
+    translate 0.18s ease,
+    box-shadow 0.18s ease;
+  &:hover {
+    translate: -1px -2px;
+    box-shadow: 6px 6px 0 var(--sombra);
+  }
+}
 @utility input {
-  @apply w-full rounded-xl border-2 border-line bg-card px-3.5 py-2.5 text-base text-ink outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20;
+  @apply w-full rounded-xl border-2 border-line bg-card px-3.5 py-2.5 text-base font-medium text-ink outline-none transition placeholder:text-ink/45 focus:ring-2 focus:ring-cereja;
 }
 @utility label {
-  @apply mb-1.5 block text-xs font-bold tracking-[0.12em] text-ink-2 uppercase;
+  @apply mb-1.5 block text-xs font-extrabold tracking-wider text-ink uppercase;
 }
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold tracking-[0.14em] uppercase transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rosa-forte disabled:cursor-not-allowed disabled:opacity-50;
 }
-/* Botões cheios têm a "sombra de recorte" deslocada, como etiqueta colada no papel. */
+/* Botão-adesivo (sticker-btn): contorno cacau e sombra de recorte que "afunda" ao clicar. */
+@utility btn-adesivo {
+  @apply btn border-2 border-line shadow-[3px_3px_0_0_var(--sombra)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0_0_var(--sombra)] disabled:translate-0 disabled:shadow-[3px_3px_0_0_var(--sombra)];
+}
 @utility btn-primary {
-  @apply btn bg-accent text-accent-ink shadow-[3px_3px_0_0_var(--sombra)] hover:-translate-y-px hover:shadow-[4px_4px_0_0_var(--sombra)] active:translate-y-px active:shadow-[1px_1px_0_0_var(--sombra)] disabled:translate-y-0 disabled:shadow-[3px_3px_0_0_var(--sombra)];
+  @apply btn-adesivo bg-accent text-accent-ink hover:bg-vinho dark:hover:bg-rosa-forte/85;
 }
 @utility btn-secundario {
-  @apply btn bg-lavanda text-ink shadow-[3px_3px_0_0_var(--sombra)] hover:-translate-y-px hover:shadow-[4px_4px_0_0_var(--sombra)] active:translate-y-px active:shadow-[1px_1px_0_0_var(--sombra)];
+  @apply btn-adesivo bg-lavanda text-ink hover:bg-lavanda/80;
+}
+@utility btn-claro {
+  @apply btn-adesivo bg-card text-ink hover:bg-card-2;
+}
+@utility btn-oliva {
+  @apply btn-adesivo bg-oliva text-page hover:bg-oliva/90;
 }
 @utility btn-danger {
-  @apply btn bg-danger text-creme shadow-[3px_3px_0_0_var(--sombra)] hover:opacity-90 active:translate-y-px active:shadow-[1px_1px_0_0_var(--sombra)];
+  @apply btn-adesivo bg-cereja text-creme hover:bg-vinho dark:hover:bg-cereja/85;
 }
 @utility btn-ghost {
   @apply btn text-ink-2 hover:bg-card-2 hover:text-ink;
 }
 @utility chip {
-  @apply inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40;
+  @apply inline-flex items-center gap-1.5 rounded-xl border-2 border-line px-3 py-1.5 text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rosa-forte;
+}
+@utility chip-ativo {
+  @apply bg-accent text-accent-ink shadow-[2px_2px_0_0_var(--sombra)];
+}
+@utility chip-inativo {
+  @apply bg-card text-ink hover:bg-rosa-claro/60;
 }
 
 /* Tipografia de página */
 @utility titulo-pagina {
-  @apply font-display text-4xl leading-[1.05] tracking-tight text-ink sm:text-5xl;
+  @apply font-display text-3xl leading-tight font-extrabold tracking-tight text-vinho sm:text-4xl;
+  & em {
+    @apply font-semibold text-oliva italic;
+  }
 }
 @utility subtitulo-pagina {
-  @apply mt-2 mb-6 text-sm text-ink-2;
+  @apply mt-1 mb-6 text-sm text-ink-2;
 }
 @utility titulo-secao {
-  @apply font-display text-2xl leading-tight text-ink sm:text-[1.7rem];
+  @apply font-display text-xl leading-tight font-extrabold text-ink sm:text-2xl;
 }
-/* Rótulo pequeno em caixa alta, como "(BASED IN PITTSBURGH, PA)" */
+/* Rótulo pequeno em caixa alta ("DESCRIÇÃO & MATERIAIS") */
 @utility rotulo {
-  @apply text-[11px] font-bold tracking-[0.18em] text-ink-2 uppercase;
+  @apply text-[11px] font-extrabold tracking-wider text-ink-2 uppercase;
 }
-/* Etiqueta em pílula com borda, como "BRANDING" / "MONTHLY CANDY SUBSCRIPTION" */
+/* Selo da etapa ("ENSINO FUNDAMENTAL II") */
 @utility etiqueta {
-  @apply inline-flex items-center gap-1.5 rounded-md border-2 border-cereja bg-rosa-claro px-2.5 py-1 text-[11px] font-bold tracking-[0.16em] text-cereja uppercase;
+  @apply inline-flex items-center gap-1.5 rounded-md bg-oliva px-2.5 py-0.5 text-xs font-bold tracking-wider text-page uppercase;
+}
+
+/* Fita adesiva washi com pontas listradas. Cor (bg-*), tamanho do texto e padding ficam com quem usa. */
+@utility washi {
+  @apply relative inline-flex items-center gap-1.5 border border-line font-extrabold tracking-wider text-ink uppercase;
+  box-shadow: 0 2px 4px rgb(74 43 29 / 0.08);
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: repeating-linear-gradient(45deg, transparent, transparent 3px, rgb(255 255 255 / 0.45) 3px, rgb(255 255 255 / 0.45) 6px);
+  }
+  &::before {
+    left: -3px;
+  }
+  &::after {
+    right: -3px;
+  }
 }
 
 /* ---------- Estampas e enfeites ---------- */
 
-/* Estampas fixas (fotos de tecido): não mudam com o tema, só escurecem um pouco no escuro. */
+/* Estampas fixas (tecido): não mudam com o tema, só escurecem um pouco no escuro. */
+@utility estampa-azul {
+  background: #c7ddf0 url("/estampas/listras-azul-estrelas.svg") 0 0 / 120px 120px repeat;
+}
+@utility estampa-rosa {
+  background: #fad2dc url("/estampas/listras-rosa-estrelas.svg") 0 0 / 100px 120px repeat;
+}
 @utility estampa-estrelas {
   background: url("/estampas/listras-estrelas.webp") 0 0 / 300px 300px repeat;
 }
@@ -225,6 +317,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   background: url("/estampas/listras-ceu.svg") 0 0 / 300px 300px repeat;
 }
 @media (prefers-color-scheme: dark) {
+  .estampa-azul,
+  .estampa-rosa,
   .estampa-estrelas,
   .estampa-brilhos,
   .estampa-ceu {
@@ -232,26 +326,26 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
-/* Listras verticais rosa e creme (fundo da foto do evento) — segue o tema */
-@utility listras {
-  background: repeating-linear-gradient(90deg, var(--rosa) 0 14px, var(--creme) 14px 28px);
+/* Papel quadriculado num bloco (o body já tem; use em áreas por cima de um cartão) */
+@utility quadriculado {
+  background-color: var(--page);
+  background-image:
+    linear-gradient(to right, var(--grade) 1px, transparent 1px), linear-gradient(to bottom, var(--grade) 1px, transparent 1px);
+  background-size: 26px 26px;
 }
 
-/* Grade vermelha sobre rosa (seção "What I Do…") */
+/* Grade cereja grossa sobre rosa (faixa de dica no pé do caderno) */
 @utility grade-rosa {
   background-color: var(--rosa);
   background-image:
-    linear-gradient(var(--cereja) 3px, transparent 3px), linear-gradient(90deg, var(--cereja) 3px, transparent 3px);
-  background-size: 64px 64px;
-  background-position: -2px -2px;
+    linear-gradient(to right, color-mix(in srgb, var(--cereja) 45%, transparent) 2px, transparent 2px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--cereja) 45%, transparent) 2px, transparent 2px);
+  background-size: 32px 32px;
 }
 
-/* Papel quadriculado num bloco (o body já tem; use em cartões que precisam do efeito) */
-@utility quadriculado {
-  background-color: var(--card);
-  background-image:
-    linear-gradient(var(--grade) 1px, transparent 1px), linear-gradient(90deg, var(--grade) 1px, transparent 1px);
-  background-size: 22px 22px;
+/* Listras verticais rosa e creme — segue o tema */
+@utility listras {
+  background: repeating-linear-gradient(90deg, var(--rosa-claro) 0 14px, var(--creme) 14px 28px);
 }
 
 /* Faixa xadrez vinho e rosa (divisor entre seções) */
@@ -259,17 +353,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   background: repeating-conic-gradient(var(--vinho) 0 25%, var(--rosa) 0 50%) 0 0 / 16px 16px;
 }
 
-/* Xadrez vichy (moldura de foto) */
+/* Xadrez vichy verde-oliva (moldura) */
 @utility vichy {
   background-color: var(--creme);
   background-image:
-    linear-gradient(90deg, color-mix(in srgb, var(--tag-6) 55%, transparent) 50%, transparent 50%),
-    linear-gradient(color-mix(in srgb, var(--tag-6) 55%, transparent) 50%, transparent 50%);
+    linear-gradient(90deg, color-mix(in srgb, var(--oliva) 55%, transparent) 50%, transparent 50%),
+    linear-gradient(color-mix(in srgb, var(--oliva) 55%, transparent) 50%, transparent 50%);
   background-size: 18px 18px;
 }
 
-/* Babado: bolinhas penduradas na borda de baixo (o recorte do topo do site de doces).
-   A cor vem de --babado (padrão: rosa). */
+/* Borda ondulada (scalloped): semicírculos pendurados embaixo. Cor por --babado (padrão: card). */
 @utility babado {
   position: relative;
   &::after {
@@ -277,8 +370,60 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     position: absolute;
     inset-inline: 0;
     top: 100%;
-    height: 9px;
-    background: radial-gradient(circle at 9px 0, var(--babado, var(--rosa)) 8.5px, transparent 9px) 0 0 / 18px 9px repeat-x;
+    height: 12px;
+    background: radial-gradient(circle at 12px 0, var(--babado, var(--card)) 12px, transparent 13px) 0 0 / 24px 12px repeat-x;
+    pointer-events: none;
+    z-index: 10;
+  }
+}
+
+/* Topo de bloco espiral: fileira de furos (pede pt-9 no elemento). */
+@utility espiral {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    inset-inline: 16px;
+    height: 16px;
+    background-image: radial-gradient(
+      circle at 14px 8px,
+      var(--page) 7px,
+      color-mix(in srgb, var(--ink) 18%, transparent) 8px,
+      transparent 8.5px
+    );
+    background-size: 32px 16px;
+    pointer-events: none;
+  }
+}
+
+/* Folha de fichário: azul-claro pautado, margem vermelha e furos à esquerda (conteúdo pede pl-14). */
+@utility folha-fichario {
+  position: relative;
+  background-color: var(--ceu-claro);
+  background-image:
+    linear-gradient(
+      to right,
+      transparent 44px,
+      color-mix(in srgb, var(--cereja) 35%, transparent) 44px,
+      color-mix(in srgb, var(--cereja) 35%, transparent) 46px,
+      transparent 46px
+    ),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 31px, color-mix(in srgb, var(--lavanda-escura) 14%, transparent) 32px);
+  &::before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    bottom: 20px;
+    left: 12px;
+    width: 22px;
+    background-image: radial-gradient(
+      circle at 11px 16px,
+      var(--page) 8px,
+      color-mix(in srgb, var(--ink) 18%, transparent) 9px,
+      transparent 9.5px
+    );
+    background-size: 22px 44px;
     pointer-events: none;
   }
 }
@@ -297,21 +442,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
-/* Fita adesiva semitransparente. Posicione com absolute + rotate. */
+/* Fita adesiva semitransparente solta. Posicione com absolute + rotate. */
 @utility fita {
   @apply pointer-events-none absolute h-6 w-24;
   background: color-mix(in srgb, var(--rosa) 65%, transparent);
   clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 16% 8%, 100% 0, 96% 12%, 100% 24%, 96% 38%, 100% 52%, 96% 66%, 100% 80%, 96% 92%, 100% 100%, 0 100%, 4% 86%, 0 72%, 4% 58%, 0 44%, 4% 30%, 0 18%);
 }
 
-/* Faixa corrida (letreiro que passa, como "NOW BOOKING FROM NOVEMBER…") */
+/* Letreiro que passa no topo. Para no hover e em `prefers-reduced-motion`. */
 @keyframes correr {
   to {
     transform: translateX(-50%);
   }
 }
 @utility animate-correr {
-  animation: correr 40s linear infinite;
+  animation: correr 28s linear infinite;
+  &:hover {
+    animation-play-state: paused;
+  }
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }

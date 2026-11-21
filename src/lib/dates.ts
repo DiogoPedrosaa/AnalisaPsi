@@ -44,6 +44,14 @@ export function formatarDataLonga(iso: string, comAno = false) {
   });
 }
 
+/** "18/11/2026" ou, com `comDia`, "Qua, 18/11/2026" (data dos cartões de atividade). */
+export function formatarDataCurta(iso: string, comDia = false) {
+  const [y, m, d] = iso.split("-");
+  if (!y || !m || !d) return iso;
+  const data = `${d}/${m}/${y}`;
+  return comDia ? `${DIAS_SEMANA_CURTO[diaDaSemana(iso)]}, ${data}` : data;
+}
+
 export function adicionarDias(iso: string, dias: number) {
   const d = parseData(iso);
   d.setDate(d.getDate() + dias);

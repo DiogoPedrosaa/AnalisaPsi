@@ -26,8 +26,8 @@ export default function InicioPage({ searchParams }: Props) {
     <div className="space-y-8">
       <Suspense
         fallback={
-          <div className="card quadriculado p-5 sm:p-7">
-            <SkeletonBloco linhas={3} />
+          <div className="max-w-md">
+            <SkeletonBloco linhas={2} />
           </div>
         }
       >
@@ -38,7 +38,7 @@ export default function InicioPage({ searchParams }: Props) {
         fallback={
           <>
             <GradePastasCarregando />
-            <div className="card p-5 sm:p-6">
+            <div className="painel p-5 sm:p-8">
               <SkeletonBloco linhas={5} />
             </div>
           </>
@@ -79,11 +79,11 @@ async function Pastas({ searchParams }: Pick<Props, "searchParams">) {
 
   if (pastas.length === 0) {
     return (
-      <div className="card px-5 py-12 text-center">
+      <div className="painel px-5 py-12 text-center">
         <p className="text-3xl" aria-hidden>
           🗂️
         </p>
-        <p className="mt-2 font-display text-2xl">Nenhuma turma cadastrada ainda</p>
+        <p className="mt-2 font-display text-2xl font-extrabold">Nenhuma turma cadastrada ainda</p>
         <p className="mt-1 text-sm text-ink-2">Cada turma ganha a sua pasta colorida.</p>
         <Link href="/turmas-e-tags" className="btn-primary mt-5">
           Cadastrar turmas

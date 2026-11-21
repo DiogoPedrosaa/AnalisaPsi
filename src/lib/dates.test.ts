@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hojeNoFuso, horaNoFuso, quandoFoi, saudacao } from "@/lib/dates";
+import { formatarDataCurta, hojeNoFuso, horaNoFuso, quandoFoi, saudacao } from "@/lib/dates";
 
 describe("saudacao", () => {
   it.each([
@@ -54,5 +54,21 @@ describe("quandoFoi", () => {
 
   it("data no futuro conta como hoje", () => {
     expect(quandoFoi("2026-11-20", hoje)).toBe("hoje");
+  });
+});
+
+describe("formatarDataCurta", () => {
+  it("vira dd/mm/aaaa", () => {
+    expect(formatarDataCurta("2026-03-05")).toBe("05/03/2026");
+  });
+
+  it("com o dia da semana abreviado na frente", () => {
+    expect(formatarDataCurta("2026-11-18", true)).toBe("Qua, 18/11/2026");
+    expect(formatarDataCurta("2026-11-22", true)).toBe("Dom, 22/11/2026");
+  });
+
+  it("devolve o texto original se não for uma data yyyy-mm-dd", () => {
+    expect(formatarDataCurta("")).toBe("");
+    expect(formatarDataCurta("18/11")).toBe("18/11");
   });
 });

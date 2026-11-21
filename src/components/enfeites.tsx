@@ -126,20 +126,22 @@ export function SetaRabisco({ className = "h-10 w-24 text-vinho" }: Adesivo) {
   );
 }
 
-/** Letreiro que passa (a faixa "NOW BOOKING FROM NOVEMBER…"). Para em `prefers-reduced-motion`. */
+/**
+ * Letreiro cereja que passa no topo, com as frases separadas por ✦ e ✿ alternados.
+ * Para no hover e em `prefers-reduced-motion`.
+ */
 export function FaixaCorrida({ frases, className = "bg-cereja text-creme" }: { frases: string[]; className?: string }) {
   const linha = (copia: boolean) => (
-    <span className="flex shrink-0 items-center" aria-hidden={copia || undefined}>
+    <span className="flex shrink-0 items-center gap-8 pr-8" aria-hidden={copia || undefined}>
       {frases.map((f, i) => (
-        <span key={i} className="flex items-center gap-4 pr-4">
-          {f}
-          <span aria-hidden>→</span>
+        <span key={i} className="whitespace-nowrap">
+          <span aria-hidden>{i % 2 === 0 ? "✦" : "✿"}</span> {f}
         </span>
       ))}
     </span>
   );
   return (
-    <div className={`overflow-hidden py-1.5 text-[11px] font-semibold tracking-[0.16em] uppercase ${className}`}>
+    <div className={`overflow-hidden border-b-2 border-line py-2 text-xs font-bold tracking-widest uppercase ${className}`}>
       <div className="animate-correr flex w-max">
         {linha(false)}
         {linha(true)}

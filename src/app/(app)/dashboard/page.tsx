@@ -76,7 +76,7 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/dashboard"
           <p className="text-3xl" aria-hidden>
             📊
           </p>
-          <p className="mt-3 font-medium">Ainda não há atividades {periodo || turmaId ? "com esses filtros" : "registradas"}.</p>
+          <p className="mt-3 font-display text-xl font-extrabold">Ainda não há atividades {periodo || turmaId ? "com esses filtros" : "registradas"}.</p>
           <p className="mt-1 text-sm text-ink-2">Os gráficos aparecem assim que você registrar as primeiras atividades.</p>
           <Link href="/registrar" className="btn-primary mt-5">
             Registrar atividade
@@ -85,7 +85,7 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/dashboard"
       ) : (
         <>
           {/* Resumo em texto */}
-          <div className="card furos mt-4 border-cereja/40 bg-accent-soft/60 p-5 pt-7">
+          <div className="card furos mt-4 bg-accent-soft/60 p-5 pt-7">
             <p className="mb-2 -rotate-1 font-script text-2xl leading-none text-cereja">em resumo…</p>
             <p className="leading-relaxed">
               {resumo({ total: stats.geral.total, melhorTurma: turmaSelecionada ? undefined : melhorTurma, melhorTag, piorTag, melhorDia, piorDia })}
@@ -139,7 +139,7 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/dashboard"
 
 function Secao({ titulo, subtitulo, children }: { titulo: string; subtitulo: string; children: React.ReactNode }) {
   return (
-    <section className="card p-5">
+    <section className="painel p-5 sm:p-6">
       <h2 className="titulo-secao">{titulo}</h2>
       <p className="mb-5 text-sm text-ink-2">{subtitulo}</p>
       {children}
@@ -164,14 +164,14 @@ function Destaque({
 }) {
   const principal = valor ?? grupo?.nome;
   return (
-    <div className="card relative overflow-hidden p-4">
+    <div className="card relative overflow-hidden p-4 shadow-[3px_3px_0_0_var(--sombra)]">
       {sinal && (
         <span aria-hidden className={`absolute inset-y-0 left-0 w-1 ${sinal === "melhor" ? "bg-boa" : "bg-ruim"}`} />
       )}
       <p className="rotulo">{titulo}</p>
       {principal ? (
         <>
-          <p className="mt-2 flex items-center gap-2 font-display text-2xl leading-tight sm:text-3xl">
+          <p className="mt-2 flex items-center gap-2 font-display text-2xl leading-tight font-extrabold sm:text-3xl">
             {mostrarCor && grupo && <TagDot cor={grupo.cor} className="size-3" />}
             <span className="truncate">{principal}</span>
           </p>

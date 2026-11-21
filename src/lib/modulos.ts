@@ -1,5 +1,5 @@
 /**
- * Módulos do app: alimentam o menu lateral e a vitrine do login. A tela de início (`/`) é a das
+ * Módulos do app: alimentam a navegação do cabeçalho e a vitrine do login. A tela de início (`/`) é a das
  * pastas. `principal` fica no topo do menu; `mais` vai num grupo menor abaixo, para o dia a dia
  * ter só duas telas (pastas e registrar).
  */
@@ -41,8 +41,11 @@ export const MODULOS = [
   },
 ] as const;
 
-/** Chave no localStorage do menu lateral; o script em `app/layout.tsx` lê a mesma chave antes da primeira pintura. */
-export const CHAVE_MENU = "analisapsi:menu";
+/**
+ * Itens da navegação do cabeçalho. "Registrar" fica de fora porque já é o botão principal
+ * (cereja) ao lado da navegação.
+ */
+export const MENU_TOPO = MODULOS.filter((m) => m.href !== "/registrar");
 
 /** Diz se o item de menu `href` corresponde à rota atual. A edição de atividade conta como "Registrar". */
 export function itemAtivo(pathname: string, href: string) {

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { AtividadeForm, type Sugestao } from "@/components/atividade-form";
 import { AtividadeLista } from "@/components/atividade-lista";
+import { FolhaFichario } from "@/components/fichario";
 import { SkeletonBloco } from "@/components/skeleton";
 import { getAtividades, getTags, getTurmas } from "@/lib/data";
 import { uuidParam } from "@/lib/params";
@@ -11,21 +12,19 @@ export const metadata: Metadata = { title: "Registrar" };
 
 export default function RegistrarPage({ searchParams }: PageProps<"/registrar">) {
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
+    <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
       <section>
-        <h1 className="titulo-pagina">Registrar atividade</h1>
-        <p className="subtitulo-pagina">Leva menos de um minuto. O dia da semana é preenchido sozinho.</p>
-        <div className="card p-5 sm:p-6">
+        <FolhaFichario titulo="Registrar atividade" subtitulo="Leva menos de um minuto. O dia da semana é preenchido sozinho.">
           <Suspense fallback={<SkeletonBloco linhas={6} />}>
             <Formulario searchParams={searchParams} />
           </Suspense>
-        </div>
+        </FolhaFichario>
       </section>
 
       <section>
-        <div className="mb-3 flex items-baseline justify-between lg:mt-[4.25rem]">
-          <h2 className="titulo-secao">Últimos registros</h2>
-          <Link href="/historico" className="text-sm font-medium text-accent hover:underline">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="washi -rotate-1 bg-ceu px-3 py-1 text-xs">Últimos registros</h2>
+          <Link href="/historico" className="text-sm font-bold text-cereja hover:underline">
             Ver tudo
           </Link>
         </div>
@@ -67,5 +66,5 @@ async function Recentes() {
       </div>
     );
   }
-  return <AtividadeLista atividades={atividades} />;
+  return <AtividadeLista atividades={atividades} compacta />;
 }

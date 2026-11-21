@@ -23,11 +23,11 @@ function plural(n: number) {
 
 export function ListaTurmas({ turmas }: { turmas: TurmaItem[] }) {
   return (
-    <section className="card p-5">
+    <section className="painel p-5 sm:p-6">
       <h2 className="titulo-secao">Turmas</h2>
       <p className="mb-4 text-sm text-ink-2">{turmas.length ? `${turmas.length} cadastradas` : "Nenhuma ainda"}</p>
       <NovoItem placeholder="Nome da turma (ex.: 3º ano B)" criar={criarTurma} />
-      <ul className="mt-4 divide-y divide-line">
+      <ul className="mt-4 divide-y divide-line/15">
         {turmas.map((t) => (
           <Item
             key={t.id}
@@ -45,11 +45,11 @@ export function ListaTurmas({ turmas }: { turmas: TurmaItem[] }) {
 
 export function ListaTags({ tags }: { tags: TagItem[] }) {
   return (
-    <section className="card p-5">
+    <section className="painel p-5 sm:p-6">
       <h2 className="titulo-secao">Tags</h2>
       <p className="mb-4 text-sm text-ink-2">Tipos de atividade. Clique na bolinha para trocar a cor.</p>
       <NovoItem placeholder="Nome da tag (ex.: Dança)" criar={criarTag} />
-      <ul className="mt-4 divide-y divide-line">
+      <ul className="mt-4 divide-y divide-line/15">
         {tags.map((t) => (
           <Item
             key={t.id}

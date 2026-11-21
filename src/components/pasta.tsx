@@ -10,9 +10,9 @@ export function fundoDaPasta(indice: number) {
 }
 
 /**
- * Pasta compacta da grade da tela de início (ver DESIGN.md › Pasta): aba de arquivo pequena na cor
- * da turma, nome em serifa, quantidade de atividades e a etapa. A pasta aberta ganha borda escura,
- * sombra de recorte e uma setinha apontando para o caderno abaixo.
+ * Aba de fichário de uma turma (ver DESIGN.md › Pasta): cartão com contorno cacau, a etapa num
+ * selinho, a contagem numa bolinha cacau e o nome em serifa. Fechada fica creme; aberta ganha a cor
+ * da turma, sobe, ganha sombra de recorte e uma setinha cereja apontando para o caderno.
  */
 export function Pasta({
   href,
@@ -29,36 +29,36 @@ export function Pasta({
   indice: number;
   aberta: boolean;
 }) {
-  const cor = fundoDaPasta(indice);
   return (
     <Link
       href={href}
       scroll={false}
       aria-current={aberta ? "page" : undefined}
-      className={`group relative block h-full rounded-xl transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-vinho/40 ${
-        aberta ? "-translate-y-1 drop-shadow-[3px_3px_0_var(--sombra)]" : "hover:-translate-y-0.5"
+      className={`relative flex h-full flex-col justify-between rounded-2xl border-2 border-line p-3 text-left transition-all focus-visible:ring-2 focus-visible:ring-rosa-forte focus-visible:outline-none ${
+        aberta
+          ? `${fundoDaPasta(indice)} -translate-y-1 shadow-[4px_4px_0_0_var(--sombra)]`
+          : "bg-card opacity-90 shadow-[2px_2px_0_0_var(--sombra)] hover:bg-card-2/80 hover:opacity-100"
       }`}
     >
-      <span
-        aria-hidden
-        className={`relative z-10 -mb-0.5 block h-3 w-2/5 rounded-t-md border-2 border-b-0 ${cor} ${aberta ? "border-ink" : "border-line group-hover:border-ink/40"}`}
-      />
-      <span
-        className={`flex h-[calc(100%-0.625rem)] flex-col rounded-xl rounded-tl-none border-2 px-2.5 pt-2 pb-2.5 ${cor} ${
-          aberta ? "border-ink" : "border-line group-hover:border-ink/40"
-        }`}
-      >
-        <span className="flex items-start justify-between gap-1">
-          <span className="min-w-0 font-display text-lg leading-tight break-words sm:text-xl">{nome}</span>
-          <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-ink px-1.5 text-[11px] font-bold text-page tabular-nums">
-            {total}
-            <span className="sr-only">{total === 1 ? " atividade" : " atividades"}</span>
+      <span className="mb-1 flex w-full items-center justify-between gap-1">
+        {etapa ? (
+          <span className="rounded border border-line/30 bg-card/80 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-ink uppercase">
+            {etapa}
           </span>
+        ) : (
+          <span />
+        )}
+        <span className="flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-ink px-1.5 text-xs font-extrabold text-page tabular-nums">
+          {total}
+          <span className="sr-only">{total === 1 ? " atividade" : " atividades"}</span>
         </span>
-        {etapa && <span className="mt-auto pt-1 text-[10px] font-bold tracking-[0.12em] text-ink-2 uppercase">{etapa}</span>}
       </span>
+      <span className="mt-1 font-display text-base leading-tight font-extrabold break-words text-ink sm:text-lg">{nome}</span>
       {aberta && (
-        <span aria-hidden className="absolute -bottom-2 left-1/2 size-3 -translate-x-1/2 rotate-45 border-r-2 border-b-2 border-ink bg-cereja" />
+        <span
+          aria-hidden
+          className="absolute -bottom-2 left-1/2 size-3 -translate-x-1/2 rotate-45 border-r-2 border-b-2 border-line bg-cereja"
+        />
       )}
     </Link>
   );

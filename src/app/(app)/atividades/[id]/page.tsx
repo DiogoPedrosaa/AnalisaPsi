@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { AtividadeForm } from "@/components/atividade-form";
+import { FolhaFichario } from "@/components/fichario";
 import { SkeletonBloco } from "@/components/skeleton";
 import { getAtividade, getTags, getTurmas } from "@/lib/data";
 import { caminhoDeVolta, isUuid } from "@/lib/params";
@@ -11,12 +12,11 @@ export const metadata: Metadata = { title: "Editar atividade" };
 export default function EditarAtividadePage({ params, searchParams }: PageProps<"/atividades/[id]">) {
   return (
     <div className="max-w-2xl">
-      <h1 className="titulo-pagina mb-6">Editar atividade</h1>
-      <div className="card p-5 sm:p-6">
+      <FolhaFichario titulo="Editar atividade" subtitulo="As mudanças valem para a pasta da turma, o histórico e o painel.">
         <Suspense fallback={<SkeletonBloco linhas={6} />}>
           <Formulario params={params} searchParams={searchParams} />
         </Suspense>
-      </div>
+      </FolhaFichario>
     </div>
   );
 }

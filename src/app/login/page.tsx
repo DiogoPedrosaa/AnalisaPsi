@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Brilho, Estrela8, FaixaCorrida, Flor, SetaRabisco } from "@/components/enfeites";
+import { FRASES_LETREIRO } from "@/components/cabecalho";
 import { Icone } from "@/components/icone";
 import { Marca } from "@/components/logo";
 import { MODULOS } from "@/lib/modulos";
@@ -7,12 +8,7 @@ import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Entrar" };
 
-const FRASES = [
-  "Registre a atividade em menos de um minuto",
-  "Descubra o que funciona com cada turma",
-  "Seu caderno de atividades",
-  "Dados de verdade, sem exagero",
-];
+const FRASES = [...FRASES_LETREIRO, "Registre a atividade em menos de um minuto"];
 
 export default function LoginPage() {
   return (
@@ -24,8 +20,8 @@ export default function LoginPage() {
             <div className="hidden lg:block">
               <Marca tamanho="text-4xl" logo="size-11" />
               <p className="rotulo mt-10">(Seu caderno de atividades)</p>
-              <p className="mt-3 font-display text-5xl leading-[1] tracking-tight xl:text-6xl">
-                Descubra o que <em className="text-accent">funciona</em> com cada turma.
+              <p className="mt-3 font-display text-5xl leading-[1.05] font-extrabold tracking-tight text-vinho xl:text-6xl">
+                Descubra o que <em className="font-semibold text-oliva">funciona</em> com cada turma.
               </p>
               <p className="mt-4 max-w-md text-sm leading-relaxed text-ink-2">
                 Registre as atividades do dia em menos de um minuto e acompanhe, com dados de verdade, o que
@@ -40,12 +36,12 @@ export default function LoginPage() {
             <p className="rotulo mb-4 lg:mt-10">O que você encontra aqui</p>
             <ul className="grid gap-3 sm:grid-cols-2">
               {MODULOS.map((m) => (
-                <li key={m.href} className="flex gap-3 rounded-xl border-2 border-line bg-card p-4">
+                <li key={m.href} className="adesivo flex gap-3 rounded-2xl bg-card p-4">
                   <Flor cor="text-rosa-claro" petalas={9} className="size-11 shrink-0 text-accent">
                     <Icone d={m.icon} className="size-4" />
                   </Flor>
                   <span>
-                    <span className="block font-display text-xl leading-tight">{m.label}</span>
+                    <span className="block font-display text-xl leading-tight font-extrabold">{m.label}</span>
                     <span className="mt-0.5 block text-xs leading-relaxed text-ink-2">{m.descricao}</span>
                   </span>
                 </li>
@@ -58,7 +54,7 @@ export default function LoginPage() {
               <Marca tamanho="text-4xl" logo="size-10" />
             </div>
 
-            <div className="estampa-estrelas relative rounded-[2rem] border-4 border-card p-5 shadow-[5px_5px_0_0_var(--line)] sm:p-9">
+            <div className="estampa-rosa relative rounded-[2rem] border-2 border-line p-5 shadow-[6px_6px_0_0_var(--sombra)] sm:p-9">
               <div className="card relative p-6 shadow-[4px_4px_0_0_var(--sombra)] sm:p-8">
                 <span className="fita -top-3 -left-5 -rotate-[28deg]" aria-hidden />
                 <span className="fita -right-5 -bottom-3 -rotate-[28deg]" aria-hidden />
@@ -76,7 +72,7 @@ export default function LoginPage() {
                 <p className="rotulo flex items-center gap-1.5">
                   <Brilho className="size-3 text-cereja" /> Entrar
                 </p>
-                <h1 className="mt-2 font-display text-4xl leading-none tracking-tight">Que bom ver você!</h1>
+                <h1 className="mt-2 font-display text-4xl leading-none font-extrabold tracking-tight text-vinho">Que bom ver você!</h1>
                 <p className="mt-2 mb-6 text-sm text-ink-2">Entre para continuar de onde parou.</p>
                 <LoginForm />
               </div>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { itemAtivo, MODULOS, nomeDeExibicao } from "@/lib/modulos";
+import { itemAtivo, MENU_TOPO, MODULOS, nomeDeExibicao } from "@/lib/modulos";
 
 describe("itemAtivo", () => {
   it("Início só fica ativo na raiz", () => {
@@ -60,5 +60,15 @@ describe("nomeDeExibicao", () => {
     expect(nomeDeExibicao(undefined)).toBe("");
     expect(nomeDeExibicao(null, null)).toBe("");
     expect(nomeDeExibicao("1234@x.com")).toBe("");
+  });
+});
+
+describe("MENU_TOPO", () => {
+  it("não repete Registrar, que já é o botão principal do cabeçalho", () => {
+    expect(MENU_TOPO.map((m) => m.label)).toEqual(["Pastas", "Histórico", "Painel", "Turmas e tags"]);
+  });
+
+  it("a edição de atividade não acende nenhum chip do topo (ela conta como Registrar)", () => {
+    expect(MENU_TOPO.filter((m) => itemAtivo("/atividades/abc", m.href))).toHaveLength(0);
   });
 });

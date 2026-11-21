@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useSyncExternalStore, useTransition } from "react";
@@ -128,7 +129,7 @@ export function AtividadeForm({
                 type="button"
                 aria-pressed={sel}
                 onClick={() => setTurmaId(t.id)}
-                className={`chip ${sel ? "border-accent bg-accent text-accent-ink" : "border-line bg-card text-ink hover:border-accent/50"}`}
+                className={`chip py-2 text-sm ${sel ? "chip-ativo" : "chip-inativo"}`}
               >
                 {t.nome}
               </button>
@@ -184,9 +185,9 @@ export function AtividadeForm({
                 type="button"
                 aria-pressed={sel}
                 onClick={() => alternarTag(t.id)}
-                className={`chip ${sel ? "border-ink bg-ink text-page" : "border-line bg-card text-ink hover:border-ink/40"}`}
+                className={`chip py-2 text-sm ${sel ? "chip-ativo" : "chip-inativo"}`}
               >
-                <TagDot cor={t.cor} />
+                <TagDot cor={t.cor} className="size-2.5 ring-1 ring-line/30" />
                 {t.nome}
               </button>
             );
@@ -207,7 +208,7 @@ export function AtividadeForm({
       {/* Receptividade */}
       <fieldset>
         <legend className="label">Como a turma recebeu?</legend>
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="grid grid-cols-3 gap-2.5">
           {ORDEM_RECEPTIVIDADE.map((k) => {
             const r = RECEPTIVIDADE[k];
             const sel = receptividade === k;
@@ -217,15 +218,15 @@ export function AtividadeForm({
                 type="button"
                 aria-pressed={sel}
                 onClick={() => setReceptividade(k)}
-                className={`flex flex-col items-center gap-1 rounded-2xl border-2 px-2 py-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 sm:py-4 ${
-                  sel ? r.soft : "border-line bg-card hover:border-ink/30"
+                className={`flex flex-col items-center gap-0.5 rounded-xl border-2 p-2.5 text-center transition-all focus-visible:ring-2 focus-visible:ring-rosa-forte focus-visible:outline-none sm:p-3 ${
+                  sel ? `${r.soft} ring-2 ${r.anel}` : "border-line bg-card text-ink hover:bg-card-2"
                 }`}
               >
-                <span className="text-3xl leading-none" aria-hidden>
+                <span className="mb-0.5 text-2xl leading-none" aria-hidden>
                   {r.emoji}
                 </span>
-                <span className="font-display text-xl leading-none">{r.label}</span>
-                <span className="hidden text-xs text-ink-2 sm:block">{r.descricao}</span>
+                <span className="text-xs leading-tight font-extrabold">{r.label}</span>
+                <span className="text-[10px] leading-tight text-ink-2">{r.descricao}</span>
               </button>
             );
           })}
@@ -251,14 +252,14 @@ export function AtividadeForm({
               <button
                 type="button"
                 onClick={() => setDataEscolhida(null)}
-                className={`chip ${data === hoje ? "border-accent bg-accent-soft text-accent" : "border-line bg-card text-ink-2"}`}
+                className={`chip py-2 text-sm ${data === hoje ? "chip-ativo" : "chip-inativo"}`}
               >
                 Hoje
               </button>
               <button
                 type="button"
                 onClick={() => setDataEscolhida(ontem)}
-                className={`chip ${data === ontem ? "border-accent bg-accent-soft text-accent" : "border-line bg-card text-ink-2"}`}
+                className={`chip py-2 text-sm ${data === ontem ? "chip-ativo" : "chip-inativo"}`}
               >
                 Ontem
               </button>
@@ -311,15 +312,16 @@ export function AtividadeForm({
         </p>
       )}
 
-      <div className="flex gap-3">
-        <button type="submit" disabled={salvando} className="btn-primary flex-1 py-3.5 text-sm sm:flex-none sm:px-8">
-          {salvando ? "Salvando…" : editando ? "Salvar alterações" : "Salvar atividade"}
-        </button>
+      <div className="flex items-center justify-end gap-3 border-t border-line/15 pt-4">
         {editando && (
-          <button type="button" onClick={() => router.back()} className="btn-ghost">
+          <button type="button" onClick={() => router.back()} className="btn-claro">
             Cancelar
           </button>
         )}
+        <button type="submit" disabled={salvando} className="btn-primary flex-1 px-6 py-3 sm:flex-none">
+          <CheckCircle2 className="size-4" aria-hidden />
+          {salvando ? "Salvando…" : editando ? "Salvar alterações" : "Salvar no fichário"}
+        </button>
       </div>
     </form>
   );
@@ -357,7 +359,7 @@ function CriarInline({
       <button
         type="button"
         onClick={() => setAberto(true)}
-        className="chip border-dashed border-line text-ink-2 hover:border-accent hover:text-accent"
+        className="chip border-dashed bg-card py-2 text-sm text-ink-2 hover:bg-rosa-claro/60 hover:text-ink"
       >
         + {rotulo}
       </button>

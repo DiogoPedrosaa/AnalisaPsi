@@ -1,27 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
-import { CHAVE_MENU } from "@/lib/modulos";
+import { Caveat, Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/** Corpo, formulários e listas (sans limpa). */
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+/** Títulos (serifa editorial, usada em 500–800 e itálico). */
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
-});
-
-/** Títulos (serifa fina e elegante, como "The Swedish Candy Cart of Your Dreams"). */
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
   style: ["normal", "italic"],
+  axes: ["opsz"],
 });
 
-/** Letra de mão para recadinhos e anotações ("catch me if you candy!"). */
+/** Letra de mão para recadinhos e anotações. */
 const caveat = Caveat({
   variable: "--font-caveat",
   subsets: ["latin"],
@@ -34,26 +29,14 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f59fc2" },
-    { media: "(prefers-color-scheme: dark)", color: "#6e2443" },
+    { media: "(prefers-color-scheme: light)", color: "#c82333" },
+    { media: "(prefers-color-scheme: dark)", color: "#ea4a5a" },
   ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${caveat.variable} h-full antialiased`}
-      suppressHydrationWarning
-    >
-      <head>
-        {/* Esconde o menu lateral antes da primeira pintura, se a pessoa deixou ele fechado. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem("${CHAVE_MENU}")==="fechado")document.documentElement.dataset.menu="fechado"}catch(e){}`,
-          }}
-        />
-      </head>
+    <html lang="pt-BR" className={`${jakarta.variable} ${fraunces.variable} ${caveat.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col font-sans">{children}</body>
     </html>
   );

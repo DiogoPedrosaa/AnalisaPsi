@@ -1,24 +1,37 @@
-import { caminhoFlor } from "@/lib/formas";
-
-/** Selo do AnalisaPsi: flor vinho (como os selos do tema) com três barras crescentes. */
-export function Logo({ className = "size-8" }: { className?: string }) {
+/**
+ * Medalhão do AnalisaPsi: aro verde-oliva com miolo creme tracejado, o Ψ em cereja e um recadinho
+ * em letra de mão, mais uma estrelinha rosa no canto. `grande` mostra o recadinho (cabeçalho).
+ */
+export function Medalhao({ className = "size-24", grande = true }: { className?: string; grande?: boolean }) {
   return (
-    <svg viewBox="0 0 32 32" className={className} aria-hidden>
-      <path d={caminhoFlor(12, 32)} fill="var(--accent)" />
-      <rect x="9" y="17" width="3.6" height="6.5" rx="1.4" fill="var(--accent-ink)" opacity="0.65" />
-      <rect x="14.2" y="12.5" width="3.6" height="11" rx="1.4" fill="var(--accent-ink)" opacity="0.85" />
-      <rect x="19.4" y="8.5" width="3.6" height="15" rx="1.4" fill="var(--accent-ink)" />
-    </svg>
+    <span
+      aria-hidden
+      className={`relative flex shrink-0 items-center justify-center rounded-full border-2 border-line bg-oliva shadow-md ${
+        grande ? "p-2" : "p-1"
+      } ${className}`}
+    >
+      <span className="flex size-full flex-col items-center justify-center rounded-full border-2 border-dashed border-oliva bg-card">
+        <span className={`font-display leading-none font-extrabold text-cereja ${grande ? "text-2xl" : "text-base"}`}>Ψ</span>
+        {grande && <span className="mt-0.5 font-script text-sm leading-none font-bold text-oliva max-sm:hidden">caderno</span>}
+      </span>
+      <span
+        className={`absolute -top-1 -right-1 flex items-center justify-center rounded-full border-2 border-line bg-rosa-claro text-ink shadow-sm ${
+          grande ? "size-7 text-xs" : "size-4 text-[8px]"
+        }`}
+      >
+        ✦
+      </span>
+    </span>
   );
 }
 
-/** Logo + nome, com o "Psi" em itálico (letreiro da marca). */
-export function Marca({ className = "", tamanho = "text-2xl", logo = "size-8" }: { className?: string; tamanho?: string; logo?: string }) {
+/** Medalhão + nome, com o "Psi" em itálico oliva (letreiro da marca). */
+export function Marca({ className = "", tamanho = "text-3xl", logo = "size-10" }: { className?: string; tamanho?: string; logo?: string }) {
   return (
-    <span className={`flex items-center gap-2 ${className}`}>
-      <Logo className={logo} />
-      <span className={`font-display leading-none tracking-tight text-ink ${tamanho}`}>
-        Analisa<em className="text-accent">Psi</em>
+    <span className={`flex items-center gap-3 ${className}`}>
+      <Medalhao className={logo} grande={false} />
+      <span className={`font-display leading-none font-extrabold tracking-tight text-vinho ${tamanho}`}>
+        Analisa<em className="font-semibold text-oliva">Psi</em>
       </span>
     </span>
   );
