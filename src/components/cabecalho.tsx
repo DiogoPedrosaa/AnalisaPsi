@@ -1,6 +1,7 @@
 import { LogOut, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { BotaoBackup } from "@/components/botao-backup";
 import { FaixaCorrida } from "@/components/enfeites";
 import { Medalhao } from "@/components/logo";
 import { NavTopo, NavTopoEstatica } from "@/components/nav";
@@ -50,6 +51,7 @@ export function Cabecalho() {
                 <PlusCircle className="size-4" aria-hidden />
                 Registrar atividade
               </Link>
+              <BotaoBackup />
               <form action={sair}>
                 <button type="submit" className="btn-claro" title="Sair">
                   <LogOut className="size-4 text-cereja" aria-hidden />

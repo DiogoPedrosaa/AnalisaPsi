@@ -294,7 +294,12 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
      lavanda "Caderno de campo & planejamento" (a partir de `sm`), "Analisa*Psi*" em Fraunces extrabold `vinho`
      (+ "— Psicologia Escolar" em itálico oliva a partir de `md`) e o recadinho "Descubra o que ~funciona~ com cada
      turma" (sublinhado ondulado `rosa-forte`, a partir de `sm`). À direita, `btn-primary` **"Registrar atividade"**
-     (largura cheia no celular) e `btn-claro` "Sair" (só ícone no celular).
+     (largura cheia no celular), o **"Backup JSON"** e "Sair" (ambos `btn-claro`, só ícone no celular).
+  - **Backup JSON** (`<BotaoBackup>` em [src/components/botao-backup.tsx](src/components/botao-backup.tsx)): ícone de
+    download `cereja`; ao clicar faz `GET /api/atividades` (todas as atividades, formato em
+    [src/lib/backup.ts](src/lib/backup.ts)) e baixa `backup-analisapsi-AAAA-MM-DD.json`. Enquanto busca, "Baixando…"
+    (desabilitado); ao terminar, "Baixado!" com check `oliva` por 2,5s. Erro (sessão expirada, falha, sem internet)
+    aparece num balão creme contornado com sombra de 3px logo abaixo do botão (`role="alert"`), que some em 6s.
   3. Navegação (`<NavTopo>` em [src/components/nav.tsx](src/components/nav.tsx)): chips com ícone para os itens de
      `MENU_TOPO` (Pastas, Histórico, Painel, Turmas e tags — "Registrar" já é o botão principal). Ativo `chip-ativo`
      com `aria-current="page"`, decidido por `itemAtivo()` ([src/lib/modulos.ts](src/lib/modulos.ts)). No celular a
