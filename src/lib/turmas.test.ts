@@ -3,6 +3,7 @@ import {
   corDaPasta,
   etapaDaTurma,
   ordenarTurmas,
+  rotuloDaTurma,
   rotuloEtapa,
   TOTAL_CORES_PASTA,
   turmaPreSelecionada,
@@ -149,5 +150,21 @@ describe("turmaPreSelecionada", () => {
 
   it("sem turmas, nenhuma", () => {
     expect(turmaPreSelecionada([], "a")).toBe("");
+  });
+});
+
+describe("rotuloDaTurma", () => {
+  it("acrescenta a etapa curta", () => {
+    expect(rotuloDaTurma("8º Ano")).toBe("8º Ano (Fund. II)");
+    expect(rotuloDaTurma("3º ano")).toBe("3º ano (Fund. I)");
+  });
+
+  it("não repete a etapa quando o nome já diz", () => {
+    expect(rotuloDaTurma("1º Médio")).toBe("1º Médio");
+    expect(rotuloDaTurma("6º ano Fund II")).toBe("6º ano Fund II");
+  });
+
+  it("turma sem etapa reconhecível fica como está", () => {
+    expect(rotuloDaTurma("Turma B")).toBe("Turma B");
   });
 });

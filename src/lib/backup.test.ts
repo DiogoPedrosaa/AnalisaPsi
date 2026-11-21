@@ -6,10 +6,12 @@ const atividade = (id: string, extra: Partial<Atividade> = {}): Atividade => ({
   id,
   titulo: `Atividade ${id}`,
   data: "2026-11-18",
+  categoria: "roda_conversa",
+  tema: "Empatia",
   receptividade: "adoraram",
-  observacao: null,
+  descricao: null,
+  observacoes: null,
   turma: { id: "t1", nome: "8º Ano" },
-  tags: [],
   ...extra,
 });
 
@@ -21,11 +23,13 @@ describe("montarBackup", () => {
     expect(b).toMatchObject({ app: "AnalisaPsi", versao: VERSAO_BACKUP, exportadoEm: "2026-11-21T13:45:00.000Z", total: 2 });
   });
 
-  it("mantém a ordem e todos os campos de cada atividade, com turma e tags", () => {
+  it("mantém a ordem e todos os campos da ficha de cada atividade, com a turma", () => {
     const a = atividade("1", {
-      observacao: "Foi ótimo",
+      categoria: "manual_artistica",
+      tema: "Autoestima",
+      descricao: "Colagem com revistas",
+      observacoes: "Foi ótimo",
       receptividade: "nao_curtiram",
-      tags: [{ id: "g1", nome: "Arte", cor: 3 }],
     });
     const b = montarBackup([a, atividade("2")], agora);
     expect(b.atividades.map((x) => x.id)).toEqual(["1", "2"]);
@@ -47,7 +51,7 @@ describe("montarBackup", () => {
   });
 
   it("sobrevive a JSON.stringify/parse sem perder nada", () => {
-    const b = montarBackup([atividade("1", { tags: [{ id: "g", nome: "Jogo", cor: 1 }] })], agora);
+    const b = montarBackup([atividade("1", { descricao: "Linha 1\nLinha 2", observacoes: "“aspas” & acentos" })], agora);
     expect(JSON.parse(JSON.stringify(b))).toEqual(b);
   });
 });

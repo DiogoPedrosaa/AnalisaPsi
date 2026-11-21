@@ -6,10 +6,11 @@ import { SkeletonBloco } from "@/components/skeleton";
 import { getAtividades, getPastasDeTurmas } from "@/lib/data";
 import { formatarDataLonga, hojeNoFuso, horaNoFuso, quandoFoi, saudacao } from "@/lib/dates";
 import { nomeCompleto, nomeDeExibicao } from "@/lib/modulos";
+import { contarCategorias, ehCategoria } from "@/lib/categoria";
 import { param, uuidParam } from "@/lib/params";
 import { ehReceptividade } from "@/lib/receptividade";
 import { textoParaIA } from "@/lib/relatorio-ia";
-import { filtrarAtividades, pastaMaisRecente, resumirPasta, tagsDasAtividades } from "@/lib/pastas";
+import { filtrarAtividades, pastaMaisRecente, resumirPasta } from "@/lib/pastas";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Pastas" };
@@ -19,7 +20,7 @@ type Props = PageProps<"/">;
 /**
  * Tela de início = tela das pastas (pedido da usuária: "algo prático, sem muitas telas").
  * Topo com "Registrar atividade", grade compacta das pastas e, embaixo, o caderno da pasta aberta
- * (`?turma=`), com filtros por tag e receptividade na própria URL.
+ * (`?turma=`), com filtros por categoria e reação na própria URL.
  */
 export default function InicioPage({ searchParams }: Props) {
   return (
@@ -100,13 +101,12 @@ async function Pastas({ searchParams }: Pick<Props, "searchParams">) {
   const indice = pastas.indexOf(aberta);
   const todas = aberta.id === pedida && atividadesPedida ? atividadesPedida : await getAtividades({ turmaId: aberta.id });
 
-  // Só aceita filtros que existem nesta pasta.
-  const tags = tagsDasAtividades(todas);
-  const tagParam = uuidParam(sp.tag);
-  const tagId = tags.some((t) => t.id === tagParam) ? tagParam : undefined;
+  const cat = param(sp.categoria);
   const reacao = param(sp.receptividade);
-  const receptividade = ehReceptividade(reacao) ? reacao : undefined;
-  const filtro = { tagId, receptividade };
+  const filtro = {
+    categoria: ehCategoria(cat) ? cat : undefined,
+    receptividade: ehReceptividade(reacao) ? reacao : undefined,
+  };
 
   return (
     <>
@@ -115,7 +115,7 @@ async function Pastas({ searchParams }: Pick<Props, "searchParams">) {
         turma={{ id: aberta.id, nome: aberta.nome }}
         indice={indice}
         resumo={resumirPasta(todas)}
-        tags={tags}
+        categorias={contarCategorias(todas)}
         filtro={filtro}
         atividades={filtrarAtividades(todas, filtro)}
         hoje={hojeNoFuso(new Date())}

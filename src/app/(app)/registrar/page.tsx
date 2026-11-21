@@ -5,8 +5,9 @@ import { AtividadeForm, type Sugestao } from "@/components/atividade-form";
 import { AtividadeLista } from "@/components/atividade-lista";
 import { FolhaFichario } from "@/components/fichario";
 import { SkeletonBloco } from "@/components/skeleton";
-import { getAtividades, getTags, getTurmas } from "@/lib/data";
+import { getAtividades, getTurmas } from "@/lib/data";
 import { uuidParam } from "@/lib/params";
+import { hrefDaPasta } from "@/lib/pastas";
 
 export const metadata: Metadata = { title: "Registrar" };
 
@@ -14,11 +15,15 @@ export default function RegistrarPage({ searchParams }: PageProps<"/registrar">)
   return (
     <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
       <section>
-        <FolhaFichario titulo="Registrar atividade" subtitulo="Leva menos de um minuto. O dia da semana é preenchido sozinho.">
-          <Suspense fallback={<SkeletonBloco linhas={6} />}>
-            <Formulario searchParams={searchParams} />
-          </Suspense>
-        </FolhaFichario>
+        <Suspense
+          fallback={
+            <FolhaFichario titulo="Nova Atividade Escolar">
+              <SkeletonBloco linhas={6} />
+            </FolhaFichario>
+          }
+        >
+          <Formulario searchParams={searchParams} />
+        </Suspense>
       </section>
 
       <section>
@@ -37,24 +42,25 @@ export default function RegistrarPage({ searchParams }: PageProps<"/registrar">)
 }
 
 async function Formulario({ searchParams }: { searchParams: PageProps<"/registrar">["searchParams"] }) {
-  const [turmas, tags, anteriores, sp] = await Promise.all([
-    getTurmas(),
-    getTags(),
-    getAtividades({}, 300),
-    searchParams,
-  ]);
+  const [turmas, anteriores, sp] = await Promise.all([getTurmas(), getAtividades({}, 300), searchParams]);
 
-  // Títulos já usados (mais recentes primeiro) com as tags da última vez.
+  // Títulos já usados (mais recentes primeiro) com a categoria e o tema da última vez.
   const sugestoes: Sugestao[] = [];
   const vistos = new Set<string>();
   for (const a of anteriores) {
     const chave = a.titulo.toLowerCase();
     if (vistos.has(chave)) continue;
     vistos.add(chave);
-    sugestoes.push({ titulo: a.titulo, tagIds: a.tags.map((t) => t.id) });
+    sugestoes.push({ titulo: a.titulo, categoria: a.categoria, tema: a.tema });
   }
 
-  return <AtividadeForm turmas={turmas} tags={tags} sugestoes={sugestoes} turmaInicial={uuidParam(sp.turma)} />;
+  const turmaInicial = uuidParam(sp.turma);
+  const fechar = turmaInicial ? hrefDaPasta(turmaInicial) : "/";
+  return (
+    <FolhaFichario titulo="Nova Atividade Escolar" fechar={fechar}>
+      <AtividadeForm turmas={turmas} sugestoes={sugestoes} turmaInicial={turmaInicial} cancelarPara={fechar} />
+    </FolhaFichario>
+  );
 }
 
 async function Recentes() {

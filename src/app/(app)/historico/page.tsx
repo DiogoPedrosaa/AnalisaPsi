@@ -5,7 +5,8 @@ import { AtividadeLista } from "@/components/atividade-lista";
 import { Filtros } from "@/components/filtros";
 import { ORDEM_RECEPTIVIDADE, RECEPTIVIDADE } from "@/components/receptividade";
 import { SkeletonBloco } from "@/components/skeleton";
-import { getAtividades, getTags, getTurmas } from "@/lib/data";
+import { CATEGORIAS, ehCategoria } from "@/lib/categoria";
+import { getAtividades, getTurmas } from "@/lib/data";
 import { param, uuidParam } from "@/lib/params";
 import { ehReceptividade } from "@/lib/receptividade";
 
@@ -28,16 +29,13 @@ export default function HistoricoPage({ searchParams }: PageProps<"/historico">)
 async function Conteudo({ searchParams }: { searchParams: PageProps<"/historico">["searchParams"] }) {
   const sp = await searchParams;
   const turmaId = uuidParam(sp.turma);
-  const tagId = uuidParam(sp.tag);
+  const cat = param(sp.categoria);
+  const categoria = ehCategoria(cat) ? cat : undefined;
   const reacao = param(sp.receptividade);
   const receptividade = ehReceptividade(reacao) ? reacao : undefined;
 
-  const [turmas, tags, atividades] = await Promise.all([
-    getTurmas(),
-    getTags(),
-    getAtividades({ turmaId, tagId, receptividade }, LIMITE),
-  ]);
-  const filtrando = Boolean(turmaId || tagId || receptividade);
+  const [turmas, atividades] = await Promise.all([getTurmas(), getAtividades({ turmaId, categoria, receptividade }, LIMITE)]);
+  const filtrando = Boolean(turmaId || categoria || receptividade);
 
   return (
     <div className="space-y-5">
@@ -52,15 +50,15 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/historico"
               opcoes: turmas.map((t) => ({ valor: t.id, rotulo: t.nome })),
             },
             {
-              nome: "tag",
-              rotulo: "Tag",
-              todos: "Todas as tags",
-              valor: tagId ?? "",
-              opcoes: tags.map((t) => ({ valor: t.id, rotulo: t.nome })),
+              nome: "categoria",
+              rotulo: "Categoria",
+              todos: "Todas as práticas",
+              valor: categoria ?? "",
+              opcoes: CATEGORIAS.map((c) => ({ valor: c.id, rotulo: `${c.emoji} ${c.label}` })),
             },
             {
               nome: "receptividade",
-              rotulo: "Receptividade",
+              rotulo: "Reação",
               todos: "Qualquer",
               valor: receptividade ?? "",
               opcoes: ORDEM_RECEPTIVIDADE.map((r) => ({

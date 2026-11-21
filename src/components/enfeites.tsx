@@ -93,7 +93,7 @@ export function Cereja({ className = "size-10" }: Adesivo) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
       <path d="M30 6c-6 4-11 13-14 24M30 6c0 8 2 16 6 22" fill="none" stroke="var(--vinho)" strokeWidth={2.5} strokeLinecap="round" />
-      <path d="M30 6c5-4 11-3 14 0-4 3-10 4-14 0Z" fill="var(--tag-6)" />
+      <path d="M30 6c5-4 11-3 14 0-4 3-10 4-14 0Z" fill="var(--oliva)" />
       <circle cx="15" cy="34" r="9" fill="var(--cereja)" stroke="var(--vinho)" strokeWidth={2} />
       <circle cx="35" cy="33" r="9" fill="var(--cereja)" stroke="var(--vinho)" strokeWidth={2} />
       <circle cx="12" cy="31" r="2.2" fill="var(--creme)" />

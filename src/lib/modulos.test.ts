@@ -65,7 +65,7 @@ describe("nomeDeExibicao", () => {
 
 describe("MENU_TOPO", () => {
   it("não repete Registrar, que já é o botão principal do cabeçalho", () => {
-    expect(MENU_TOPO.map((m) => m.label)).toEqual(["Pastas", "Histórico", "Painel", "Turmas e tags"]);
+    expect(MENU_TOPO.map((m) => m.label)).toEqual(["Pastas", "Histórico", "Painel", "Turmas"]);
   });
 
   it("a edição de atividade não acende nenhum chip do topo (ela conta como Registrar)", () => {

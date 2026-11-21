@@ -22,12 +22,3 @@ export function avisoExcluirTurma(nome: string, total: number): AvisoExclusao {
       : `A turma “${nome}” será apagada. ${IRREVERSIVEL}`,
   };
 }
-
-export function avisoExcluirTag(nome: string, total: number): AvisoExclusao {
-  return {
-    titulo: "Apagar tag?",
-    descricao: total
-      ? `A tag “${nome}” será removida de ${plural(total)}. As atividades continuam salvas.`
-      : `A tag “${nome}” será apagada.`,
-  };
-}

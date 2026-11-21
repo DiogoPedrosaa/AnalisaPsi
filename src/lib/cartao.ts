@@ -10,9 +10,3 @@ export function corDaFita(indice: number) {
   const i = Math.abs(Math.trunc(indice)) % CORES_FITA.length;
   return CORES_FITA[Number.isNaN(i) ? 0 : i];
 }
-
-/** Texto da fita: as tags separadas por " • ", ou "Atividade" quando não há tag. */
-export function rotuloDaFita(tags: { nome: string }[]) {
-  const nomes = tags.map((t) => t.nome.trim()).filter(Boolean);
-  return nomes.length ? nomes.join(" • ") : "Atividade";
-}

@@ -1,7 +1,7 @@
-import { formatarDataCurta, nomeDiaSemana } from "@/lib/dates";
-import { tagsDasAtividades } from "@/lib/pastas";
+import { contarCategorias, infoCategoria } from "@/lib/categoria";
+import { formatarDataCurta } from "@/lib/dates";
 import { RECEPTIVIDADES, ROTULO_RECEPTIVIDADE } from "@/lib/receptividade";
-import { rotuloEtapa } from "@/lib/turmas";
+import { rotuloDaTurma } from "@/lib/turmas";
 import type { Atividade, Turma } from "@/lib/types";
 
 /*
@@ -11,22 +11,6 @@ import type { Atividade, Turma } from "@/lib/types";
  */
 
 const LINHA = "=".repeat(52);
-
-/** Tira acentos, pontos e caixa, para comparar nomes ("Fund. II" ~ "fund ii"). */
-function normalizar(texto: string) {
-  return texto
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/\./g, "")
-    .toLowerCase();
-}
-
-/** "8º Ano (Fund. II)"; sem repetir a etapa quando o nome já diz ("1º Médio") nem inventar uma. */
-export function rotuloDaTurma(nome: string) {
-  const etapa = rotuloEtapa(nome);
-  if (!etapa || normalizar(nome).includes(normalizar(etapa))) return nome;
-  return `${nome} (${etapa})`;
-}
 
 /** Da reação mais alta (Adoraram) para a mais baixa; empate → a mais recente primeiro. */
 export function ordenarPorReacao<T extends Pick<Atividade, "receptividade" | "data">>(atividades: T[]) {
@@ -44,33 +28,32 @@ export function textoParaIA({ turma, atividades, autora = "" }: { turma: Turma; 
   if (quem) linhas.push(`Estagiária: ${quem}`);
   linhas.push(`Relatório da Turma: ${nomeTurma}`, `Total de atividades registradas: ${atividades.length}`, LINHA, "");
 
-  // Resumo por tag (as tags fazem o papel das "categorias").
-  linhas.push("RESUMO POR TAG:");
-  const tags = tagsDasAtividades(atividades);
-  const semTag = atividades.filter((a) => a.tags.length === 0).length;
-  for (const t of tags) linhas.push(`- ${t.nome}: ${t.total}`);
-  if (semTag) linhas.push(`- Sem tag: ${semTag}`);
-  if (!tags.length && !semTag) linhas.push("- (nenhuma atividade)");
+  linhas.push("RESUMO POR CATEGORIA:");
+  for (const c of contarCategorias(atividades)) linhas.push(`- ${c.label}: ${c.total}`);
 
   linhas.push("", "RESUMO POR ENGAJAMENTO:");
   for (const k of RECEPTIVIDADES) {
     const r = ROTULO_RECEPTIVIDADE[k];
-    linhas.push(`- ${r.label} (${r.descricao}): ${atividades.filter((a) => a.receptividade === k).length}`);
+    linhas.push(`- ${r.label} (${r.nivel}): ${atividades.filter((a) => a.receptividade === k).length}`);
   }
+  linhas.push("");
 
-  linhas.push("", "ATIVIDADES APLICADAS (ORDENADAS DO MAIOR PARA O MENOR ENGAJAMENTO):");
+  linhas.push("ATIVIDADES APLICADAS (ORDENADAS DO MAIOR PARA O MENOR ENGAJAMENTO):");
   if (atividades.length === 0) linhas.push("(Nenhuma atividade registrada nesta turma ainda.)");
   ordenarPorReacao(atividades).forEach((a, i) => {
     const r = ROTULO_RECEPTIVIDADE[a.receptividade];
-    const tagsAtv = a.tags.length ? a.tags.map((t) => t.nome).join(", ") : "(sem tag)";
     linhas.push(
       "",
       `[${i + 1}] ${a.titulo.toLocaleUpperCase("pt-BR")}`,
-      `Turma: ${nomeTurma} | Data: ${formatarDataCurta(a.data)} (${nomeDiaSemana(a.data)}) | Tags: ${tagsAtv}`,
-      `Reação dos Alunos: ${r.label} / ${r.descricao}`,
+      `Turma: ${nomeTurma} | Data: ${formatarDataCurta(a.data)} | Categoria: ${infoCategoria(a.categoria).label}`,
+      `Reação dos Alunos: ${r.label} / ${r.nivel}`,
     );
-    const descricao = a.observacao?.trim();
-    if (descricao) linhas.push(`Descrição: ${descricao}`);
+    const tema = a.tema.trim();
+    const descricao = a.descricao?.trim();
+    const observacoes = a.observacoes?.trim();
+    if (tema) linhas.push(`Tema / Objetivo Socioemocional: ${tema}`);
+    if (descricao) linhas.push(`Descrição & Materiais: ${descricao}`);
+    if (observacoes) linhas.push(`Observações da Estagiária: ${observacoes}`);
   });
 
   linhas.push(

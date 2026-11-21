@@ -59,6 +59,22 @@ export function rotuloEtapa(nome: string, extenso = false) {
   return null;
 }
 
+/** Tira acentos, pontos e caixa, para comparar nomes ("Fund. II" ~ "fund ii"). */
+function normalizar(texto: string) {
+  return texto
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/\./g, "")
+    .toLowerCase();
+}
+
+/** "8º Ano (Fund. II)"; sem repetir a etapa quando o nome já diz ("1º Médio") nem inventar uma. */
+export function rotuloDaTurma(nome: string) {
+  const etapa = rotuloEtapa(nome);
+  if (!etapa || normalizar(nome).includes(normalizar(etapa))) return nome;
+  return `${nome} (${etapa})`;
+}
+
 /** Cor da pasta (1 a 7) pela posição da turma na lista já ordenada; a partir da 8ª, as cores se repetem. */
 export function corDaPasta(indice: number) {
   const i = Math.max(0, Math.floor(indice));

@@ -10,10 +10,12 @@ const atividade: Atividade = {
   id: "a1",
   titulo: "Mito ou Verdade",
   data: "2026-03-25",
+  categoria: "roda_conversa",
+  tema: "Amizades e redes sociais",
   receptividade: "adoraram",
-  observacao: "Engajamento altíssimo",
+  descricao: "Plaquinhas de mito/verdade",
+  observacoes: "Engajamento altíssimo",
   turma: { id: "t1", nome: "8º Ano" },
-  tags: [{ id: "g1", nome: "Roda de conversa", cor: 1 }],
 };
 
 describe("GET /api/atividades", () => {

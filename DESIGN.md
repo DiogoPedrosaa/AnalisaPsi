@@ -7,10 +7,10 @@ padrão novo deve ser registrado aqui.
 
 - **Prático: poucas telas.** O dia a dia cabe em duas telas: **Pastas** (o início) e **Registrar**.
   Tudo o que dá para resolver na mesma tela fica nela (abrir a pasta de uma turma, filtrar, editar),
-  em vez de virar mais uma aba. Histórico, Painel e Turmas e tags existem como chips do cabeçalho.
+  em vez de virar mais uma aba. Histórico, Painel e Turmas existem como chips do cabeçalho.
 - **Rápido de usar no celular.** O registro de uma atividade deve levar menos de um minuto, com uma
   mão só. Alvos de toque grandes, chips em vez de selects sempre que a lista for curta, e valores
-  padrão inteligentes (data de hoje, turma anterior, tags sugeridas).
+  padrão inteligentes (data de hoje, turma anterior, categoria e tema da última vez que o título foi usado).
 - **Papelaria retrô / scrapbook (o "Diário de Estágio").** A referência visual é o HTML do *Diário de
   Estágio — Psicologia Escolar*: papel creme quadriculado de rosa, **tudo contornado em cacau** com
   **sombra de recorte sólida** (adesivos), cereja, rosa pastel, lavanda, azul-bebê e verde-oliva;
@@ -93,11 +93,23 @@ boa → gostaram, neutra → neutro, ruim → nao_curtiram).
   `fundo` (pílulas do termômetro), `soft` (selo e opção marcada: borda + fundo pastel) e `anel` (anel da opção
   marcada). Não repita esses valores em outros lugares.
 
-### Cores das tags
+### Categoria da Prática (substitui as tags)
 
-Paleta categórica de 8 cores (`--tag-1` … `--tag-8`), em ordem fixa. No banco, a tag guarda só o
-índice (`cor`, de 1 a 8). Para aplicar, use `corDaTag(cor)` ou `<TagDot cor={…} />`
-([src/components/tag-chip.tsx](src/components/tag-chip.tsx)); nunca guarde o hex.
+Toda atividade tem **uma** categoria, de uma lista fixa (a da ficha do diário), em
+[src/lib/categoria.ts](src/lib/categoria.ts) — `CATEGORIAS`, sempre nesta ordem:
+
+| Chave (banco) | Rótulo | Curto (chips) | Emoji | Ícone do chip (Lucide) |
+|---|---|---|---|---|
+| `roda_conversa` | Roda de Conversa | Roda de Conversa | 💬 | `MessageCircle` |
+| `manual_artistica` | Atividade Manual / Artística | Manual / Artística | 🎨 | `Palette` |
+| `dinamica_jogo` | Dinâmica / Jogo Socioemocional | Dinâmica / Jogo | 🎲 | `Dices` |
+| `oficina_debate` | Oficina / Debate | Oficina / Debate | 🧠 | `Brain` |
+| `outro` | Outro | Outro | 📌 | `Pin` |
+
+Use `infoCategoria(id)` para rótulo/emoji, `ehCategoria()` para validar URL/formulário e `contarCategorias()` para
+as contagens (sempre as 5, inclusive zeradas). Categorias não têm cor própria: aparecem com o **emoji** (fita do
+cartão, Painel) ou o **ícone** (chips de filtro). As tags antigas foram convertidas pela migração
+[0004](supabase/migrations/0004_ficha_de_campo.sql) e as tabelas delas ficaram guardadas, sem uso.
 
 ### Cores das pastas
 
@@ -153,7 +165,7 @@ Definidos com `@utility` em [globals.css](src/app/globals.css). Use-os em vez de
 | Classe | Uso |
 |---|---|
 | `card` | Contêiner simples: `rounded-2xl`, contorno de 2px `line`, fundo `card`. Padding fica com quem usa. |
-| `painel` | Bloco grande: `rounded-3xl`, contorno 2px e sombra de recorte de **6px**. Caderno da turma, seções do painel, Turmas e tags, estados vazios grandes. |
+| `painel` | Bloco grande: `rounded-3xl`, contorno 2px e sombra de recorte de **6px**. Caderno da turma, seções do painel, Turmas, estados vazios grandes. |
 | `adesivo` | Cartão-adesivo (sticker-card): contorno de **2.5px** e sombra de 4px que sobe para 6px no hover (o cartão sobe 2px). Cartões de atividade e vitrine do login. Junte com `rounded-2xl bg-card`. |
 | `input` | Inputs, selects e textareas: contorno 2px, `rounded-xl`, `font-medium`, foco com anel `cereja`. |
 | `label` | Rótulo de campo/legend: `text-xs font-extrabold uppercase tracking-wider`. Complementos como "(opcional)" levam `font-normal tracking-normal normal-case`. |
@@ -166,7 +178,7 @@ Definidos com `@utility` em [globals.css](src/app/globals.css). Use-os em vez de
 | `btn-danger` | Confirmação destrutiva (só no modal de exclusão). |
 | `btn-ghost` | Sem contorno: botões de ícone e ações muito discretas. |
 | `chip` | Opção selecionável: `rounded-xl`, contorno 2px, `text-xs font-bold` (no formulário, `py-2 text-sm`). Sempre com `chip-ativo` ou `chip-inativo`. |
-| `chip-ativo` | Cereja com texto creme e sombra de 2px (turma, tag, data, filtro e item de navegação ativos). |
+| `chip-ativo` | Cereja com texto creme e sombra de 2px (filtro e item de navegação ativos). |
 | `chip-inativo` | Creme, hover `rosa-claro/60`. |
 | `titulo-pagina` | `h1`: Fraunces extrabold `text-3xl sm:text-4xl` em `vinho`; `em` itálico oliva. |
 | `subtitulo-pagina` | Frase abaixo do `h1` (`text-sm text-ink-2`, já com margens). |
@@ -223,34 +235,51 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
 
 ## Componentes recorrentes
 
-- **TagChip / TagDot:** bolinha na cor da tag; em fundos coloridos, `ring-1 ring-line/30`.
 - **ReceptividadeBadge:** pílula `rounded-full border text-xs font-extrabold` com emoji + rótulo e as
-  classes `soft` da receptividade.
-- **Seletor de reação (formulário):** grade de 4 cartões (**2 colunas no celular, 4 a partir de `sm`**), `rounded-xl border-2 p-2.5` com emoji
-  `text-2xl`, rótulo `text-xs font-extrabold` e descrição `text-[10px]`. Marcado: `soft` + `ring-2` + `anel`.
-- **Cartão de atividade** (`AtividadeLista` em [src/components/atividade-lista.tsx](src/components/atividade-lista.tsx)):
-  grade de cartões `adesivo rounded-2xl bg-card p-5 sm:p-6`, **2 colunas a partir de `md`** (`compacta` força
-  uma), `gap-x-6 gap-y-9`, na ordem recebida (mais recente primeiro). De cima para baixo:
-  1. **Fita washi** colada no topo (`-mt-8`), com as bolinhas das tags e o texto `rotuloDaFita()` ("Arte • Jogo",
-     ou ✨ "Atividade" sem tag); cor em rodízio por `corDaFita(indice)` (rosa, lavanda, céu, oliva) — ambos em
-     [src/lib/cartao.ts](src/lib/cartao.ts).
-  2. Data com ícone de calendário `text-cereja` (`formatarDataCurta(data, true)`: "Qua, 18/11/2026") e o selo de
-     receptividade à direita.
+  classes `soft` da reação. `completo` mostra também o nível ("🤩 Adoraram / Alto Engajamento"), como nos cartões.
+- **Cartão de atividade** (`AtividadeLista` em [src/components/atividade-lista.tsx](src/components/atividade-lista.tsx)),
+  igual ao do diário: grade de cartões `adesivo rounded-2xl bg-card p-5 sm:p-6`, **2 colunas a partir de `md`**
+  (`compacta` força uma), `gap-x-6 gap-y-9`, na ordem recebida (mais recente primeiro). De cima para baixo:
+  1. **Fita washi** colada no topo (`-mt-8`) com o emoji e o rótulo da categoria ("🎨 ATIVIDADE MANUAL / ARTÍSTICA");
+     cor em rodízio por `corDaFita(indice)` (rosa, lavanda, céu, oliva) em [src/lib/cartao.ts](src/lib/cartao.ts).
+  2. Data `dd/mm/aaaa` com ícone de calendário `text-cereja` (fora da pasta, "· nome da turma" ao lado) e, à direita,
+     o selo `completo` da reação.
   3. Título em Fraunces extrabold `text-xl`.
-  4. Fora da pasta, caixa `bg-ceu-claro/70` com "**Turma:** 8º Ano" (some com `mostrarTurma={false}`).
-  5. `rotulo` "Descrição" + texto `text-sm text-ink/90` (recolhido, ver abaixo).
-  6. Rodapé com divisória `line/15` e os botões **Editar** e **Excluir** com texto.
-- **Descrição recolhida:** descrições longas (`observacaoLonga()` em [src/lib/observacao.ts](src/lib/observacao.ts):
+  4. Caixa `bg-ceu-claro/70` com "**Tema / Objetivo:**" em `vinho` (só se houver tema).
+  5. "DESCRIÇÃO & MATERIAIS" (`text-[11px] font-extrabold text-ink/65`) + texto `text-sm`.
+  6. Nota "✦ OBSERVAÇÕES DA ESTAGIÁRIA": `bg-card-2` com borda esquerda de 4px `oliva`, título `text-oliva` com ícone de
+     brilho e o texto em itálico, entre aspas.
+  7. Rodapé com divisória `line/15` e os botões **Editar** e **Excluir** com texto.
+- **Texto recolhido:** descrição e observações longas (`observacaoLonga()` em [src/lib/observacao.ts](src/lib/observacao.ts):
   mais de 280 caracteres ou 4 linhas) aparecem com `line-clamp-4` e um botão "Ler tudo" / "Mostrar menos"
   (`text-xs font-bold text-cereja`, com `aria-expanded`).
-- **Campo de descrição (formulário):** sempre aberto; `textarea` com `field-sizing-content min-h-48 max-h-[70vh]
-  resize-y leading-relaxed`; limite `MAX_OBSERVACAO` (20.000). O contador só aparece a partir de 90% (`avisoTamanho()`).
+- **Ficha de Registro de Campo** (`AtividadeForm` em [src/components/atividade-form.tsx](src/components/atividade-form.tsx)):
+  **campos e textos iguais aos da ficha do diário — não mude os rótulos nem os placeholders.** Dentro de uma
+  `<FolhaFichario>` com título "Nova Atividade Escolar" (registrar) ou "Editar Ficha de Atividade" (editar), `space-y-5`:
+  1. Duas colunas a partir de `sm`: **"Pasta da Turma \*"** (select com `rotuloDaTurma()`: "8º Ano (Fund. II)") e
+     **"Data de Aplicação \*"** (hoje por padrão).
+  2. **"Título da Atividade \*"** — "Ex.: Mito ou Verdade: Amizades e Redes Sociais". Repetindo um título já usado,
+     traz a categoria e o tema da última vez.
+  3. Duas colunas: **"Categoria da Prática \*"** (select "💬 Roda de Conversa"…, Roda de Conversa por padrão) e
+     **"Tema / Objetivo Socioemocional \*"** — "Ex.: Alfabetização emocional, Ansiedade/ENEM...".
+  4. **"Reação e Engajamento dos Alunos \*"**: radios em 4 cartões (**2 colunas no celular, 4 a partir de `sm`**),
+     `rounded-xl border-2 p-2.5`, emoji `text-xl`, rótulo `text-xs font-extrabold`, descrição `text-[10px]`
+     ("Alto Engajamento"…). Marcado: `soft` + `ring-2` + `anel`. **Adoraram vem marcado.**
+  5. **"Descrição Breve & Materiais Utilizados \*"** — "Como a atividade foi conduzida e quais materiais foram usados
+     (ex.: cartolina, canetinhas, plaquinhas de mito/verdade, caixa de perguntas)...".
+  6. **"Observações da Estagiária (O que funcionou, o que adaptar, falas marcantes)"** (opcional) — "Anote aqui
+     percepções clínicas/escolares, resistências, falas espontâneas dos alunos e sugestões de melhoria...".
+  7. Divisória e, à direita, "Cancelar" (`btn-claro`) e "Salvar no Fichário" (`btn-primary` com ícone de check).
+  Inputs com a classe `input` + `sm:text-sm` (selects e data em `font-semibold`); textareas de 3 linhas que crescem
+  com o texto (`field-sizing-content min-h-[5.75rem] max-h-[70vh] resize-y`), limite `MAX_OBSERVACAO` (20.000) e
+  contador só a partir de 90% (`avisoTamanho()`). Regras e mensagens em `validarFicha()` ([src/lib/ficha.ts](src/lib/ficha.ts)),
+  usadas no formulário e na action. Sem turma cadastrada, o select fica desabilitado com o link "Cadastre uma turma".
 - **Folha de fichário** (`<FolhaFichario>` em [src/components/fichario.tsx](src/components/fichario.tsx)): moldura dos
   formulários de registrar e editar. `folha-fichario rounded-3xl border-2` com sombra de **8px**; cabeçalho
-  `bg-card/70` com fita washi lavanda ("Ficha de registro de campo"), o `h1` em Fraunces extrabold `text-2xl` e
-  uma frase; conteúdo com `pl-14` (para não cair nos furos). As faixas internas **não** levam `relative`, para
+  `bg-card/70` com fita washi lavanda ("Ficha de Registro de Campo"), o `h1` em Fraunces extrabold `text-2xl`, uma
+  frase opcional e, com `fechar`, o botão ✕ (`size-9 rounded-xl border-2`, hover `rosa-claro`); conteúdo com `pl-14` (para não cair nos furos). As faixas internas **não** levam `relative`, para
   os furos ficarem por cima. Botões do formulário à direita, depois de uma divisória: "Cancelar" (`btn-claro`) e
-  "Salvar no fichário" (`btn-primary` com ícone de check).
+  "Salvar no Fichário" (`btn-primary` com ícone de check).
 - **Aba da turma** ([src/components/pasta.tsx](src/components/pasta.tsx)): `rounded-2xl border-2 p-3` com o selinho da
   etapa ("Fund. II", "Médio", de `rotuloEtapa()`; `text-[10px]` sobre `bg-card/80`) à esquerda, a contagem numa
   bolinha `bg-ink text-page size-6` à direita e o nome em Fraunces extrabold `text-base sm:text-lg`. **Fechada:**
@@ -263,11 +292,11 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
      cartão `bg-card/95 backdrop-blur-sm` por cima: `etiqueta` da etapa, pílula `rosa-claro` "N atividades registradas",
      nome em Fraunces extrabold `text-2xl sm:text-3xl`, `detalhePasta()` e, à direita (empilhados no celular), o
      `btn-secundario` **"Copiar para IA"** (só com atividades) e o `btn-primary` **"Registrar nesta turma"**.
-  2. **Filtros** (`bg-card-2/60`): chips de tag ("Todas as práticas" com ícone de camadas + só as tags usadas, com a
-     contagem numa pílula) e, abaixo, o **Termômetro da turma**: pílulas `rounded-lg` com o `fundo` de cada
+  2. **Filtros** (`bg-card-2/60`): chips de categoria, como no diário — "Todas as Práticas" (ícone de camadas) e as 5
+     categorias com o ícone e o rótulo curto, cada um com a contagem numa pílula e, abaixo, o **Termômetro da turma**: pílulas `rounded-lg` com o `fundo` de cada
      reação ("🤩 Adoraram: 3"), que filtram ao tocar (ativa: contorno cheio + sombra de 2px; com zero, `opacity-50`
      e não clica). À direita, em itálico, "Da mais recente para a mais antiga · N% de aderência". Tudo muda a URL
-     (`?turma=&tag=&receptividade=`, de `hrefDaPasta()`); tocar no ativo tira o filtro.
+     (`?turma=&categoria=&receptividade=`, de `hrefDaPasta()`); tocar no ativo tira o filtro.
   3. **Folhas:** `quadriculado min-h-[380px]` com os cartões de atividade. Filtrando, "3 de 10 atividades" + "Limpar
      filtros" (`btn-claro`). Vazio: ícone de caderno num quadrado `rosa-claro` girado com sombra, "Nenhuma folha
      preenchida aqui ainda!" e `btn-oliva` "Registrar a primeira atividade".
@@ -277,15 +306,17 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
   com ícone de brilho `lavanda-escura`. Copia o texto de `textoParaIA()` ([src/lib/relatorio-ia.ts](src/lib/relatorio-ia.ts)),
   montado no servidor com **todas** as atividades da turma (ignora os filtros da tela): cabeçalho "DIÁRIO DE ESTÁGIO —
   PSICOLOGIA ESCOLAR" com o nome da conta (`nomeCompleto()`) e a turma com a etapa ("8º Ano (Fund. II)", de
-  `rotuloDaTurma()`), resumo por tag e por reação, as atividades da reação mais alta para a mais baixa
-  (`ordenarPorReacao()`; título em caixa alta, data com dia da semana, tags, reação e descrição) e o prompt sugerido.
+  `rotuloDaTurma()`), "RESUMO POR CATEGORIA" (as 5) e "RESUMO POR ENGAJAMENTO" (as 4 reações), as atividades da reação
+  mais alta para a mais baixa (`ordenarPorReacao()`; título em caixa alta, turma, data, categoria, reação, tema,
+  descrição & materiais e observações da estagiária) e o prompt sugerido. O formato é o do exemplo do diário e está
+  travado por teste em [src/lib/relatorio-ia.test.ts](src/lib/relatorio-ia.test.ts).
   Ao copiar, vira "Copiado! Cole na sua IA" com check `oliva` por 2,5s; se o navegador bloquear, balão de erro.
 - Endereços antigos `/turmas` e `/turmas/[id]` redirecionam para o início (em `next.config.ts`), com os filtros.
 - **Registro salvo:** a mensagem de sucesso termina com o link "Ver na pasta →".
 - **Ações de editar e apagar** ([src/components/acoes.tsx](src/components/acoes.tsx)): `<BotaoEditar>` (caneta) e
   `<BotaoApagar>` (lixeira) do Lucide. **Com `texto`** (cartões de atividade) viram botões pequenos contornados
   `rounded-lg border border-line bg-card-2 text-xs font-bold` com ícone + texto ("Editar" com hover `ceu`, "Excluir"
-  em `vinho` com hover `rosa-claro`). **Sem `texto`** (listas de turmas e tags) são só o ícone, `size-8`. `rotulo` é
+  em `vinho` com hover `rosa-claro`). **Sem `texto`** (lista de turmas) são só o ícone, `size-8`. `rotulo` é
   obrigatório e vira `aria-label` + `title`.
 - **Modal de confirmação de exclusão:** toda exclusão passa por ele (já vem dentro do `<BotaoApagar>`); nunca use
   `confirm()`. `<dialog>` nativo (Esc e clique fora fecham), centralizado: `rounded-3xl border-2 bg-card p-6` com
@@ -294,9 +325,10 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
   (`btn-danger`, vira "Apagando…"). Os textos ficam em [src/lib/exclusao.ts](src/lib/exclusao.ts).
 - **Filtros (Histórico, Painel):** selects `input py-2 text-sm` que atualizam a URL; filtro ativo ganha
   `border-accent`; "Limpar filtros" só quando há filtro.
-- **Ranking** ([src/components/ranking.tsx](src/components/ranking.tsx)): nome, aderência em negrito, barra empilhada
-  das 4 reações (`h-2.5 rounded-full`, `gap-[2px]`, trilho `bg-card-2`) e detalhe `text-xs text-muted`. Melhor/pior
-  ganham `▲ melhor` / `▼ pior`; menos de `MIN_AMOSTRA` atividades mostra "poucos dados".
+- **Ranking** ([src/components/ranking.tsx](src/components/ranking.tsx)): nome (com o emoji, nas categorias), aderência em
+  negrito, barra empilhada das 4 reações (`h-2.5 rounded-full`, `gap-[2px]`, trilho `bg-card-2`) e detalhe `text-xs
+  text-muted` ("Adoraram 2 · Neutro 1"). Melhor/pior ganham `▲ melhor` / `▼ pior`; menos de `MIN_AMOSTRA` atividades
+  mostra "poucos dados". O Painel tem rankings de **Turmas**, **Categorias** (sempre as 5) e **Dias da semana**.
 - **Destaque (painel):** `card` com sombra de 3px e faixa vertical de 4px à esquerda (`bg-adoraram` / `bg-nao-curtiram`), `rotulo`
   e valor em Fraunces extrabold `text-2xl sm:text-3xl`.
 - **Caixa de resumo:** `card furos bg-accent-soft/60`, com o recadinho "em resumo…" (`font-script text-cereja`).
@@ -317,7 +349,7 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
     (desabilitado); ao terminar, "Baixado!" com check `oliva` por 2,5s. Erro (sessão expirada, falha, sem internet)
     aparece num balão creme contornado com sombra de 3px logo abaixo do botão (`role="alert"`), que some em 6s.
   3. Navegação (`<NavTopo>` em [src/components/nav.tsx](src/components/nav.tsx)): chips com ícone para os itens de
-     `MENU_TOPO` (Pastas, Histórico, Painel, Turmas e tags — "Registrar" já é o botão principal). Ativo `chip-ativo`
+     `MENU_TOPO` (Pastas, Histórico, Painel, Turmas — "Registrar" já é o botão principal). Ativo `chip-ativo`
      com `aria-current="page"`, decidido por `itemAtivo()` ([src/lib/modulos.ts](src/lib/modulos.ts)). No celular a
      fileira rola de lado. Fica num `Suspense` com `<NavTopoEstatica>` (sem ativo) de fallback.
 - **Rodapé** (`<Rodape>`): `estampa-rosa` com borda de cima cacau e um cartão creme contornado com sombra de 3px.

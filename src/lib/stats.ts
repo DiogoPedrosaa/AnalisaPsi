@@ -1,3 +1,4 @@
+import { CATEGORIAS } from "@/lib/categoria";
 import { DIAS_SEMANA, diaDaSemana } from "@/lib/dates";
 import { calcularAderencia, type ContagemReceptividade, contagemVazia } from "@/lib/receptividade";
 import type { Atividade, Receptividade } from "@/lib/types";
@@ -8,7 +9,8 @@ export const MIN_AMOSTRA = 3;
 export type Grupo = ContagemReceptividade & {
   chave: string;
   nome: string;
-  cor?: number;
+  /** Emoji da categoria (só nos grupos de categoria). */
+  emoji?: string;
   /**
    * Aderência de 0 a 100 (Adoraram 1, Gostaram ⅔, Neutro ⅓, Não curtiram 0; ver `calcularAderencia`).
    * Ex.: 2 adoraram + 1 neutro + 1 não curtiram → (2 + ⅓) / 4 ≈ 58,3%. Sem atividades, 0.
@@ -16,8 +18,8 @@ export type Grupo = ContagemReceptividade & {
   aderencia: number;
 };
 
-function novoGrupo(chave: string, nome: string, cor?: number): Grupo {
-  return { chave, nome, cor, ...contagemVazia(), aderencia: 0 };
+function novoGrupo(chave: string, nome: string, emoji?: string): Grupo {
+  return { chave, nome, emoji, ...contagemVazia(), aderencia: 0 };
 }
 
 function somar(grupo: Grupo, r: Receptividade) {
@@ -56,7 +58,7 @@ export function pior(grupos: Grupo[]) {
 export function calcularEstatisticas(atividades: Atividade[]) {
   const geral = novoGrupo("geral", "Geral");
   const turmas = new Map<string, Grupo>();
-  const tags = new Map<string, Grupo>();
+  const categorias = new Map(CATEGORIAS.map((c) => [c.id as string, novoGrupo(c.id, c.label, c.emoji)]));
   const dias = DIAS_SEMANA.map((nome, i) => novoGrupo(String(i), nome));
 
   for (const a of atividades) {
@@ -66,11 +68,8 @@ export function calcularEstatisticas(atividades: Atividade[]) {
     if (!turma) turmas.set(a.turma.id, (turma = novoGrupo(a.turma.id, a.turma.nome)));
     somar(turma, a.receptividade);
 
-    for (const t of a.tags) {
-      let tag = tags.get(t.id);
-      if (!tag) tags.set(t.id, (tag = novoGrupo(t.id, t.nome, t.cor)));
-      somar(tag, a.receptividade);
-    }
+    const categoria = categorias.get(a.categoria);
+    if (categoria) somar(categoria, a.receptividade);
 
     somar(dias[diaDaSemana(a.data)], a.receptividade);
   }
@@ -83,7 +82,8 @@ export function calcularEstatisticas(atividades: Atividade[]) {
   return {
     geral: fechar([geral])[0],
     turmas: ranking(fechar([...turmas.values()])),
-    tags: ranking(fechar([...tags.values()])),
+    /** As 5 categorias sempre aparecem (as sem atividade ficam no fim do ranking). */
+    categorias: ranking(fechar([...categorias.values()])),
     dias: fechar(diasVisiveis),
   };
 }

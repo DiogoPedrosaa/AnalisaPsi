@@ -6,17 +6,13 @@ import {
   hrefDaPasta,
   pastaMaisRecente,
   resumirPasta,
-  tagsDasAtividades,
 } from "@/lib/pastas";
-import type { Atividade, Receptividade, Tag } from "@/lib/types";
+import type { Atividade, Categoria, Receptividade } from "@/lib/types";
 
 const turma = { id: "t1", nome: "6º ano" };
-const arte: Tag = { id: "arte", nome: "Arte", cor: 2 };
-const roda: Tag = { id: "roda", nome: "Roda de conversa", cor: 7 };
-const jogos: Tag = { id: "jogos", nome: "Jogos", cor: 6 };
 
-function atv(id: string, data: string, receptividade: Receptividade, tags: Tag[] = []): Atividade {
-  return { id, titulo: id, data, receptividade, observacao: null, turma, tags };
+function atv(id: string, data: string, receptividade: Receptividade, categoria: Categoria = "outro"): Atividade {
+  return { id, titulo: id, data, categoria, tema: "", receptividade, descricao: null, observacoes: null, turma };
 }
 
 describe("resumirPasta", () => {
@@ -79,32 +75,11 @@ describe("aderenciaPasta", () => {
   });
 });
 
-describe("tagsDasAtividades", () => {
-  it("lista só as tags usadas, sem repetir, com a contagem, em ordem alfabética", () => {
-    const tags = tagsDasAtividades([
-      atv("a", "2026-11-01", "adoraram", [roda, arte]),
-      atv("b", "2026-11-02", "adoraram", [roda]),
-      atv("c", "2026-11-03", "nao_curtiram", [jogos]),
-      atv("d", "2026-11-04", "nao_curtiram"),
-    ]);
-    expect(tags.map((t) => [t.nome, t.total])).toEqual([
-      ["Arte", 1],
-      ["Jogos", 1],
-      ["Roda de conversa", 2],
-    ]);
-    expect(tags[0].cor).toBe(2);
-  });
-
-  it("sem tags devolve lista vazia", () => {
-    expect(tagsDasAtividades([atv("a", "2026-11-01", "adoraram")])).toEqual([]);
-  });
-});
-
 describe("filtrarAtividades", () => {
   const lista = [
-    atv("a", "2026-11-01", "adoraram", [roda, arte]),
-    atv("b", "2026-11-02", "nao_curtiram", [roda]),
-    atv("c", "2026-11-03", "adoraram", [jogos]),
+    atv("a", "2026-11-01", "adoraram", "roda_conversa"),
+    atv("b", "2026-11-02", "nao_curtiram", "roda_conversa"),
+    atv("c", "2026-11-03", "adoraram", "dinamica_jogo"),
     atv("d", "2026-11-04", "neutro"),
   ];
   const ids = (as: Atividade[]) => as.map((a) => a.id);
@@ -113,17 +88,18 @@ describe("filtrarAtividades", () => {
     expect(ids(filtrarAtividades(lista, {}))).toEqual(["a", "b", "c", "d"]);
   });
 
-  it("filtra por tag (atividade com várias tags entra se tiver a escolhida)", () => {
-    expect(ids(filtrarAtividades(lista, { tagId: "roda" }))).toEqual(["a", "b"]);
+  it("filtra por categoria", () => {
+    expect(ids(filtrarAtividades(lista, { categoria: "roda_conversa" }))).toEqual(["a", "b"]);
+    expect(ids(filtrarAtividades(lista, { categoria: "oficina_debate" }))).toEqual([]);
   });
 
-  it("filtra por receptividade", () => {
+  it("filtra por reação", () => {
     expect(ids(filtrarAtividades(lista, { receptividade: "adoraram" }))).toEqual(["a", "c"]);
   });
 
-  it("combina tag e receptividade", () => {
-    expect(ids(filtrarAtividades(lista, { tagId: "roda", receptividade: "nao_curtiram" }))).toEqual(["b"]);
-    expect(ids(filtrarAtividades(lista, { tagId: "jogos", receptividade: "nao_curtiram" }))).toEqual([]);
+  it("combina categoria e reação", () => {
+    expect(ids(filtrarAtividades(lista, { categoria: "roda_conversa", receptividade: "nao_curtiram" }))).toEqual(["b"]);
+    expect(ids(filtrarAtividades(lista, { categoria: "dinamica_jogo", receptividade: "nao_curtiram" }))).toEqual([]);
   });
 });
 
@@ -153,11 +129,13 @@ describe("hrefDaPasta", () => {
     expect(hrefDaPasta("t1")).toBe("/?turma=t1");
   });
 
-  it("com tag e receptividade", () => {
-    expect(hrefDaPasta("t1", { tagId: "arte", receptividade: "adoraram" })).toBe("/?turma=t1&tag=arte&receptividade=adoraram");
+  it("com categoria e reação", () => {
+    expect(hrefDaPasta("t1", { categoria: "manual_artistica", receptividade: "adoraram" })).toBe(
+      "/?turma=t1&categoria=manual_artistica&receptividade=adoraram",
+    );
   });
 
   it("ignora filtros vazios", () => {
-    expect(hrefDaPasta("t1", { tagId: undefined, receptividade: "nao_curtiram" })).toBe("/?turma=t1&receptividade=nao_curtiram");
+    expect(hrefDaPasta("t1", { categoria: undefined, receptividade: "nao_curtiram" })).toBe("/?turma=t1&receptividade=nao_curtiram");
   });
 });

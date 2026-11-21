@@ -4,9 +4,10 @@ import type { Atividade } from "@/lib/types";
 
 /**
  * Versão do formato do arquivo; aumente se a estrutura mudar.
- * 1: reações boa/neutra/ruim · 2: adoraram/gostaram/neutro/nao_curtiram.
+ * 1: reações boa/neutra/ruim e tags · 2: reações adoraram/gostaram/neutro/nao_curtiram ·
+ * 3: ficha de campo (categoria, tema, descricao, observacoes) no lugar das tags.
  */
-export const VERSAO_BACKUP = 2;
+export const VERSAO_BACKUP = 3;
 
 export type Backup = {
   app: "AnalisaPsi";
@@ -28,10 +29,12 @@ export function montarBackup(atividades: Atividade[], agora = new Date()): Backu
       id: a.id,
       titulo: a.titulo,
       data: a.data,
+      categoria: a.categoria,
+      tema: a.tema,
       receptividade: a.receptividade,
-      observacao: a.observacao,
+      descricao: a.descricao,
+      observacoes: a.observacoes,
       turma: { id: a.turma.id, nome: a.turma.nome },
-      tags: a.tags.map((t) => ({ id: t.id, nome: t.nome, cor: t.cor })),
     })),
   };
 }

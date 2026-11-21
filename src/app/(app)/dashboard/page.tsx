@@ -5,7 +5,6 @@ import { Filtros } from "@/components/filtros";
 import { pct, Ranking } from "@/components/ranking";
 import { LegendaReceptividade } from "@/components/receptividade";
 import { SkeletonBloco } from "@/components/skeleton";
-import { TagDot } from "@/components/tag-chip";
 import { getAtividades, getTurmas } from "@/lib/data";
 import { adicionarDias, hojeLocal } from "@/lib/dates";
 import { param, uuidParam } from "@/lib/params";
@@ -23,7 +22,7 @@ export default function DashboardPage({ searchParams }: PageProps<"/dashboard">)
   return (
     <>
       <h1 className="titulo-pagina">Painel</h1>
-      <p className="subtitulo-pagina">O que está funcionando melhor — por turma, por tipo de atividade e por dia.</p>
+      <p className="subtitulo-pagina">O que está funcionando melhor — por turma, por categoria da prática e por dia.</p>
       <Suspense fallback={<SkeletonBloco linhas={8} />}>
         <Conteudo searchParams={searchParams} />
       </Suspense>
@@ -43,8 +42,8 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/dashboard"
 
   const melhorTurma = melhor(stats.turmas);
   const piorTurma = pior(stats.turmas);
-  const melhorTag = melhor(stats.tags);
-  const piorTag = pior(stats.tags);
+  const melhorCategoria = melhor(stats.categorias);
+  const piorCategoria = pior(stats.categorias);
   const melhorDia = melhor(stats.dias);
   const piorDia = pior(stats.dias);
 
@@ -88,7 +87,14 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/dashboard"
           <div className="card furos mt-4 bg-accent-soft/60 p-5 pt-7">
             <p className="mb-2 -rotate-1 font-script text-2xl leading-none text-cereja">em resumo…</p>
             <p className="leading-relaxed">
-              {resumo({ total: stats.geral.total, melhorTurma: turmaSelecionada ? undefined : melhorTurma, melhorTag, piorTag, melhorDia, piorDia })}
+              {resumo({
+                total: stats.geral.total,
+                melhorTurma: turmaSelecionada ? undefined : melhorTurma,
+                melhorCategoria,
+                piorCategoria,
+                melhorDia,
+                piorDia,
+              })}
             </p>
           </div>
 
@@ -102,8 +108,8 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/dashboard"
             {!turmaSelecionada && (
               <Destaque titulo="Turma que mais se deu bem" grupo={melhorTurma} sinal="melhor" />
             )}
-            <Destaque titulo="Tag com mais adesão" grupo={melhorTag} sinal="melhor" mostrarCor />
-            <Destaque titulo="Tag com menos adesão" grupo={piorTag} sinal="pior" mostrarCor />
+            <Destaque titulo="Categoria com mais adesão" grupo={melhorCategoria} sinal="melhor" />
+            <Destaque titulo="Categoria com menos adesão" grupo={piorCategoria} sinal="pior" />
             <Destaque titulo="Melhor dia da semana" grupo={melhorDia} sinal="melhor" />
             <Destaque titulo="Dia mais difícil" grupo={piorDia} sinal="pior" />
           </div>
@@ -119,13 +125,8 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/dashboard"
                 <Ranking grupos={stats.turmas} destaque={{ melhor: melhorTurma?.chave, pior: piorTurma?.chave }} />
               </Secao>
             )}
-            <Secao titulo="Tags" subtitulo="Tipos de atividade, da maior para a menor adesão">
-              <Ranking
-                grupos={stats.tags}
-                mostrarCor
-                destaque={{ melhor: melhorTag?.chave, pior: piorTag?.chave }}
-                vazio="Nenhuma atividade com tag no período."
-              />
+            <Secao titulo="Categorias" subtitulo="Categorias da prática, da maior para a menor adesão">
+              <Ranking grupos={stats.categorias} destaque={{ melhor: melhorCategoria?.chave, pior: piorCategoria?.chave }} />
             </Secao>
             <Secao titulo="Dias da semana" subtitulo="Como cada dia costuma render">
               <Ranking grupos={stats.dias} destaque={{ melhor: melhorDia?.chave, pior: piorDia?.chave }} />
@@ -153,14 +154,12 @@ function Destaque({
   valor,
   detalhe,
   sinal,
-  mostrarCor,
 }: {
   titulo: string;
   grupo?: Grupo;
   valor?: string;
   detalhe?: string;
   sinal?: "melhor" | "pior";
-  mostrarCor?: boolean;
 }) {
   const principal = valor ?? grupo?.nome;
   return (
@@ -172,7 +171,7 @@ function Destaque({
       {principal ? (
         <>
           <p className="mt-2 flex items-center gap-2 font-display text-2xl leading-tight font-extrabold sm:text-3xl">
-            {mostrarCor && grupo && <TagDot cor={grupo.cor} className="size-3" />}
+            {grupo?.emoji && <span aria-hidden>{grupo.emoji}</span>}
             <span className="truncate">{principal}</span>
           </p>
           <p className="mt-1 text-xs text-muted">
@@ -189,15 +188,15 @@ function Destaque({
 function resumo({
   total,
   melhorTurma,
-  melhorTag,
-  piorTag,
+  melhorCategoria,
+  piorCategoria,
   melhorDia,
   piorDia,
 }: {
   total: number;
   melhorTurma?: Grupo;
-  melhorTag?: Grupo;
-  piorTag?: Grupo;
+  melhorCategoria?: Grupo;
+  piorCategoria?: Grupo;
   melhorDia?: Grupo;
   piorDia?: Grupo;
 }) {
@@ -212,16 +211,16 @@ function resumo({
         a turma <strong>{melhorTurma.nome}</strong> é a que mais aderiu ({pct(melhorTurma.aderencia)})
       </>,
     );
-  if (melhorTag)
+  if (melhorCategoria)
     frases.push(
       <>
-        atividades de <strong>{melhorTag.nome}</strong> são as mais bem recebidas
+        atividades de <strong>{melhorCategoria.nome}</strong> são as mais bem recebidas
       </>,
     );
-  if (piorTag)
+  if (piorCategoria)
     frases.push(
       <>
-        <strong>{piorTag.nome}</strong> é a que menos funciona
+        <strong>{piorCategoria.nome}</strong> é a que menos funciona
       </>,
     );
   if (melhorDia && piorDia)

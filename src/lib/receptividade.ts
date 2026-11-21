@@ -8,12 +8,15 @@ import type { Receptividade } from "@/lib/types";
 /** Ordem fixa: Adoraram → Gostaram → Neutro → Não curtiram. Bate com o CHECK do banco (migração 0003). */
 export const RECEPTIVIDADES = ["adoraram", "gostaram", "neutro", "nao_curtiram"] as const satisfies readonly Receptividade[];
 
-/** Rótulo, emoji e descrição de cada reação (as classes de cor ficam em components/receptividade.tsx). */
-export const ROTULO_RECEPTIVIDADE: Record<Receptividade, { label: string; emoji: string; descricao: string }> = {
-  adoraram: { label: "Adoraram", emoji: "🤩", descricao: "Alto engajamento" },
-  gostaram: { label: "Gostaram", emoji: "🙂", descricao: "Bom engajamento" },
-  neutro: { label: "Neutro", emoji: "😐", descricao: "Regular / dispersos" },
-  nao_curtiram: { label: "Não curtiram", emoji: "😕", descricao: "Baixo engajamento" },
+/**
+ * Rótulo, emoji e descrição de cada reação, como na ficha do diário (as classes de cor ficam em
+ * components/receptividade.tsx). `nivel` é a versão usada nos relatórios ("Neutro (Regular)").
+ */
+export const ROTULO_RECEPTIVIDADE: Record<Receptividade, { label: string; emoji: string; descricao: string; nivel: string }> = {
+  adoraram: { label: "Adoraram", emoji: "🤩", descricao: "Alto Engajamento", nivel: "Alto Engajamento" },
+  gostaram: { label: "Gostaram", emoji: "🙂", descricao: "Bom Engajamento", nivel: "Bom Engajamento" },
+  neutro: { label: "Neutro", emoji: "😐", descricao: "Regular / Dispersos", nivel: "Regular" },
+  nao_curtiram: { label: "Não curtiram", emoji: "😕", descricao: "Baixo Engajamento", nivel: "Baixo Engajamento" },
 };
 
 /** Quanto cada reação vale na aderência (degraus iguais: 100%, 67%, 33%, 0%). */

@@ -34,9 +34,9 @@ export const MODULOS = [
   },
   {
     href: "/turmas-e-tags",
-    label: "Turmas e tags",
-    descricao: "Organize suas turmas e os tipos de atividade.",
-    icon: "M3 7l4-4h6l8 8-10 10-8-8V7zM8.5 8.5h.01",
+    label: "Turmas",
+    descricao: "Cadastre, renomeie ou apague as turmas.",
+    icon: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75",
     grupo: "mais",
   },
 ] as const;

@@ -10,7 +10,7 @@ export function param(valor: string | string[] | undefined) {
   return v?.trim() || undefined;
 }
 
-/** Search param que só é aceito se for um UUID válido (ids de turma/tag). */
+/** Search param que só é aceito se for um UUID válido (ids de turma e de atividade). */
 export function uuidParam(valor: string | string[] | undefined) {
   const v = param(valor);
   return v && isUuid(v) ? v : undefined;

@@ -1,12 +1,12 @@
 "use client";
 
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { BotaoApagar, BotaoEditar } from "@/components/acoes";
 import { ReceptividadeBadge } from "@/components/receptividade";
-import { TagDot } from "@/components/tag-chip";
 import { excluirAtividade } from "@/lib/actions";
-import { corDaFita, rotuloDaFita } from "@/lib/cartao";
+import { corDaFita } from "@/lib/cartao";
+import { infoCategoria } from "@/lib/categoria";
 import { formatarDataCurta } from "@/lib/dates";
 import { avisoExcluirAtividade } from "@/lib/exclusao";
 import { observacaoLonga } from "@/lib/observacao";
@@ -20,7 +20,7 @@ type Opcoes = {
 };
 
 /**
- * Atividades como cartões-adesivo (ver DESIGN.md › Cartão de atividade), na ordem recebida
+ * Atividades como cartões-adesivo do diário (ver DESIGN.md › Cartão de atividade), na ordem recebida
  * (a mais recente primeiro). Duas colunas a partir do `md`; `compacta` força uma coluna só.
  */
 export function AtividadeLista({ atividades, compacta = false, ...opcoes }: { atividades: Atividade[]; compacta?: boolean } & Opcoes) {
@@ -40,43 +40,55 @@ function CartaoAtividade({
   voltarPara,
 }: { atividade: Atividade; indice: number } & Opcoes) {
   const editar = voltarPara ? `/atividades/${a.id}?voltar=${encodeURIComponent(voltarPara)}` : `/atividades/${a.id}`;
+  const categoria = infoCategoria(a.categoria);
+  const tema = a.tema.trim();
+
   return (
     <li className="adesivo relative flex flex-col rounded-2xl bg-card p-5 sm:p-6">
-      {/* Fita adesiva com as tags, colada no topo do cartão */}
+      {/* Fita adesiva com a categoria, colada no topo do cartão */}
       <span className={`washi -mt-8 mb-3 max-w-full self-start px-3 py-0.5 text-[11px] ${corDaFita(indice)}`}>
-        {a.tags.length > 0 ? (
-          a.tags.map((t) => <TagDot key={t.id} cor={t.cor} className="size-2 ring-1 ring-line/40" />)
-        ) : (
-          <span aria-hidden>✨</span>
-        )}
-        <span className="min-w-0 truncate">{rotuloDaFita(a.tags)}</span>
+        <span aria-hidden>{categoria.emoji}</span>
+        <span className="min-w-0 truncate">{categoria.label}</span>
       </span>
 
       <div className="flex-1">
+        {/* Linha meta: data (e turma) e selo de engajamento */}
         <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-          <span className="flex items-center gap-1 text-xs font-bold text-ink-2">
+          <span className="flex items-center gap-1 text-xs font-bold text-ink/70">
             <CalendarDays className="size-3.5 text-cereja" aria-hidden />
-            {formatarDataCurta(a.data, true)}
+            {formatarDataCurta(a.data)}
+            {mostrarTurma && <span className="text-ink-2">· {a.turma.nome}</span>}
           </span>
-          <ReceptividadeBadge valor={a.receptividade} />
+          <ReceptividadeBadge valor={a.receptividade} completo />
         </div>
 
         <h3 className="mb-2 font-display text-xl leading-snug font-extrabold break-words text-ink">{a.titulo}</h3>
 
-        {mostrarTurma && (
+        {tema && (
           <p className="mb-3 rounded-xl border border-line/25 bg-ceu-claro/70 px-3 py-1.5 text-xs font-semibold text-ink">
-            <span className="font-extrabold text-vinho">Turma:</span> {a.turma.nome}
+            <span className="font-extrabold text-vinho">Tema / Objetivo:</span> {tema}
           </p>
         )}
 
-        {a.observacao && (
-          <div>
-            <h4 className="rotulo mb-1">Descrição</h4>
-            <Descricao texto={a.observacao} />
+        {a.descricao && (
+          <div className="mb-3">
+            <h4 className="mb-1 text-[11px] font-extrabold tracking-wider text-ink/65 uppercase">Descrição & Materiais</h4>
+            <TextoRecolhivel texto={a.descricao} className="text-sm text-ink/90" />
+          </div>
+        )}
+
+        {a.observacoes && (
+          <div className="mt-3 rounded-r-xl border-l-4 border-oliva bg-card-2 p-3">
+            <h4 className="mb-1 flex items-center gap-1 text-[11px] font-extrabold tracking-wider text-oliva uppercase">
+              <Sparkles className="size-3" aria-hidden />
+              Observações da Estagiária
+            </h4>
+            <TextoRecolhivel texto={`“${a.observacoes}”`} className="text-xs text-ink/90 italic sm:text-sm" />
           </div>
         )}
       </div>
 
+      {/* Rodapé do cartão: Editar e Excluir */}
       <div className="mt-5 flex items-center justify-end gap-2 border-t border-line/15 pt-3">
         <BotaoEditar href={editar} rotulo={`Editar “${a.titulo}”`} texto="Editar" />
         <BotaoApagar
@@ -90,22 +102,22 @@ function CartaoAtividade({
   );
 }
 
-/** Descrição da atividade; textos longos começam recolhidos (4 linhas) com "Ler tudo". */
-function Descricao({ texto }: { texto: string }) {
-  const [aberta, setAberta] = useState(false);
-  const longa = observacaoLonga(texto);
+/** Texto do cartão; textos longos começam recolhidos (4 linhas) com "Ler tudo". */
+function TextoRecolhivel({ texto, className }: { texto: string; className: string }) {
+  const [aberto, setAberto] = useState(false);
+  const longo = observacaoLonga(texto);
 
   return (
     <>
-      <p className={`text-sm leading-relaxed whitespace-pre-line text-ink/90 ${longa && !aberta ? "line-clamp-4" : ""}`}>{texto}</p>
-      {longa && (
+      <p className={`leading-relaxed whitespace-pre-line ${className} ${longo && !aberto ? "line-clamp-4" : ""}`}>{texto}</p>
+      {longo && (
         <button
           type="button"
-          onClick={() => setAberta((v) => !v)}
-          aria-expanded={aberta}
-          className="mt-1 text-xs font-bold text-cereja hover:underline"
+          onClick={() => setAberto((v) => !v)}
+          aria-expanded={aberto}
+          className="mt-1 text-xs font-bold text-cereja not-italic hover:underline"
         >
-          {aberta ? "Mostrar menos" : "Ler tudo"}
+          {aberto ? "Mostrar menos" : "Ler tudo"}
         </button>
       )}
     </>

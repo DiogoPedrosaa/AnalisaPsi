@@ -4,28 +4,33 @@ import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useSyncExternalStore, useTransition } from "react";
-import { ORDEM_RECEPTIVIDADE, RECEPTIVIDADE } from "@/components/receptividade";
-import { TagDot } from "@/components/tag-chip";
-import { criarTag, criarTurma, salvarAtividade } from "@/lib/actions";
-import { adicionarDias, hojeLocal, nomeDiaSemana } from "@/lib/dates";
+import { RECEPTIVIDADE, ORDEM_RECEPTIVIDADE } from "@/components/receptividade";
+import { salvarAtividade } from "@/lib/actions";
+import { CATEGORIA_PADRAO, CATEGORIAS } from "@/lib/categoria";
+import { hojeLocal } from "@/lib/dates";
+import { MAX_TEMA, MAX_TITULO, validarFicha } from "@/lib/ficha";
 import { avisoTamanho, MAX_OBSERVACAO } from "@/lib/observacao";
 import { hrefDaPasta } from "@/lib/pastas";
-import { ordenarTurmas, turmaPreSelecionada } from "@/lib/turmas";
-import type { Atividade, Receptividade, Tag, Turma } from "@/lib/types";
+import { rotuloDaTurma, turmaPreSelecionada } from "@/lib/turmas";
+import type { Atividade, AtividadeInput, Categoria, Receptividade, Turma } from "@/lib/types";
 
-export type Sugestao = { titulo: string; tagIds: string[] };
+/** Atividade já registrada com o mesmo título: o formulário reaproveita a categoria e o tema dela. */
+export type Sugestao = { titulo: string; categoria: Categoria; tema: string };
 
 type Props = {
   turmas: Turma[];
-  tags: Tag[];
   sugestoes?: Sugestao[];
   /** Quando presente, o formulário edita essa atividade. */
   atividade?: Atividade;
   /** Para onde ir depois de salvar a edição (padrão: Histórico). */
   voltarPara?: string;
+  /** Para onde vai o "Cancelar" (padrão: `voltarPara`). */
+  cancelarPara?: string;
   /** Turma já marcada ao abrir (vem de "Registrar nesta turma", `?turma=`). */
   turmaInicial?: string;
 };
+
+const REACAO_PADRAO: Receptividade = "adoraram";
 
 const semInscricao = () => () => {};
 
@@ -34,12 +39,13 @@ function useHoje() {
   return useSyncExternalStore(semInscricao, () => hojeLocal(), () => "");
 }
 
+/** Campos e textos iguais à "Ficha de Registro de Campo" do Diário de Estágio (ver DESIGN.md › Ficha). */
 export function AtividadeForm({
-  turmas: turmasIniciais,
-  tags: tagsIniciais,
+  turmas,
   sugestoes = [],
   atividade,
   voltarPara = "/historico",
+  cancelarPara = voltarPara,
   turmaInicial,
 }: Props) {
   const router = useRouter();
@@ -47,33 +53,30 @@ export function AtividadeForm({
   const tituloRef = useRef<HTMLInputElement>(null);
   const hoje = useHoje();
 
-  const [turmas, setTurmas] = useState(turmasIniciais);
-  const [tags, setTags] = useState(tagsIniciais);
-
-  const [turmaId, setTurmaId] = useState(atividade?.turma.id ?? turmaPreSelecionada(turmasIniciais, turmaInicial));
-  const [titulo, setTitulo] = useState(atividade?.titulo ?? "");
-  const [tagIds, setTagIds] = useState<string[]>(atividade?.tags.map((t) => t.id) ?? []);
-  const [receptividade, setReceptividade] = useState<Receptividade | null>(atividade?.receptividade ?? null);
+  const [turmaId, setTurmaId] = useState(atividade?.turma.id ?? turmaPreSelecionada(turmas, turmaInicial));
   const [dataEscolhida, setDataEscolhida] = useState<string | null>(atividade?.data ?? null);
-  const [observacao, setObservacao] = useState(atividade?.observacao ?? "");
+  const [titulo, setTitulo] = useState(atividade?.titulo ?? "");
+  const [categoria, setCategoria] = useState<Categoria>(atividade?.categoria ?? CATEGORIA_PADRAO);
+  const [tema, setTema] = useState(atividade?.tema ?? "");
+  const [receptividade, setReceptividade] = useState<Receptividade>(atividade?.receptividade ?? REACAO_PADRAO);
+  const [descricao, setDescricao] = useState(atividade?.descricao ?? "");
+  const [observacoes, setObservacoes] = useState(atividade?.observacoes ?? "");
 
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<{ texto: string; turmaId: string } | null>(null);
   const [salvando, startSalvar] = useTransition();
 
   const data = dataEscolhida ?? hoje;
-  const ontem = hoje ? adicionarDias(hoje, -1) : "";
-
-  function alternarTag(id: string) {
-    setTagIds((atual) => (atual.includes(id) ? atual.filter((t) => t !== id) : [...atual, id]));
-  }
 
   function aoMudarTitulo(valor: string) {
     setTitulo(valor);
-    // Atividade repetida: reaproveita as tags usadas da última vez.
-    if (tagIds.length === 0) {
+    // Atividade repetida: reaproveita a categoria e o tema da última vez (se o tema ainda está vazio).
+    if (!tema.trim()) {
       const igual = sugestoes.find((s) => s.titulo.toLowerCase() === valor.trim().toLowerCase());
-      if (igual) setTagIds(igual.tagIds.filter((id) => tags.some((t) => t.id === id)));
+      if (igual) {
+        setCategoria(igual.categoria);
+        setTema(igual.tema);
+      }
     }
   }
 
@@ -82,21 +85,12 @@ export function AtividadeForm({
     setErro(null);
     setSucesso(null);
 
-    if (!turmaId) return setErro("Escolha a turma.");
-    if (!titulo.trim()) return setErro("Dê um nome para a atividade.");
-    if (!receptividade) return setErro("Marque como a turma recebeu a atividade.");
-    if (!data) return setErro("Escolha a data.");
+    const ficha: AtividadeInput = { id: atividade?.id, turmaId, titulo, data, categoria, tema, receptividade, descricao, observacoes };
+    const problema = validarFicha(ficha);
+    if (problema) return setErro(problema);
 
     startSalvar(async () => {
-      const res = await salvarAtividade({
-        id: atividade?.id,
-        turmaId,
-        titulo,
-        data,
-        receptividade,
-        observacao,
-        tagIds,
-      });
+      const res = await salvarAtividade(ficha);
       if (!res.ok) return setErro(res.error);
 
       if (editando) {
@@ -105,64 +99,87 @@ export function AtividadeForm({
       }
 
       const turma = turmas.find((t) => t.id === turmaId)?.nome;
-      setSucesso({ texto: `“${titulo.trim()}” salva para ${turma} (${nomeDiaSemana(data).toLowerCase()}).`, turmaId });
-      // Mantém turma e data para registrar a próxima atividade mais rápido.
+      setSucesso({ texto: `“${titulo.trim()}” guardada no fichário de ${turma}.`, turmaId });
+      // Mantém a turma e a data para registrar a próxima atividade mais rápido.
       setTitulo("");
-      setTagIds([]);
-      setReceptividade(null);
-      setObservacao("");
+      setCategoria(CATEGORIA_PADRAO);
+      setTema("");
+      setReceptividade(REACAO_PADRAO);
+      setDescricao("");
+      setObservacoes("");
       tituloRef.current?.focus();
     });
   }
 
   return (
-    <form onSubmit={enviar} className="space-y-6" noValidate>
-      {/* Turma */}
-      <fieldset>
-        <legend className="label">Turma</legend>
-        <div className="flex flex-wrap gap-2">
-          {turmas.map((t) => {
-            const sel = t.id === turmaId;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                aria-pressed={sel}
-                onClick={() => setTurmaId(t.id)}
-                className={`chip py-2 text-sm ${sel ? "chip-ativo" : "chip-inativo"}`}
-              >
-                {t.nome}
-              </button>
-            );
-          })}
-          <CriarInline
-            rotulo={turmas.length ? "Nova turma" : "Cadastrar primeira turma"}
-            placeholder="Ex.: 3º ano B"
-            onCriar={async (nome) => {
-              const res = await criarTurma(nome);
-              if (!res.ok) return res.error;
-              setTurmas((ts) => ordenarTurmas([...ts, res.data]));
-              setTurmaId(res.data.id);
-            }}
+    <form onSubmit={enviar} className="space-y-5" noValidate>
+      {/* Linha 1: Turma e Data */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="form-turma" className="label">
+            Pasta da Turma *
+          </label>
+          <select
+            id="form-turma"
+            value={turmaId}
+            onChange={(e) => setTurmaId(e.target.value)}
+            required
+            disabled={turmas.length === 0}
+            className="input font-semibold sm:text-sm"
+          >
+            {turmas.length === 0 && <option value="">Nenhuma turma cadastrada</option>}
+            {turmas.length > 0 && !turmaId && (
+              <option value="" disabled>
+                Escolha a pasta da turma…
+              </option>
+            )}
+            {turmas.map((t) => (
+              <option key={t.id} value={t.id}>
+                {rotuloDaTurma(t.nome)}
+              </option>
+            ))}
+          </select>
+          {turmas.length === 0 && (
+            <p className="mt-1.5 text-xs text-ink-2">
+              <Link href="/turmas-e-tags" className="font-bold text-cereja underline underline-offset-2">
+                Cadastre uma turma
+              </Link>{" "}
+              para começar a registrar.
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="form-data" className="label">
+            Data de Aplicação *
+          </label>
+          <input
+            id="form-data"
+            type="date"
+            value={data}
+            onChange={(e) => setDataEscolhida(e.target.value || null)}
+            required
+            className="input font-semibold sm:text-sm"
           />
         </div>
-      </fieldset>
+      </div>
 
-      {/* Atividade */}
+      {/* Linha 2: Título da Atividade */}
       <div>
-        <label htmlFor="titulo" className="label">
-          Atividade
+        <label htmlFor="form-titulo" className="label">
+          Título da Atividade *
         </label>
         <input
           ref={tituloRef}
-          id="titulo"
+          id="form-titulo"
           value={titulo}
           onChange={(e) => aoMudarTitulo(e.target.value)}
-          className="input"
-          placeholder="Ex.: Pintura com guache"
+          required
+          placeholder="Ex.: Mito ou Verdade: Amizades e Redes Sociais"
           list="sugestoes-atividades"
           autoComplete="off"
-          maxLength={120}
+          maxLength={MAX_TITULO}
+          className="input sm:text-sm"
         />
         <datalist id="sugestoes-atividades">
           {sugestoes.map((s) => (
@@ -171,132 +188,95 @@ export function AtividadeForm({
         </datalist>
       </div>
 
-      {/* Tags */}
-      <fieldset>
-        <legend className="label">
-          Tags <span className="font-normal tracking-normal text-muted normal-case">(pode marcar mais de uma)</span>
-        </legend>
-        <div className="flex flex-wrap gap-2">
-          {tags.map((t) => {
-            const sel = tagIds.includes(t.id);
-            return (
-              <button
-                key={t.id}
-                type="button"
-                aria-pressed={sel}
-                onClick={() => alternarTag(t.id)}
-                className={`chip py-2 text-sm ${sel ? "chip-ativo" : "chip-inativo"}`}
-              >
-                <TagDot cor={t.cor} className="size-2.5 ring-1 ring-line/30" />
-                {t.nome}
-              </button>
-            );
-          })}
-          <CriarInline
-            rotulo="Nova tag"
-            placeholder="Ex.: Dança"
-            onCriar={async (nome) => {
-              const res = await criarTag(nome);
-              if (!res.ok) return res.error;
-              setTags((ts) => [...ts, res.data].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")));
-              setTagIds((ids) => [...ids, res.data.id]);
-            }}
+      {/* Linha 3: Categoria e Tema Socioemocional */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="form-categoria" className="label">
+            Categoria da Prática *
+          </label>
+          <select
+            id="form-categoria"
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value as Categoria)}
+            required
+            className="input font-semibold sm:text-sm"
+          >
+            {CATEGORIAS.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.emoji} {c.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="form-tema" className="label">
+            Tema / Objetivo Socioemocional *
+          </label>
+          <input
+            id="form-tema"
+            value={tema}
+            onChange={(e) => setTema(e.target.value)}
+            required
+            placeholder="Ex.: Alfabetização emocional, Ansiedade/ENEM..."
+            maxLength={MAX_TEMA}
+            className="input sm:text-sm"
           />
         </div>
-      </fieldset>
+      </div>
 
-      {/* Receptividade */}
+      {/* Linha 4: Seletor visual de engajamento */}
       <fieldset>
-        <legend className="label">Como a turma recebeu?</legend>
+        <legend className="label mb-2">Reação e Engajamento dos Alunos *</legend>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
           {ORDEM_RECEPTIVIDADE.map((k) => {
             const r = RECEPTIVIDADE[k];
             const sel = receptividade === k;
             return (
-              <button
-                key={k}
-                type="button"
-                aria-pressed={sel}
-                onClick={() => setReceptividade(k)}
-                className={`flex flex-col items-center gap-0.5 rounded-xl border-2 p-2.5 text-center transition-all focus-visible:ring-2 focus-visible:ring-rosa-forte focus-visible:outline-none sm:p-3 ${
-                  sel ? `${r.soft} ring-2 ${r.anel}` : "border-line bg-card text-ink hover:bg-card-2"
-                }`}
-              >
-                <span className="mb-0.5 text-2xl leading-none" aria-hidden>
-                  {r.emoji}
+              <label key={k} className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="engajamento"
+                  value={k}
+                  checked={sel}
+                  onChange={() => setReceptividade(k)}
+                  className="peer sr-only"
+                />
+                <span
+                  className={`block rounded-xl border-2 p-2.5 text-center transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-rosa-forte ${
+                    sel ? `${r.soft} ring-2 ${r.anel}` : "border-line bg-card text-ink hover:bg-card-2"
+                  }`}
+                >
+                  <span className="mb-0.5 block text-xl leading-tight" aria-hidden>
+                    {r.emoji}
+                  </span>
+                  <span className="block text-xs leading-tight font-extrabold">{r.label}</span>
+                  <span className="block text-[10px] text-ink/75">{r.descricao}</span>
                 </span>
-                <span className="text-xs leading-tight font-extrabold">{r.label}</span>
-                <span className="text-[10px] leading-tight text-ink-2">{r.descricao}</span>
-              </button>
+              </label>
             );
           })}
         </div>
       </fieldset>
 
-      {/* Data */}
-      <div>
-        <label htmlFor="data" className="label">
-          Data
-        </label>
-        <div className="flex flex-wrap items-center gap-2">
-          <input
-            id="data"
-            type="date"
-            value={data}
-            max={hoje || undefined}
-            onChange={(e) => setDataEscolhida(e.target.value || null)}
-            className="input w-auto"
-          />
-          {!editando && (
-            <>
-              <button
-                type="button"
-                onClick={() => setDataEscolhida(null)}
-                className={`chip py-2 text-sm ${data === hoje ? "chip-ativo" : "chip-inativo"}`}
-              >
-                Hoje
-              </button>
-              <button
-                type="button"
-                onClick={() => setDataEscolhida(ontem)}
-                className={`chip py-2 text-sm ${data === ontem ? "chip-ativo" : "chip-inativo"}`}
-              >
-                Ontem
-              </button>
-            </>
-          )}
-        </div>
-        <p className="mt-1.5 text-sm text-ink-2">
-          {data ? (
-            <>
-              Dia da semana: <strong className="text-ink">{nomeDiaSemana(data)}</strong>
-            </>
-          ) : (
-            " "
-          )}
-        </p>
-      </div>
+      {/* Linha 5: Descrição Breve & Materiais */}
+      <CampoTexto
+        id="form-descricao"
+        rotulo="Descrição Breve & Materiais Utilizados *"
+        valor={descricao}
+        mudar={setDescricao}
+        obrigatorio
+        placeholder="Como a atividade foi conduzida e quais materiais foram usados (ex.: cartolina, canetinhas, plaquinhas de mito/verdade, caixa de perguntas)..."
+      />
 
-      {/* Descrição: sempre aberta, porque os relatos costumam ser longos. */}
-      <div>
-        <label htmlFor="obs" className="label">
-          Descrição <span className="font-normal tracking-normal text-muted normal-case">(opcional)</span>
-        </label>
-        <textarea
-          id="obs"
-          value={observacao}
-          onChange={(e) => setObservacao(e.target.value)}
-          className="input field-sizing-content max-h-[70vh] min-h-48 resize-y leading-relaxed"
-          placeholder="Planejamento, como foi a aplicação, o que funcionou, o que mudaria da próxima vez…"
-          maxLength={MAX_OBSERVACAO}
-          aria-describedby={avisoTamanho(observacao.length) ? "obs-tamanho" : undefined}
-        />
-        {avisoTamanho(observacao.length) && (
-          <p id="obs-tamanho" className="mt-1 text-right text-xs text-muted tabular-nums">
-            {avisoTamanho(observacao.length)}
-          </p>
-        )}
-      </div>
+      {/* Linha 6: Observações da Estagiária */}
+      <CampoTexto
+        id="form-observacoes"
+        rotulo="Observações da Estagiária (O que funcionou, o que adaptar, falas marcantes)"
+        valor={observacoes}
+        mudar={setObservacoes}
+        placeholder="Anote aqui percepções clínicas/escolares, resistências, falas espontâneas dos alunos e sugestões de melhoria..."
+      />
 
       {erro && (
         <p role="alert" className="rounded-xl bg-danger/10 px-4 py-3 text-sm font-medium text-danger">
@@ -312,86 +292,58 @@ export function AtividadeForm({
         </p>
       )}
 
+      {/* Botões do formulário */}
       <div className="flex items-center justify-end gap-3 border-t border-line/15 pt-4">
-        {editando && (
-          <button type="button" onClick={() => router.back()} className="btn-claro">
-            Cancelar
-          </button>
-        )}
-        <button type="submit" disabled={salvando} className="btn-primary flex-1 px-6 py-3 sm:flex-none">
+        <Link href={cancelarPara} className="btn-claro">
+          Cancelar
+        </Link>
+        <button type="submit" disabled={salvando || turmas.length === 0} className="btn-primary px-6">
           <CheckCircle2 className="size-4" aria-hidden />
-          {salvando ? "Salvando…" : editando ? "Salvar alterações" : "Salvar no fichário"}
+          {salvando ? "Salvando…" : "Salvar no Fichário"}
         </button>
       </div>
     </form>
   );
 }
 
-/** Chip "+ Novo" que vira um campo de texto para cadastrar sem sair da tela. */
-function CriarInline({
+/** Textarea de 3 linhas que cresce com o texto, com o contador perto do limite. */
+function CampoTexto({
+  id,
   rotulo,
+  valor,
+  mudar,
   placeholder,
-  onCriar,
+  obrigatorio = false,
 }: {
+  id: string;
   rotulo: string;
+  valor: string;
+  mudar: (v: string) => void;
   placeholder: string;
-  /** Retorna uma mensagem de erro, ou nada em caso de sucesso. */
-  onCriar: (nome: string) => Promise<string | void>;
+  obrigatorio?: boolean;
 }) {
-  const [aberto, setAberto] = useState(false);
-  const [nome, setNome] = useState("");
-  const [erro, setErro] = useState<string | null>(null);
-  const [pendente, startTransition] = useTransition();
-
-  function confirmar() {
-    if (!nome.trim()) return setAberto(false);
-    startTransition(async () => {
-      const e = await onCriar(nome);
-      if (e) return setErro(e);
-      setNome("");
-      setErro(null);
-      setAberto(false);
-    });
-  }
-
-  if (!aberto) {
-    return (
-      <button
-        type="button"
-        onClick={() => setAberto(true)}
-        className="chip border-dashed bg-card py-2 text-sm text-ink-2 hover:bg-rosa-claro/60 hover:text-ink"
-      >
-        + {rotulo}
-      </button>
-    );
-  }
-
+  const aviso = avisoTamanho(valor.length);
   return (
-    <div className="flex w-full flex-col gap-1 sm:w-auto">
-      <div className="flex items-center gap-1.5">
-        <input
-          autoFocus
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              confirmar();
-            }
-            if (e.key === "Escape") setAberto(false);
-          }}
-          placeholder={placeholder}
-          className="input py-1.5 text-sm sm:w-44"
-          maxLength={60}
-        />
-        <button type="button" onClick={confirmar} disabled={pendente} className="btn-primary px-3 py-1.5">
-          {pendente ? "…" : "Criar"}
-        </button>
-        <button type="button" onClick={() => setAberto(false)} className="btn-ghost px-2 py-1.5" aria-label="Cancelar">
-          ✕
-        </button>
-      </div>
-      {erro && <p className="text-xs text-danger">{erro}</p>}
+    <div>
+      <label htmlFor={id} className="label">
+        {rotulo}
+      </label>
+      <textarea
+        id={id}
+        rows={3}
+        value={valor}
+        onChange={(e) => mudar(e.target.value)}
+        required={obrigatorio}
+        placeholder={placeholder}
+        maxLength={MAX_OBSERVACAO}
+        aria-describedby={aviso ? `${id}-tamanho` : undefined}
+        className="input field-sizing-content max-h-[70vh] min-h-[5.75rem] resize-y leading-relaxed sm:text-sm"
+      />
+      {aviso && (
+        <p id={`${id}-tamanho`} className="mt-1 text-right text-xs text-muted tabular-nums">
+          {aviso}
+        </p>
+      )}
     </div>
   );
 }

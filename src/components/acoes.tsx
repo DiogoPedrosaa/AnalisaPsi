@@ -8,7 +8,7 @@ import type { ActionResult } from "@/lib/types";
 
 const FOCO = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rosa-forte disabled:opacity-50";
 
-/** Botão só de ícone (listas de turmas e tags). */
+/** Botão só de ícone (lista de turmas). */
 const BOTAO_ICONE = `grid size-8 place-items-center rounded-lg text-ink-2 transition ${FOCO}`;
 
 /** Botão pequeno com ícone + texto, contornado (rodapé dos cartões de atividade). */

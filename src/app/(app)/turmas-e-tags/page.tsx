@@ -1,22 +1,21 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SkeletonBloco } from "@/components/skeleton";
-import { getTurmasETagsComContagem } from "@/lib/data";
-import { ListaTags, ListaTurmas } from "./listas";
+import { getTurmasComContagem } from "@/lib/data";
+import { ListaTurmas } from "./listas";
 
-export const metadata: Metadata = { title: "Turmas e tags" };
+export const metadata: Metadata = { title: "Turmas" };
 
-export default function TurmasETagsPage() {
+export default function TurmasPage() {
   return (
     <>
-      <h1 className="titulo-pagina">Turmas e tags</h1>
+      <h1 className="titulo-pagina">Turmas</h1>
       <p className="subtitulo-pagina">
-        Cadastre, renomeie ou apague. Renomear não afeta as atividades já registradas.
+        Cada turma é uma pasta do fichário. Cadastre, renomeie ou apague; renomear não afeta as atividades já registradas.
       </p>
       <Suspense
         fallback={
-          <div className="grid gap-6 md:grid-cols-2">
-            <SkeletonBloco linhas={4} />
+          <div className="max-w-2xl">
             <SkeletonBloco linhas={4} />
           </div>
         }
@@ -28,11 +27,10 @@ export default function TurmasETagsPage() {
 }
 
 async function Conteudo() {
-  const { turmas, tags } = await getTurmasETagsComContagem();
+  const turmas = await getTurmasComContagem();
   return (
-    <div className="grid items-start gap-6 md:grid-cols-2">
+    <div className="max-w-2xl">
       <ListaTurmas turmas={turmas} />
-      <ListaTags tags={tags} />
     </div>
   );
 }

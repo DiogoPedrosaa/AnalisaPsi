@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { AtividadeForm } from "@/components/atividade-form";
 import { FolhaFichario } from "@/components/fichario";
 import { SkeletonBloco } from "@/components/skeleton";
-import { getAtividade, getTags, getTurmas } from "@/lib/data";
+import { getAtividade, getTurmas } from "@/lib/data";
 import { caminhoDeVolta, isUuid } from "@/lib/params";
 
 export const metadata: Metadata = { title: "Editar atividade" };
@@ -12,11 +12,15 @@ export const metadata: Metadata = { title: "Editar atividade" };
 export default function EditarAtividadePage({ params, searchParams }: PageProps<"/atividades/[id]">) {
   return (
     <div className="max-w-2xl">
-      <FolhaFichario titulo="Editar atividade" subtitulo="As mudanças valem para a pasta da turma, o histórico e o painel.">
-        <Suspense fallback={<SkeletonBloco linhas={6} />}>
-          <Formulario params={params} searchParams={searchParams} />
-        </Suspense>
-      </FolhaFichario>
+      <Suspense
+        fallback={
+          <FolhaFichario titulo="Editar Ficha de Atividade">
+            <SkeletonBloco linhas={6} />
+          </FolhaFichario>
+        }
+      >
+        <Formulario params={params} searchParams={searchParams} />
+      </Suspense>
     </div>
   );
 }
@@ -31,8 +35,13 @@ async function Formulario({
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   if (!isUuid(id)) notFound();
 
-  const [atividade, turmas, tags] = await Promise.all([getAtividade(id), getTurmas(), getTags()]);
+  const [atividade, turmas] = await Promise.all([getAtividade(id), getTurmas()]);
   if (!atividade) notFound();
 
-  return <AtividadeForm turmas={turmas} tags={tags} atividade={atividade} voltarPara={caminhoDeVolta(sp.voltar)} />;
+  const voltar = caminhoDeVolta(sp.voltar);
+  return (
+    <FolhaFichario titulo="Editar Ficha de Atividade" fechar={voltar}>
+      <AtividadeForm turmas={turmas} atividade={atividade} voltarPara={voltar} />
+    </FolhaFichario>
+  );
 }

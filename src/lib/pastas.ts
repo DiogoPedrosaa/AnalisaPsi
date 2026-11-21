@@ -1,7 +1,7 @@
 import { quandoFoi } from "@/lib/dates";
 import { calcularAderencia, type ContagemReceptividade, contagemVazia } from "@/lib/receptividade";
 import { MIN_AMOSTRA } from "@/lib/stats";
-import type { Atividade, Receptividade, Tag } from "@/lib/types";
+import type { Atividade, Categoria, Receptividade } from "@/lib/types";
 
 /* Lógica das "pastas" das turmas (tela de início: grade de pastas + caderno da turma aberta). */
 
@@ -38,25 +38,15 @@ export function aderenciaPasta(r: ResumoPasta) {
   return `${Math.round(r.aderencia)}% de aderência`;
 }
 
-/** Tags que aparecem nas atividades da turma, com quantas vezes cada uma, em ordem alfabética. */
-export function tagsDasAtividades(atividades: Atividade[]) {
-  const mapa = new Map<string, Tag & { total: number }>();
-  for (const a of atividades) {
-    for (const t of a.tags) {
-      const atual = mapa.get(t.id);
-      if (atual) atual.total += 1;
-      else mapa.set(t.id, { ...t, total: 1 });
-    }
-  }
-  return [...mapa.values()].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" }));
-}
+export type FiltroPasta = { categoria?: Categoria; receptividade?: Receptividade };
 
-export type FiltroPasta = { tagId?: string; receptividade?: Receptividade };
-
-/** Filtra as atividades da pasta por tag e/ou receptividade (sem filtro, devolve todas). */
-export function filtrarAtividades(atividades: Atividade[], { tagId, receptividade }: FiltroPasta) {
+/** Filtra as atividades da pasta por categoria e/ou reação (sem filtro, devolve todas). */
+export function filtrarAtividades<T extends Pick<Atividade, "categoria" | "receptividade">>(
+  atividades: T[],
+  { categoria, receptividade }: FiltroPasta,
+) {
   return atividades.filter(
-    (a) => (!tagId || a.tags.some((t) => t.id === tagId)) && (!receptividade || a.receptividade === receptividade),
+    (a) => (!categoria || a.categoria === categoria) && (!receptividade || a.receptividade === receptividade),
   );
 }
 
@@ -73,10 +63,10 @@ export function pastaMaisRecente<T extends { resumo: { ultimaData: string | null
   return escolhida ?? pastas[0] ?? null;
 }
 
-/** Endereço da pasta aberta na tela de início, com os filtros: "/?turma=…&tag=…&receptividade=…". */
-export function hrefDaPasta(turmaId: string, { tagId, receptividade }: FiltroPasta = {}) {
+/** Endereço da pasta aberta na tela de início, com os filtros: "/?turma=…&categoria=…&receptividade=…". */
+export function hrefDaPasta(turmaId: string, { categoria, receptividade }: FiltroPasta = {}) {
   const qs = new URLSearchParams({ turma: turmaId });
-  if (tagId) qs.set("tag", tagId);
+  if (categoria) qs.set("categoria", categoria);
   if (receptividade) qs.set("receptividade", receptividade);
   return `/?${qs}`;
 }

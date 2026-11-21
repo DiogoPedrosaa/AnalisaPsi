@@ -1,16 +1,25 @@
-import { Layers, NotebookPen, PenTool, PlusCircle } from "lucide-react";
+import { Brain, Dices, Layers, type LucideIcon, MessageCircle, NotebookPen, Palette, PenTool, Pin, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { AtividadeLista } from "@/components/atividade-lista";
 import { BotaoCopiarIA } from "@/components/botao-copiar-ia";
 import { BordaRasgada } from "@/components/enfeites";
 import { fundoDaPasta, Pasta } from "@/components/pasta";
 import { ORDEM_RECEPTIVIDADE, RECEPTIVIDADE } from "@/components/receptividade";
-import { TagDot } from "@/components/tag-chip";
 import { aderenciaPasta, detalhePasta, type FiltroPasta, hrefDaPasta, type ResumoPasta } from "@/lib/pastas";
 import { etapaDaTurma, rotuloEtapa } from "@/lib/turmas";
-import type { Atividade, Tag, Turma } from "@/lib/types";
+import type { InfoCategoria } from "@/lib/categoria";
+import type { Atividade, Categoria, Turma } from "@/lib/types";
 
 /* Peças visuais da tela de início (sem busca de dados), ver DESIGN.md › Telas de entrada. */
+
+/** Ícone de cada categoria nos chips de filtro (os mesmos do diário). */
+const ICONE_CATEGORIA: Record<Categoria, LucideIcon> = {
+  roda_conversa: MessageCircle,
+  manual_artistica: Palette,
+  dinamica_jogo: Dices,
+  oficina_debate: Brain,
+  outro: Pin,
+};
 
 /** Topo da tela de início: data, saudação e status do último registro. */
 export function CabecalhoInicio({
@@ -104,7 +113,7 @@ export function CadernoDaTurma({
   turma,
   indice,
   resumo,
-  tags,
+  categorias,
   filtro,
   atividades,
   hoje,
@@ -114,8 +123,8 @@ export function CadernoDaTurma({
   /** Posição da turma na grade (define a cor). */
   indice: number;
   resumo: ResumoPasta;
-  /** Tags usadas nas atividades da turma, com a contagem. */
-  tags: (Tag & { total: number })[];
+  /** As 5 categorias, com quantas atividades da turma há em cada uma. */
+  categorias: (InfoCategoria & { total: number })[];
   filtro: FiltroPasta;
   /** Atividades já filtradas. */
   atividades: Atividade[];
@@ -127,7 +136,7 @@ export function CadernoDaTurma({
   const estampa = etapa === "medio" ? "estampa-rosa" : etapa === "fundamental" ? "estampa-azul" : fundoDaPasta(indice);
   const etapaExtenso = rotuloEtapa(turma.nome, true);
   const aderencia = aderenciaPasta(resumo);
-  const filtrando = Boolean(filtro.tagId || filtro.receptividade);
+  const filtrando = Boolean(filtro.categoria || filtro.receptividade);
   const registrar = `/registrar?turma=${turma.id}`;
 
   return (
@@ -165,23 +174,22 @@ export function CadernoDaTurma({
 
       {resumo.total > 0 && (
         <div className="border-b-2 border-line/15 bg-card-2/60 px-5 py-4 sm:px-8">
-          {tags.length > 0 && (
-            <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-line/10 pb-4" role="group" aria-label="Filtrar por tag">
-              <ChipFiltro href={hrefDaPasta(turma.id, { receptividade: filtro.receptividade })} ativo={!filtro.tagId}>
-                <Layers className="size-3.5" aria-hidden />
-                Todas as práticas <Contagem n={resumo.total} ativo={!filtro.tagId} />
-              </ChipFiltro>
-              {tags.map((t) => {
-                const ativo = filtro.tagId === t.id;
-                return (
-                  <ChipFiltro key={t.id} href={hrefDaPasta(turma.id, { ...filtro, tagId: ativo ? undefined : t.id })} ativo={ativo}>
-                    <TagDot cor={t.cor} className="size-2.5 ring-1 ring-line/30" />
-                    {t.nome} <Contagem n={t.total} ativo={ativo} />
-                  </ChipFiltro>
-                );
-              })}
-            </div>
-          )}
+          <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-line/10 pb-4" role="group" aria-label="Filtrar por categoria">
+            <ChipFiltro href={hrefDaPasta(turma.id, { receptividade: filtro.receptividade })} ativo={!filtro.categoria}>
+              <Layers className="size-3.5" aria-hidden />
+              Todas as Práticas <Contagem n={resumo.total} ativo={!filtro.categoria} />
+            </ChipFiltro>
+            {categorias.map((c) => {
+              const ativo = filtro.categoria === c.id;
+              const Icone = ICONE_CATEGORIA[c.id];
+              return (
+                <ChipFiltro key={c.id} href={hrefDaPasta(turma.id, { ...filtro, categoria: ativo ? undefined : c.id })} ativo={ativo}>
+                  <Icone className="size-3.5" aria-hidden />
+                  {c.curto} <Contagem n={c.total} ativo={ativo} />
+                </ChipFiltro>
+              );
+            })}
+          </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por receptividade">
@@ -273,7 +281,7 @@ export function CadernoDaTurma({
             <Link href="/dashboard" className="font-bold text-cereja underline underline-offset-2">
               Painel
             </Link>{" "}
-            você vê quais tags, turmas e dias da semana rendem mais. Toque no termômetro para filtrar pela reação da turma.
+            você vê quais categorias, turmas e dias da semana rendem mais. Toque no termômetro para filtrar pela reação da turma.
           </p>
         </div>
         <Link href={registrar} className="btn-claro shrink-0 text-xs sm:text-sm">

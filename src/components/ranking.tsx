@@ -1,5 +1,4 @@
 import { ORDEM_RECEPTIVIDADE, RECEPTIVIDADE } from "@/components/receptividade";
-import { TagDot } from "@/components/tag-chip";
 import type { ContagemReceptividade } from "@/lib/receptividade";
 import { MIN_AMOSTRA, type Grupo } from "@/lib/stats";
 
@@ -45,12 +44,10 @@ export function BarraReceptividade({
  */
 export function Ranking({
   grupos,
-  mostrarCor = false,
   destaque,
   vazio = "Sem dados no período.",
 }: {
   grupos: Grupo[];
-  mostrarCor?: boolean;
   destaque?: { melhor?: string; pior?: string };
   vazio?: string;
 }) {
@@ -68,7 +65,7 @@ export function Ranking({
           <li key={g.chave} className={g.total === 0 ? "opacity-50" : ""}>
             <div className="mb-1.5 flex items-baseline justify-between gap-3">
               <span className="flex min-w-0 items-center gap-2">
-                {mostrarCor && <TagDot cor={g.cor} className="size-2.5" />}
+                {g.emoji && <span aria-hidden>{g.emoji}</span>}
                 <span className="truncate font-medium">{g.nome}</span>
                 {melhor && (
                   <span className="shrink-0 rounded-full bg-oliva-clara px-2 py-0.5 text-[11px] font-semibold text-ink">

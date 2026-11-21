@@ -43,15 +43,6 @@
   --neutro: #c9bdee;
   --nao-curtiram: #c82333;
 
-  /* Cores das tags (paleta categórica, ordem fixa) */
-  --tag-1: #3b78c4;
-  --tag-2: #e2784c;
-  --tag-3: #2f9a6f;
-  --tag-4: #e0a526;
-  --tag-5: #e86fa3;
-  --tag-6: #7d8a2e;
-  --tag-7: #7d6fd6;
-  --tag-8: #c82333;
 
   /* Cores das pastas das turmas (as do diário, na ordem 6º → 3º médio) */
   --pasta-1: #c7ddf0;
@@ -100,14 +91,6 @@
     --neutro: #8f81c4;
     --nao-curtiram: #ef5d6c;
 
-    --tag-1: #5b97e0;
-    --tag-2: #e2784c;
-    --tag-3: #3fb886;
-    --tag-4: #e0a526;
-    --tag-5: #ee86b3;
-    --tag-6: #a3b23f;
-    --tag-7: #9c90ea;
-    --tag-8: #ea4a5a;
 
     --pasta-1: #2a4258;
     --pasta-2: #4d2030;

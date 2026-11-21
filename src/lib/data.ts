@@ -3,19 +3,21 @@ import { cache } from "react";
 import { requireUser } from "@/lib/supabase/server";
 import { resumirPasta } from "@/lib/pastas";
 import { ordenarTurmas } from "@/lib/turmas";
-import type { Atividade, Receptividade, Tag, Turma } from "@/lib/types";
+import type { Atividade, Categoria, Receptividade, Turma } from "@/lib/types";
 
 const ATIVIDADE_SELECT =
-  "id, titulo, data, receptividade, observacao, turma:turmas!inner(id, nome), atividade_tags(tag:tags(id, nome, cor))";
+  "id, titulo, data, categoria, tema, receptividade, descricao, observacoes, turma:turmas!inner(id, nome)";
 
 type AtividadeRow = {
   id: string;
   titulo: string;
   data: string;
+  categoria: Categoria;
+  tema: string | null;
   receptividade: Receptividade;
-  observacao: string | null;
+  descricao: string | null;
+  observacoes: string | null;
   turma: Turma;
-  atividade_tags: { tag: Tag | null }[];
 };
 
 function toAtividade(row: AtividadeRow): Atividade {
@@ -23,13 +25,12 @@ function toAtividade(row: AtividadeRow): Atividade {
     id: row.id,
     titulo: row.titulo,
     data: row.data,
+    categoria: row.categoria,
+    tema: row.tema ?? "",
     receptividade: row.receptividade,
-    observacao: row.observacao,
+    descricao: row.descricao,
+    observacoes: row.observacoes,
     turma: row.turma,
-    tags: row.atividade_tags
-      .map((at) => at.tag)
-      .filter((t): t is Tag => t !== null)
-      .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")),
   };
 }
 
@@ -40,40 +41,18 @@ export async function getTurmas(): Promise<Turma[]> {
   return ordenarTurmas(data);
 }
 
-export async function getTags(): Promise<Tag[]> {
+/** Turmas com a quantidade de atividades de cada uma (tela de gerenciamento). */
+export async function getTurmasComContagem() {
   const { supabase } = await requireUser();
-  const { data, error } = await supabase.from("tags").select("id, nome, cor").order("nome");
+  const { data, error } = await supabase.from("turmas").select("id, nome, atividades(count)");
   if (error) throw error;
-  return sortByNome(data);
-}
-
-/** Turmas/tags com a quantidade de atividades de cada uma (tela de gerenciamento). */
-export async function getTurmasETagsComContagem() {
-  const { supabase } = await requireUser();
-  const [turmas, tags] = await Promise.all([
-    supabase.from("turmas").select("id, nome, atividades(count)"),
-    supabase.from("tags").select("id, nome, cor, atividade_tags(count)"),
-  ]);
-  if (turmas.error) throw turmas.error;
-  if (tags.error) throw tags.error;
-
-  return {
-    turmas: ordenarTurmas(
-      turmas.data.map((t) => ({
-        id: t.id as string,
-        nome: t.nome as string,
-        total: (t.atividades as { count: number }[])[0]?.count ?? 0,
-      })),
-    ),
-    tags: sortByNome(
-      tags.data.map((t) => ({
-        id: t.id as string,
-        nome: t.nome as string,
-        cor: t.cor as number,
-        total: (t.atividade_tags as { count: number }[])[0]?.count ?? 0,
-      })),
-    ),
-  };
+  return ordenarTurmas(
+    data.map((t) => ({
+      id: t.id as string,
+      nome: t.nome as string,
+      total: (t.atividades as { count: number }[])[0]?.count ?? 0,
+    })),
+  );
 }
 
 /** Uma turma pelo id (null se não existir ou não for da usuária). */
@@ -100,7 +79,7 @@ export const getPastasDeTurmas = cache(async () => {
 
 export type FiltrosAtividades = {
   turmaId?: string;
-  tagId?: string;
+  categoria?: Categoria;
   receptividade?: Receptividade;
   desde?: string;
   ate?: string;
@@ -108,17 +87,6 @@ export type FiltrosAtividades = {
 
 export async function getAtividades(filtros: FiltrosAtividades = {}, limite?: number) {
   const { supabase } = await requireUser();
-
-  let ids: string[] | undefined;
-  if (filtros.tagId) {
-    const { data, error } = await supabase
-      .from("atividade_tags")
-      .select("atividade_id")
-      .eq("tag_id", filtros.tagId);
-    if (error) throw error;
-    ids = data.map((r) => r.atividade_id as string);
-    if (ids.length === 0) return [];
-  }
 
   const PAGINA = 1000;
   const resultado: Atividade[] = [];
@@ -132,10 +100,10 @@ export async function getAtividades(filtros: FiltrosAtividades = {}, limite?: nu
       .range(inicio, fim);
 
     if (filtros.turmaId) query = query.eq("turma_id", filtros.turmaId);
+    if (filtros.categoria) query = query.eq("categoria", filtros.categoria);
     if (filtros.receptividade) query = query.eq("receptividade", filtros.receptividade);
     if (filtros.desde) query = query.gte("data", filtros.desde);
     if (filtros.ate) query = query.lte("data", filtros.ate);
-    if (ids) query = query.in("id", ids);
 
     const { data, error } = await query.overrideTypes<AtividadeRow[], { merge: false }>();
     if (error) throw error;
@@ -156,10 +124,4 @@ export async function getAtividade(id: string) {
     .overrideTypes<AtividadeRow[], { merge: false }>();
   if (error) throw error;
   return data[0] ? toAtividade(data[0]) : null;
-}
-
-function sortByNome<T extends { nome: string }>(items: T[]) {
-  return [...items].sort((a, b) =>
-    a.nome.localeCompare(b.nome, "pt-BR", { numeric: true, sensitivity: "base" }),
-  );
 }

@@ -11,7 +11,7 @@ import type { Receptividade } from "@/lib/types";
  */
 export const RECEPTIVIDADE: Record<
   Receptividade,
-  { label: string; emoji: string; descricao: string; bg: string; fundo: string; soft: string; anel: string }
+  { label: string; emoji: string; descricao: string; nivel: string; bg: string; fundo: string; soft: string; anel: string }
 > = {
   adoraram: {
     ...ROTULO_RECEPTIVIDADE.adoraram,
@@ -46,12 +46,13 @@ export const RECEPTIVIDADE: Record<
 /** Ordem fixa, da melhor para a pior reação. */
 export const ORDEM_RECEPTIVIDADE: readonly Receptividade[] = RECEPTIVIDADES;
 
-export function ReceptividadeBadge({ valor }: { valor: Receptividade }) {
+/** Selo da reação. `completo` mostra também o nível ("Adoraram / Alto Engajamento"), como nos cartões. */
+export function ReceptividadeBadge({ valor, completo = false }: { valor: Receptividade; completo?: boolean }) {
   const r = RECEPTIVIDADE[valor];
   return (
     <span className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-extrabold ${r.soft}`}>
       <span aria-hidden>{r.emoji}</span>
-      {r.label}
+      {completo ? `${r.label} / ${r.nivel}` : r.label}
     </span>
   );
 }
