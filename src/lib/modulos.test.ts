@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { itemAtivo, MENU_TOPO, MODULOS, nomeDeExibicao } from "@/lib/modulos";
+import { itemAtivo, MENU_TOPO, MODULOS, nomeCompleto, nomeDeExibicao } from "@/lib/modulos";
 
 describe("itemAtivo", () => {
   it("Início só fica ativo na raiz", () => {
@@ -70,5 +70,20 @@ describe("MENU_TOPO", () => {
 
   it("a edição de atividade não acende nenhum chip do topo (ela conta como Registrar)", () => {
     expect(MENU_TOPO.filter((m) => itemAtivo("/atividades/abc", m.href))).toHaveLength(0);
+  });
+});
+
+describe("nomeCompleto", () => {
+  it("usa o nome completo dos metadados, sem espaços sobrando", () => {
+    expect(nomeCompleto("x@y.com", { full_name: "  Thayanne   Bernardi " })).toBe("Thayanne Bernardi");
+    expect(nomeCompleto("x@y.com", { nome: "Bia Souza", name: "Beatriz" })).toBe("Bia Souza");
+  });
+
+  it("sem nome nos metadados, cai no primeiro nome do e-mail", () => {
+    expect(nomeCompleto("ana.souza@y.com", { nome: "  " })).toBe("Ana");
+  });
+
+  it("sem nada, vazio", () => {
+    expect(nomeCompleto(null, null)).toBe("");
   });
 });

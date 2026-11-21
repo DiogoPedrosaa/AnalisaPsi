@@ -1,15 +1,12 @@
 import { quandoFoi } from "@/lib/dates";
+import { calcularAderencia, type ContagemReceptividade, contagemVazia } from "@/lib/receptividade";
 import { MIN_AMOSTRA } from "@/lib/stats";
 import type { Atividade, Receptividade, Tag } from "@/lib/types";
 
 /* Lógica das "pastas" das turmas (tela de início: grade de pastas + caderno da turma aberta). */
 
-export type ResumoPasta = {
-  total: number;
-  boa: number;
-  neutra: number;
-  ruim: number;
-  /** 0–100 (boa = 1, neutra = ½, ruim = 0), ou null sem atividades. */
+export type ResumoPasta = ContagemReceptividade & {
+  /** 0–100 (ver `calcularAderencia`), ou null sem atividades. */
   aderencia: number | null;
   /** yyyy-mm-dd da atividade mais recente. */
   ultimaData: string | null;
@@ -17,13 +14,13 @@ export type ResumoPasta = {
 
 /** Contagem por receptividade, aderência e data mais recente das atividades de uma turma. */
 export function resumirPasta(atividades: { data: string; receptividade: Receptividade }[]): ResumoPasta {
-  const r: ResumoPasta = { total: 0, boa: 0, neutra: 0, ruim: 0, aderencia: null, ultimaData: null };
+  const r: ResumoPasta = { ...contagemVazia(), aderencia: null, ultimaData: null };
   for (const a of atividades) {
     r.total += 1;
     r[a.receptividade] += 1;
     if (!r.ultimaData || a.data > r.ultimaData) r.ultimaData = a.data;
   }
-  if (r.total) r.aderencia = ((r.boa + r.neutra * 0.5) / r.total) * 100;
+  r.aderencia = calcularAderencia(r);
   return r;
 }
 

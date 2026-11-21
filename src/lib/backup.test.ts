@@ -6,7 +6,7 @@ const atividade = (id: string, extra: Partial<Atividade> = {}): Atividade => ({
   id,
   titulo: `Atividade ${id}`,
   data: "2026-11-18",
-  receptividade: "boa",
+  receptividade: "adoraram",
   observacao: null,
   turma: { id: "t1", nome: "8º Ano" },
   tags: [],
@@ -24,7 +24,7 @@ describe("montarBackup", () => {
   it("mantém a ordem e todos os campos de cada atividade, com turma e tags", () => {
     const a = atividade("1", {
       observacao: "Foi ótimo",
-      receptividade: "ruim",
+      receptividade: "nao_curtiram",
       tags: [{ id: "g1", nome: "Arte", cor: 3 }],
     });
     const b = montarBackup([a, atividade("2")], agora);

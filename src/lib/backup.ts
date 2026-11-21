@@ -2,8 +2,11 @@ import type { Atividade } from "@/lib/types";
 
 /* Backup em JSON de todas as atividades (botão "Backup JSON" do cabeçalho, rota GET /api/atividades). */
 
-/** Versão do formato do arquivo; aumente se a estrutura mudar. */
-export const VERSAO_BACKUP = 1;
+/**
+ * Versão do formato do arquivo; aumente se a estrutura mudar.
+ * 1: reações boa/neutra/ruim · 2: adoraram/gostaram/neutro/nao_curtiram.
+ */
+export const VERSAO_BACKUP = 2;
 
 export type Backup = {
   app: "AnalisaPsi";

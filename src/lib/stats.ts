@@ -1,26 +1,23 @@
 import { DIAS_SEMANA, diaDaSemana } from "@/lib/dates";
+import { calcularAderencia, type ContagemReceptividade, contagemVazia } from "@/lib/receptividade";
 import type { Atividade, Receptividade } from "@/lib/types";
 
 /** Abaixo disso, o grupo aparece marcado como "poucos dados" e não entra nos destaques. */
 export const MIN_AMOSTRA = 3;
 
-export type Grupo = {
+export type Grupo = ContagemReceptividade & {
   chave: string;
   nome: string;
   cor?: number;
-  total: number;
-  boa: number;
-  neutra: number;
-  ruim: number;
   /**
-   * Aderência de 0 a 100: boa vale 1, neutra vale ½, ruim vale 0.
-   * Ex.: 2 boas + 1 neutra + 1 ruim → (2 + 0,5) / 4 = 62,5%
+   * Aderência de 0 a 100 (Adoraram 1, Gostaram ⅔, Neutro ⅓, Não curtiram 0; ver `calcularAderencia`).
+   * Ex.: 2 adoraram + 1 neutro + 1 não curtiram → (2 + ⅓) / 4 ≈ 58,3%. Sem atividades, 0.
    */
   aderencia: number;
 };
 
 function novoGrupo(chave: string, nome: string, cor?: number): Grupo {
-  return { chave, nome, cor, total: 0, boa: 0, neutra: 0, ruim: 0, aderencia: 0 };
+  return { chave, nome, cor, ...contagemVazia(), aderencia: 0 };
 }
 
 function somar(grupo: Grupo, r: Receptividade) {
@@ -30,7 +27,7 @@ function somar(grupo: Grupo, r: Receptividade) {
 
 function fechar(grupos: Grupo[]) {
   for (const g of grupos) {
-    g.aderencia = g.total ? ((g.boa + g.neutra * 0.5) / g.total) * 100 : 0;
+    g.aderencia = calcularAderencia(g) ?? 0;
   }
   return grupos;
 }

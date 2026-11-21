@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { CabecalhoInicio, CadernoDaTurma, GradePastas, GradePastasCarregando } from "@/components/inicio";
-import { ORDEM_RECEPTIVIDADE } from "@/components/receptividade";
 import { SkeletonBloco } from "@/components/skeleton";
 import { getAtividades, getPastasDeTurmas } from "@/lib/data";
 import { formatarDataLonga, hojeNoFuso, horaNoFuso, quandoFoi, saudacao } from "@/lib/dates";
-import { nomeDeExibicao } from "@/lib/modulos";
+import { nomeCompleto, nomeDeExibicao } from "@/lib/modulos";
 import { param, uuidParam } from "@/lib/params";
+import { ehReceptividade } from "@/lib/receptividade";
+import { textoParaIA } from "@/lib/relatorio-ia";
 import { filtrarAtividades, pastaMaisRecente, resumirPasta, tagsDasAtividades } from "@/lib/pastas";
 import { createClient } from "@/lib/supabase/server";
-import type { Receptividade } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Pastas" };
 
@@ -72,9 +72,13 @@ async function Pastas({ searchParams }: Pick<Props, "searchParams">) {
   const pedida = uuidParam(sp.turma);
 
   // Com `?turma=`, busca as atividades junto com as pastas (sem esperar uma pela outra).
-  const [pastas, atividadesPedida] = await Promise.all([
+  const [pastas, atividadesPedida, autora] = await Promise.all([
     getPastasDeTurmas(),
     pedida ? getAtividades({ turmaId: pedida }) : null,
+    // Nome de quem assina o relatório do "Copiar para IA".
+    createClient()
+      .then((s) => s.auth.getClaims())
+      .then(({ data }) => nomeCompleto(data?.claims?.email, data?.claims?.user_metadata)),
   ]);
 
   if (pastas.length === 0) {
@@ -100,7 +104,8 @@ async function Pastas({ searchParams }: Pick<Props, "searchParams">) {
   const tags = tagsDasAtividades(todas);
   const tagParam = uuidParam(sp.tag);
   const tagId = tags.some((t) => t.id === tagParam) ? tagParam : undefined;
-  const receptividade = ORDEM_RECEPTIVIDADE.find((r) => r === param(sp.receptividade)) as Receptividade | undefined;
+  const reacao = param(sp.receptividade);
+  const receptividade = ehReceptividade(reacao) ? reacao : undefined;
   const filtro = { tagId, receptividade };
 
   return (
@@ -114,6 +119,7 @@ async function Pastas({ searchParams }: Pick<Props, "searchParams">) {
         filtro={filtro}
         atividades={filtrarAtividades(todas, filtro)}
         hoje={hojeNoFuso(new Date())}
+        textoIA={textoParaIA({ turma: { id: aberta.id, nome: aberta.nome }, atividades: todas, autora })}
       />
     </>
   );

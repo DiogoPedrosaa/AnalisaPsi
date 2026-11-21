@@ -108,7 +108,7 @@ export function BotaoApagar({
         </p>
 
         {erro && (
-          <p role="alert" className="mt-4 rounded-xl bg-ruim/10 px-4 py-3 text-left text-sm font-medium text-danger">
+          <p role="alert" className="mt-4 rounded-xl bg-danger/10 px-4 py-3 text-left text-sm font-medium text-danger">
             {erro}
           </p>
         )}

@@ -1,8 +1,9 @@
+import { RECEPTIVIDADES, ROTULO_RECEPTIVIDADE } from "@/lib/receptividade";
 import type { Receptividade } from "@/lib/types";
 
 /**
- * Rótulos e classes da receptividade, no estilo do "termômetro da turma":
- * boa = oliva, neutra = lavanda, ruim = cereja.
+ * Rótulos e classes das reações dos alunos, no estilo do "termômetro da turma":
+ * Adoraram = oliva, Gostaram = azul-bebê, Neutro = lavanda, Não curtiram = cereja.
  * - `bg`: cor cheia (barras dos gráficos e legendas).
  * - `fundo`: fundo pastel das pílulas do termômetro.
  * - `soft`: selo/opção marcada (borda + fundo pastel + texto).
@@ -12,36 +13,38 @@ export const RECEPTIVIDADE: Record<
   Receptividade,
   { label: string; emoji: string; descricao: string; bg: string; fundo: string; soft: string; anel: string }
 > = {
-  boa: {
-    label: "Boa",
-    emoji: "😊",
-    descricao: "Turma engajou",
-    bg: "bg-boa",
+  adoraram: {
+    ...ROTULO_RECEPTIVIDADE.adoraram,
+    bg: "bg-adoraram",
     fundo: "bg-oliva-clara",
     soft: "border-oliva bg-oliva-clara text-ink",
     anel: "ring-oliva",
   },
-  neutra: {
-    label: "Neutra",
-    emoji: "😐",
-    descricao: "Nem bem, nem mal",
-    bg: "bg-neutra",
+  gostaram: {
+    ...ROTULO_RECEPTIVIDADE.gostaram,
+    bg: "bg-gostaram",
+    fundo: "bg-ceu",
+    soft: "border-line bg-ceu text-ink",
+    anel: "ring-line",
+  },
+  neutro: {
+    ...ROTULO_RECEPTIVIDADE.neutro,
+    bg: "bg-neutro",
     fundo: "bg-lavanda",
     soft: "border-lavanda-escura bg-lavanda text-ink",
     anel: "ring-lavanda-escura",
   },
-  ruim: {
-    label: "Ruim",
-    emoji: "😕",
-    descricao: "Não rolou",
-    bg: "bg-ruim",
+  nao_curtiram: {
+    ...ROTULO_RECEPTIVIDADE.nao_curtiram,
+    bg: "bg-nao-curtiram",
     fundo: "bg-rosa-claro",
     soft: "border-cereja bg-rosa-claro text-vinho",
     anel: "ring-cereja",
   },
 };
 
-export const ORDEM_RECEPTIVIDADE: Receptividade[] = ["boa", "neutra", "ruim"];
+/** Ordem fixa, da melhor para a pior reação. */
+export const ORDEM_RECEPTIVIDADE: readonly Receptividade[] = RECEPTIVIDADES;
 
 export function ReceptividadeBadge({ valor }: { valor: Receptividade }) {
   const r = RECEPTIVIDADE[valor];

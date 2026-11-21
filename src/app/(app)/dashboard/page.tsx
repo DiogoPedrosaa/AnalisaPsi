@@ -110,7 +110,7 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/dashboard"
 
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-ink-2">
             <LegendaReceptividade />
-            <span>Aderência: boa conta 100%, neutra 50%, ruim 0%.</span>
+            <span>Aderência: adoraram conta 100%, gostaram 67%, neutro 33%, não curtiram 0%.</span>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
@@ -166,7 +166,7 @@ function Destaque({
   return (
     <div className="card relative overflow-hidden p-4 shadow-[3px_3px_0_0_var(--sombra)]">
       {sinal && (
-        <span aria-hidden className={`absolute inset-y-0 left-0 w-1 ${sinal === "melhor" ? "bg-boa" : "bg-ruim"}`} />
+        <span aria-hidden className={`absolute inset-y-0 left-0 w-1 ${sinal === "melhor" ? "bg-adoraram" : "bg-nao-curtiram"}`} />
       )}
       <p className="rotulo">{titulo}</p>
       {principal ? (

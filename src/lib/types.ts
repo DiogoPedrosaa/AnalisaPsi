@@ -1,4 +1,5 @@
-export type Receptividade = "boa" | "neutra" | "ruim";
+/** Reação dos alunos à atividade (ver lib/receptividade.ts). */
+export type Receptividade = "adoraram" | "gostaram" | "neutro" | "nao_curtiram";
 
 export type Turma = { id: string; nome: string };
 

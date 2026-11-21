@@ -37,10 +37,11 @@
   --grade: #fbe2e1; /* linhas do papel quadriculado (hotPink a 16% sobre creme) */
   --sombra: #4a2b1d; /* sombra de recorte (cocoa) */
 
-  /* Receptividade (oliva ↔ lavanda ↔ cereja, como o termômetro do diário) */
-  --boa: #6f7d43;
-  --neutra: #d6ccf2;
-  --ruim: #c82333;
+  /* Reações dos alunos (as do termômetro do diário: oliva, azul-bebê, lavanda, cereja) */
+  --adoraram: #6f7d43;
+  --gostaram: #a9c8e6;
+  --neutro: #c9bdee;
+  --nao-curtiram: #c82333;
 
   /* Cores das tags (paleta categórica, ordem fixa) */
   --tag-1: #3b78c4;
@@ -94,9 +95,10 @@
     --grade: #2b1d16;
     --sombra: #0c0705;
 
-    --boa: #a9b97a;
-    --neutra: #8f81c4;
-    --ruim: #ef5d6c;
+    --adoraram: #a9b97a;
+    --gostaram: #6f9ccc;
+    --neutro: #8f81c4;
+    --nao-curtiram: #ef5d6c;
 
     --tag-1: #5b97e0;
     --tag-2: #e2784c;
@@ -130,9 +132,10 @@
   --color-accent-soft: var(--accent-soft);
   --color-danger: var(--danger);
   --color-success: var(--success);
-  --color-boa: var(--boa);
-  --color-neutra: var(--neutra);
-  --color-ruim: var(--ruim);
+  --color-adoraram: var(--adoraram);
+  --color-gostaram: var(--gostaram);
+  --color-neutro: var(--neutro);
+  --color-nao-curtiram: var(--nao-curtiram);
   --color-rosa: var(--rosa);
   --color-rosa-claro: var(--rosa-claro);
   --color-rosa-forte: var(--rosa-forte);

@@ -208,7 +208,7 @@ export function AtividadeForm({
       {/* Receptividade */}
       <fieldset>
         <legend className="label">Como a turma recebeu?</legend>
-        <div className="grid grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
           {ORDEM_RECEPTIVIDADE.map((k) => {
             const r = RECEPTIVIDADE[k];
             const sel = receptividade === k;
@@ -299,7 +299,7 @@ export function AtividadeForm({
       </div>
 
       {erro && (
-        <p role="alert" className="rounded-xl bg-ruim/10 px-4 py-3 text-sm font-medium text-danger">
+        <p role="alert" className="rounded-xl bg-danger/10 px-4 py-3 text-sm font-medium text-danger">
           {erro}
         </p>
       )}

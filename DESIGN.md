@@ -18,7 +18,7 @@ padrão novo deve ser registrado aqui.
   bloco espiral, folha de fichário, papel rasgado, bordas onduladas e listras com estrelinhas. Os
   enfeites são **pontuais**: emolduram blocos e títulos, nunca ficam atrás de texto corrido.
   Emojis aparecem com moderação (receptividade, estados vazios, dica).
-- **Dados honestos.** Os gráficos mostram a composição real (boa / neutra / ruim) e marcam quando há
+- **Dados honestos.** Os gráficos mostram a composição real (adoraram / gostaram / neutro / não curtiram) e marcam quando há
   "poucos dados", em vez de exagerar conclusões.
 - **Tudo em português do Brasil**, num tom próximo e direto ("Não rolou", "Leva menos de um minuto").
 
@@ -65,25 +65,33 @@ significado (erro, receptividade).
 | `cereja` | `#c82333` (cherry) | `#ea4a5a` | Ícones de destaque, recadinhos, setinha da aba, links da dica |
 | `vinho` | `#8a1522` (cherryDark) | `#f4a3b0` | Títulos de página e da marca, hover do `btn-primary` |
 | `creme` | `#fdf9f2` | `#fdf9f2` | Texto sobre `cereja` |
-| `lavanda` / `lavanda-escura` | `#d6ccf2` / `#6a5b94` | `#3f3768` / `#c5b9f0` | `btn-secundario`, fita do fichário, receptividade neutra |
+| `lavanda` / `lavanda-escura` | `#d6ccf2` / `#6a5b94` | `#3f3768` / `#c5b9f0` | `btn-secundario`, fita do fichário, reação "Neutro" |
 | `ceu` / `ceu-claro` | `#c7ddf0` / `#dcebf7` (babyBlue / softBlue) | `#2a4258` / `#233547` | Fita washi, folha de fichário, caixa "Turma:" do cartão |
-| `oliva` / `oliva-clara` | `#6f7d43` / `#dce3c3` (olive / oliveLight) | `#b6c48a` / `#3a4224` | Itálico dos títulos, medalhão, `etiqueta`, `btn-oliva`, receptividade boa |
+| `oliva` / `oliva-clara` | `#6f7d43` / `#dce3c3` (olive / oliveLight) | `#b6c48a` / `#3a4224` | Itálico dos títulos, medalhão, `etiqueta`, `btn-oliva`, reação "Adoraram" |
 | `pessego` | `#ffa18f` | `#9a4c3e` | Selo `<Flor>` |
 | `grade` | `#fbe2e1` | `#2b1d16` | Linhas do papel quadriculado (só no CSS) |
 | `sombra` | `#4a2b1d` | `#0c0705` | Sombra de recorte (só no CSS, via `var(--sombra)`) |
 
-### Receptividade (oliva ↔ lavanda ↔ cereja)
+### Reações dos alunos (receptividade: oliva → azul-bebê → lavanda → cereja)
 
-| Token | Claro | Escuro | Significado |
-|---|---|---|---|
-| `boa` | `#6f7d43` | `#a9b97a` | 😊 Boa: turma engajou |
-| `neutra` | `#d6ccf2` | `#8f81c4` | 😐 Neutra: nem bem, nem mal |
-| `ruim` | `#c82333` | `#ef5d6c` | 😕 Ruim: não rolou |
+Quatro níveis, como o termômetro do diário. No banco ficam as chaves `adoraram`, `gostaram`, `neutro` e
+`nao_curtiram` (migração [0003](supabase/migrations/0003_quatro_reacoes.sql), que converteu as antigas
+boa → gostaram, neutra → neutro, ruim → nao_curtiram).
 
-A ordem é sempre **boa → neutra → ruim** (`ORDEM_RECEPTIVIDADE`). Rótulos, emojis e classes ficam
-centralizados em `RECEPTIVIDADE` ([src/components/receptividade.tsx](src/components/receptividade.tsx)):
-`bg` (barras), `fundo` (pílulas do termômetro: `oliva-clara` / `lavanda` / `rosa-claro`), `soft` (selo e
-opção marcada: borda + fundo pastel) e `anel` (anel da opção marcada). Não repita esses valores em outros lugares.
+| Token (barras) | Claro | Escuro | Reação | Pílula / selo |
+|---|---|---|---|---|
+| `adoraram` | `#6f7d43` | `#a9b97a` | 🤩 Adoraram — Alto engajamento | `oliva-clara` com borda `oliva` |
+| `gostaram` | `#a9c8e6` | `#6f9ccc` | 🙂 Gostaram — Bom engajamento | `ceu` com borda `line` |
+| `neutro` | `#c9bdee` | `#8f81c4` | 😐 Neutro — Regular / dispersos | `lavanda` com borda `lavanda-escura` |
+| `nao-curtiram` | `#c82333` | `#ef5d6c` | 😕 Não curtiram — Baixo engajamento | `rosa-claro` com borda `cereja`, texto `vinho` |
+
+- **Lógica** em [src/lib/receptividade.ts](src/lib/receptividade.ts): a ordem (`RECEPTIVIDADES`, sempre da melhor para
+  a pior), os rótulos (`ROTULO_RECEPTIVIDADE`), `ehReceptividade()` para validar URL/formulário e a **aderência**
+  (`calcularAderencia()`): média dos pesos **Adoraram 100%, Gostaram 67%, Neutro 33%, Não curtiram 0%**. Painel e
+  pastas usam essa mesma função.
+- **Classes** em `RECEPTIVIDADE` ([src/components/receptividade.tsx](src/components/receptividade.tsx)): `bg` (barras),
+  `fundo` (pílulas do termômetro), `soft` (selo e opção marcada: borda + fundo pastel) e `anel` (anel da opção
+  marcada). Não repita esses valores em outros lugares.
 
 ### Cores das tags
 
@@ -218,7 +226,7 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
 - **TagChip / TagDot:** bolinha na cor da tag; em fundos coloridos, `ring-1 ring-line/30`.
 - **ReceptividadeBadge:** pílula `rounded-full border text-xs font-extrabold` com emoji + rótulo e as
   classes `soft` da receptividade.
-- **Seletor de receptividade (formulário):** grade de 3 cartões `rounded-xl border-2 p-2.5` com emoji
+- **Seletor de reação (formulário):** grade de 4 cartões (**2 colunas no celular, 4 a partir de `sm`**), `rounded-xl border-2 p-2.5` com emoji
   `text-2xl`, rótulo `text-xs font-extrabold` e descrição `text-[10px]`. Marcado: `soft` + `ring-2` + `anel`.
 - **Cartão de atividade** (`AtividadeLista` em [src/components/atividade-lista.tsx](src/components/atividade-lista.tsx)):
   grade de cartões `adesivo rounded-2xl bg-card p-5 sm:p-6`, **2 colunas a partir de `md`** (`compacta` força
@@ -253,10 +261,11 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
   em quatro faixas:
   1. **Capa:** `espiral` + `estampa-azul` (fundamental) ou `estampa-rosa` (médio; sem etapa, a cor da pasta), com um
      cartão `bg-card/95 backdrop-blur-sm` por cima: `etiqueta` da etapa, pílula `rosa-claro` "N atividades registradas",
-     nome em Fraunces extrabold `text-2xl sm:text-3xl`, `detalhePasta()` e o `btn-primary` **"Registrar nesta turma"**.
+     nome em Fraunces extrabold `text-2xl sm:text-3xl`, `detalhePasta()` e, à direita (empilhados no celular), o
+     `btn-secundario` **"Copiar para IA"** (só com atividades) e o `btn-primary` **"Registrar nesta turma"**.
   2. **Filtros** (`bg-card-2/60`): chips de tag ("Todas as práticas" com ícone de camadas + só as tags usadas, com a
      contagem numa pílula) e, abaixo, o **Termômetro da turma**: pílulas `rounded-lg` com o `fundo` de cada
-     receptividade ("😊 Boa: 3"), que filtram ao tocar (ativa: contorno cheio + sombra de 2px; com zero, `opacity-50`
+     reação ("🤩 Adoraram: 3"), que filtram ao tocar (ativa: contorno cheio + sombra de 2px; com zero, `opacity-50`
      e não clica). À direita, em itálico, "Da mais recente para a mais antiga · N% de aderência". Tudo muda a URL
      (`?turma=&tag=&receptividade=`, de `hrefDaPasta()`); tocar no ativo tira o filtro.
   3. **Folhas:** `quadriculado min-h-[380px]` com os cartões de atividade. Filtrando, "3 de 10 atividades" + "Limpar
@@ -264,6 +273,13 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
      preenchida aqui ainda!" e `btn-oliva` "Registrar a primeira atividade".
   4. **Pé:** `<BordaRasgada className="text-rosa">` + faixa `grade-rosa` com a dica 💡 num cartão creme (link para o
      Painel) e o `btn-claro` "Anotar nova prática".
+- **Copiar para IA** (`<BotaoCopiarIA>` em [src/components/botao-copiar-ia.tsx](src/components/botao-copiar-ia.tsx)): lavanda
+  com ícone de brilho `lavanda-escura`. Copia o texto de `textoParaIA()` ([src/lib/relatorio-ia.ts](src/lib/relatorio-ia.ts)),
+  montado no servidor com **todas** as atividades da turma (ignora os filtros da tela): cabeçalho "DIÁRIO DE ESTÁGIO —
+  PSICOLOGIA ESCOLAR" com o nome da conta (`nomeCompleto()`) e a turma com a etapa ("8º Ano (Fund. II)", de
+  `rotuloDaTurma()`), resumo por tag e por reação, as atividades da reação mais alta para a mais baixa
+  (`ordenarPorReacao()`; título em caixa alta, data com dia da semana, tags, reação e descrição) e o prompt sugerido.
+  Ao copiar, vira "Copiado! Cole na sua IA" com check `oliva` por 2,5s; se o navegador bloquear, balão de erro.
 - Endereços antigos `/turmas` e `/turmas/[id]` redirecionam para o início (em `next.config.ts`), com os filtros.
 - **Registro salvo:** a mensagem de sucesso termina com o link "Ver na pasta →".
 - **Ações de editar e apagar** ([src/components/acoes.tsx](src/components/acoes.tsx)): `<BotaoEditar>` (caneta) e
@@ -279,9 +295,9 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
 - **Filtros (Histórico, Painel):** selects `input py-2 text-sm` que atualizam a URL; filtro ativo ganha
   `border-accent`; "Limpar filtros" só quando há filtro.
 - **Ranking** ([src/components/ranking.tsx](src/components/ranking.tsx)): nome, aderência em negrito, barra empilhada
-  boa/neutra/ruim (`h-2.5 rounded-full`, `gap-[2px]`, trilho `bg-card-2`) e detalhe `text-xs text-muted`. Melhor/pior
+  das 4 reações (`h-2.5 rounded-full`, `gap-[2px]`, trilho `bg-card-2`) e detalhe `text-xs text-muted`. Melhor/pior
   ganham `▲ melhor` / `▼ pior`; menos de `MIN_AMOSTRA` atividades mostra "poucos dados".
-- **Destaque (painel):** `card` com sombra de 3px e faixa vertical de 4px à esquerda (`bg-boa` / `bg-ruim`), `rotulo`
+- **Destaque (painel):** `card` com sombra de 3px e faixa vertical de 4px à esquerda (`bg-adoraram` / `bg-nao-curtiram`), `rotulo`
   e valor em Fraunces extrabold `text-2xl sm:text-3xl`.
 - **Caixa de resumo:** `card furos bg-accent-soft/60`, com o recadinho "em resumo…" (`font-script text-cereja`).
 
@@ -354,7 +370,7 @@ rasgo) fica em [src/lib/formas.ts](src/lib/formas.ts), com testes. Tudo é `aria
 - **Vazio:** ícone num quadrado `rosa-claro` girado com sombra de recorte (ou emoji grande), título em Fraunces,
   frase curta e, quando fizer sentido, um botão levando à ação.
 - **Erro de página:** cartão centralizado com 😕, título "Algo deu errado" e botão "Tentar de novo".
-- **Erro de formulário:** `rounded-xl bg-ruim/10 px-4 py-3 text-sm font-medium text-danger` com `role="alert"`.
+- **Erro de formulário:** `rounded-xl bg-danger/10 px-4 py-3 text-sm font-medium text-danger` com `role="alert"`.
 - **Sucesso:** `rounded-xl bg-success/10 … text-success` com `role="status"`.
 
 ## Acessibilidade

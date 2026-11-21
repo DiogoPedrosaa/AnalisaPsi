@@ -1,25 +1,25 @@
 import { ORDEM_RECEPTIVIDADE, RECEPTIVIDADE } from "@/components/receptividade";
 import { TagDot } from "@/components/tag-chip";
+import type { ContagemReceptividade } from "@/lib/receptividade";
 import { MIN_AMOSTRA, type Grupo } from "@/lib/stats";
 
 export function pct(n: number) {
   return `${Math.round(n)}%`;
 }
 
-const PLURAL = { boa: ["boa", "boas"], neutra: ["neutra", "neutras"], ruim: ["ruim", "ruins"] } as const;
-
+/** "Adoraram 2 · Neutro 1" (só as reações que aparecem). */
 function detalhe(g: Grupo) {
   return ORDEM_RECEPTIVIDADE.filter((k) => g[k] > 0)
-    .map((k) => `${g[k]} ${PLURAL[k][g[k] === 1 ? 0 : 1]}`)
+    .map((k) => `${RECEPTIVIDADE[k].label} ${g[k]}`)
     .join(" · ");
 }
 
-/** Barra empilhada boa / neutra / ruim (trilho `card-2`), proporcional às contagens. */
+/** Barra empilhada das 4 reações (trilho `card-2`), proporcional às contagens. */
 export function BarraReceptividade({
   contagem: c,
   className = "h-2.5",
 }: {
-  contagem: { total: number; boa: number; neutra: number; ruim: number };
+  contagem: ContagemReceptividade;
   className?: string;
 }) {
   return (
@@ -40,7 +40,7 @@ export function BarraReceptividade({
 }
 
 /**
- * Lista de grupos com barra empilhada (boa / neutra / ruim) e a aderência à direita.
+ * Lista de grupos com barra empilhada (Adoraram → Não curtiram) e a aderência à direita.
  * `destaque` marca o melhor e o pior da lista.
  */
 export function Ranking({
@@ -71,12 +71,12 @@ export function Ranking({
                 {mostrarCor && <TagDot cor={g.cor} className="size-2.5" />}
                 <span className="truncate font-medium">{g.nome}</span>
                 {melhor && (
-                  <span className="shrink-0 rounded-full bg-boa/12 px-2 py-0.5 text-[11px] font-semibold text-ink">
+                  <span className="shrink-0 rounded-full bg-oliva-clara px-2 py-0.5 text-[11px] font-semibold text-ink">
                     ▲ melhor
                   </span>
                 )}
                 {pior && (
-                  <span className="shrink-0 rounded-full bg-ruim/12 px-2 py-0.5 text-[11px] font-semibold text-ink">
+                  <span className="shrink-0 rounded-full bg-rosa-claro px-2 py-0.5 text-[11px] font-semibold text-ink">
                     ▼ pior
                   </span>
                 )}

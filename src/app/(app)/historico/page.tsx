@@ -7,7 +7,7 @@ import { ORDEM_RECEPTIVIDADE, RECEPTIVIDADE } from "@/components/receptividade";
 import { SkeletonBloco } from "@/components/skeleton";
 import { getAtividades, getTags, getTurmas } from "@/lib/data";
 import { param, uuidParam } from "@/lib/params";
-import type { Receptividade } from "@/lib/types";
+import { ehReceptividade } from "@/lib/receptividade";
 
 export const metadata: Metadata = { title: "Histórico" };
 
@@ -29,7 +29,8 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/historico"
   const sp = await searchParams;
   const turmaId = uuidParam(sp.turma);
   const tagId = uuidParam(sp.tag);
-  const receptividade = ORDEM_RECEPTIVIDADE.find((r) => r === param(sp.receptividade)) as Receptividade | undefined;
+  const reacao = param(sp.receptividade);
+  const receptividade = ehReceptividade(reacao) ? reacao : undefined;
 
   const [turmas, tags, atividades] = await Promise.all([
     getTurmas(),

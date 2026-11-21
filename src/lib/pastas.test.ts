@@ -21,26 +21,29 @@ function atv(id: string, data: string, receptividade: Receptividade, tags: Tag[]
 
 describe("resumirPasta", () => {
   it("pasta vazia não tem aderência nem data", () => {
-    expect(resumirPasta([])).toEqual({ total: 0, boa: 0, neutra: 0, ruim: 0, aderencia: null, ultimaData: null });
+    expect(resumirPasta([])).toEqual({ total: 0, adoraram: 0, gostaram: 0, neutro: 0, nao_curtiram: 0, aderencia: null, ultimaData: null });
   });
 
-  it("conta por receptividade e calcula a aderência (boa 1, neutra ½, ruim 0)", () => {
+  it("conta por reação e calcula a aderência (adoraram 1, gostaram ⅔, neutro ⅓, não curtiram 0)", () => {
     const r = resumirPasta([
-      atv("a", "2026-11-10", "boa"),
-      atv("b", "2026-11-11", "boa"),
-      atv("c", "2026-11-12", "neutra"),
-      atv("d", "2026-11-13", "ruim"),
+      atv("a", "2026-11-10", "adoraram"),
+      atv("b", "2026-11-11", "adoraram"),
+      atv("c", "2026-11-12", "gostaram"),
+      atv("d", "2026-11-13", "neutro"),
+      atv("e", "2026-11-14", "nao_curtiram"),
+      atv("f", "2026-11-15", "nao_curtiram"),
     ]);
-    expect(r).toMatchObject({ total: 4, boa: 2, neutra: 1, ruim: 1, aderencia: 62.5 });
+    expect(r).toMatchObject({ total: 6, adoraram: 2, gostaram: 1, neutro: 1, nao_curtiram: 2 });
+    expect(r.aderencia).toBeCloseTo(50); // (2 + ⅔ + ⅓) / 6
   });
 
   it("pega a data mais recente mesmo fora de ordem", () => {
-    const r = resumirPasta([atv("a", "2026-11-03", "boa"), atv("b", "2026-11-16", "ruim"), atv("c", "2026-10-30", "boa")]);
+    const r = resumirPasta([atv("a", "2026-11-03", "adoraram"), atv("b", "2026-11-16", "nao_curtiram"), atv("c", "2026-10-30", "adoraram")]);
     expect(r.ultimaData).toBe("2026-11-16");
   });
 
-  it("só ruins dá aderência zero, não null", () => {
-    expect(resumirPasta([atv("a", "2026-11-03", "ruim")]).aderencia).toBe(0);
+  it("só 'não curtiram' dá aderência zero, não null", () => {
+    expect(resumirPasta([atv("a", "2026-11-03", "nao_curtiram")]).aderencia).toBe(0);
   });
 });
 
@@ -52,12 +55,12 @@ describe("detalhePasta", () => {
   });
 
   it("mostra quantidade e quando foi a última", () => {
-    const r = resumirPasta([atv("a", "2026-11-15", "boa"), atv("b", "2026-11-17", "boa")]);
+    const r = resumirPasta([atv("a", "2026-11-15", "adoraram"), atv("b", "2026-11-17", "adoraram")]);
     expect(detalhePasta(r, hoje)).toBe("2 atividades · última ontem");
   });
 
   it("usa o singular", () => {
-    expect(detalhePasta(resumirPasta([atv("a", hoje, "boa")]), hoje)).toBe("1 atividade · última hoje");
+    expect(detalhePasta(resumirPasta([atv("a", hoje, "adoraram")]), hoje)).toBe("1 atividade · última hoje");
   });
 });
 
@@ -67,22 +70,22 @@ describe("aderenciaPasta", () => {
   });
 
   it("com menos de 3 atividades avisa que são poucos dados", () => {
-    expect(aderenciaPasta(resumirPasta([atv("a", "2026-11-01", "boa"), atv("b", "2026-11-02", "boa")]))).toBe("poucos dados");
+    expect(aderenciaPasta(resumirPasta([atv("a", "2026-11-01", "adoraram"), atv("b", "2026-11-02", "adoraram")]))).toBe("poucos dados");
   });
 
   it("com amostra suficiente mostra a porcentagem arredondada", () => {
-    const r = resumirPasta([atv("a", "2026-11-01", "boa"), atv("b", "2026-11-02", "neutra"), atv("c", "2026-11-03", "neutra")]);
-    expect(aderenciaPasta(r)).toBe("67% de aderência");
+    const r = resumirPasta([atv("a", "2026-11-01", "adoraram"), atv("b", "2026-11-02", "gostaram"), atv("c", "2026-11-03", "neutro")]);
+    expect(aderenciaPasta(r)).toBe("67% de aderência"); // (1 + ⅔ + ⅓) / 3 = 66,7%
   });
 });
 
 describe("tagsDasAtividades", () => {
   it("lista só as tags usadas, sem repetir, com a contagem, em ordem alfabética", () => {
     const tags = tagsDasAtividades([
-      atv("a", "2026-11-01", "boa", [roda, arte]),
-      atv("b", "2026-11-02", "boa", [roda]),
-      atv("c", "2026-11-03", "ruim", [jogos]),
-      atv("d", "2026-11-04", "ruim"),
+      atv("a", "2026-11-01", "adoraram", [roda, arte]),
+      atv("b", "2026-11-02", "adoraram", [roda]),
+      atv("c", "2026-11-03", "nao_curtiram", [jogos]),
+      atv("d", "2026-11-04", "nao_curtiram"),
     ]);
     expect(tags.map((t) => [t.nome, t.total])).toEqual([
       ["Arte", 1],
@@ -93,16 +96,16 @@ describe("tagsDasAtividades", () => {
   });
 
   it("sem tags devolve lista vazia", () => {
-    expect(tagsDasAtividades([atv("a", "2026-11-01", "boa")])).toEqual([]);
+    expect(tagsDasAtividades([atv("a", "2026-11-01", "adoraram")])).toEqual([]);
   });
 });
 
 describe("filtrarAtividades", () => {
   const lista = [
-    atv("a", "2026-11-01", "boa", [roda, arte]),
-    atv("b", "2026-11-02", "ruim", [roda]),
-    atv("c", "2026-11-03", "boa", [jogos]),
-    atv("d", "2026-11-04", "neutra"),
+    atv("a", "2026-11-01", "adoraram", [roda, arte]),
+    atv("b", "2026-11-02", "nao_curtiram", [roda]),
+    atv("c", "2026-11-03", "adoraram", [jogos]),
+    atv("d", "2026-11-04", "neutro"),
   ];
   const ids = (as: Atividade[]) => as.map((a) => a.id);
 
@@ -115,12 +118,12 @@ describe("filtrarAtividades", () => {
   });
 
   it("filtra por receptividade", () => {
-    expect(ids(filtrarAtividades(lista, { receptividade: "boa" }))).toEqual(["a", "c"]);
+    expect(ids(filtrarAtividades(lista, { receptividade: "adoraram" }))).toEqual(["a", "c"]);
   });
 
   it("combina tag e receptividade", () => {
-    expect(ids(filtrarAtividades(lista, { tagId: "roda", receptividade: "ruim" }))).toEqual(["b"]);
-    expect(ids(filtrarAtividades(lista, { tagId: "jogos", receptividade: "ruim" }))).toEqual([]);
+    expect(ids(filtrarAtividades(lista, { tagId: "roda", receptividade: "nao_curtiram" }))).toEqual(["b"]);
+    expect(ids(filtrarAtividades(lista, { tagId: "jogos", receptividade: "nao_curtiram" }))).toEqual([]);
   });
 });
 
@@ -151,10 +154,10 @@ describe("hrefDaPasta", () => {
   });
 
   it("com tag e receptividade", () => {
-    expect(hrefDaPasta("t1", { tagId: "arte", receptividade: "boa" })).toBe("/?turma=t1&tag=arte&receptividade=boa");
+    expect(hrefDaPasta("t1", { tagId: "arte", receptividade: "adoraram" })).toBe("/?turma=t1&tag=arte&receptividade=adoraram");
   });
 
   it("ignora filtros vazios", () => {
-    expect(hrefDaPasta("t1", { tagId: undefined, receptividade: "ruim" })).toBe("/?turma=t1&receptividade=ruim");
+    expect(hrefDaPasta("t1", { tagId: undefined, receptividade: "nao_curtiram" })).toBe("/?turma=t1&receptividade=nao_curtiram");
   });
 });

@@ -55,6 +55,18 @@ export function itemAtivo(pathname: string, href: string) {
 }
 
 /**
+ * Nome para assinar relatórios ("Copiar para IA"): o nome completo dos metadados do usuário ou, na
+ * falta dele, o mesmo nome curto da saudação. Vazio se não houver nada.
+ */
+export function nomeCompleto(email?: string | null, metadados?: Record<string, unknown> | null) {
+  for (const campo of ["nome", "name", "full_name"]) {
+    const valor = metadados?.[campo];
+    if (typeof valor === "string" && valor.trim()) return valor.trim().replace(/\s+/g, " ");
+  }
+  return nomeDeExibicao(email, metadados);
+}
+
+/**
  * Nome curto para a saudação: primeiro nome dos metadados do usuário ou, na falta dele,
  * a primeira parte do e-mail ("ana.souza@…" → "Ana"). Vazio se não houver nada.
  */

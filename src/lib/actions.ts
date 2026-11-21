@@ -5,10 +5,10 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { MAX_OBSERVACAO } from "@/lib/observacao";
 import { COOKIE_LEMBRAR } from "@/lib/sessao";
+import { ehReceptividade } from "@/lib/receptividade";
 import { createClient, requireUser } from "@/lib/supabase/server";
 import type { ActionResult, AtividadeInput, Tag, Turma } from "@/lib/types";
 
-const RECEPTIVIDADES = ["boa", "neutra", "ruim"];
 
 function erroAmigavel(error: { code?: string; message: string }, oQue: string) {
   if (error.code === "23505") return `Já existe ${oQue} com esse nome.`;
@@ -25,7 +25,7 @@ export async function salvarAtividade(input: AtividadeInput): Promise<ActionResu
   const titulo = input.titulo.trim();
   if (!titulo) return { ok: false, error: "Dê um nome para a atividade." };
   if (!input.turmaId) return { ok: false, error: "Escolha a turma." };
-  if (!RECEPTIVIDADES.includes(input.receptividade))
+  if (!ehReceptividade(input.receptividade))
     return { ok: false, error: "Marque como a turma recebeu a atividade." };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.data)) return { ok: false, error: "Data inválida." };
   if (input.observacao.trim().length > MAX_OBSERVACAO)

@@ -1,6 +1,7 @@
 import { Layers, NotebookPen, PenTool, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { AtividadeLista } from "@/components/atividade-lista";
+import { BotaoCopiarIA } from "@/components/botao-copiar-ia";
 import { BordaRasgada } from "@/components/enfeites";
 import { fundoDaPasta, Pasta } from "@/components/pasta";
 import { ORDEM_RECEPTIVIDADE, RECEPTIVIDADE } from "@/components/receptividade";
@@ -107,6 +108,7 @@ export function CadernoDaTurma({
   filtro,
   atividades,
   hoje,
+  textoIA,
 }: {
   turma: Turma;
   /** Posição da turma na grade (define a cor). */
@@ -118,6 +120,8 @@ export function CadernoDaTurma({
   /** Atividades já filtradas. */
   atividades: Atividade[];
   hoje: string;
+  /** Relatório + prompt de todas as atividades da turma (botão "Copiar para IA"). */
+  textoIA?: string;
 }) {
   const { etapa } = etapaDaTurma(turma.nome);
   const estampa = etapa === "medio" ? "estampa-rosa" : etapa === "fundamental" ? "estampa-azul" : fundoDaPasta(indice);
@@ -149,10 +153,13 @@ export function CadernoDaTurma({
               {resumo.total ? detalhePasta(resumo, hoje) : "Nada registrado nesta turma ainda."}
             </p>
           </div>
-          <Link href={registrar} className="btn-primary shrink-0 px-5 py-3">
-            <PlusCircle className="size-4" aria-hidden />
-            Registrar nesta turma
-          </Link>
+          <div className="flex shrink-0 flex-col gap-2.5 sm:flex-row sm:items-center">
+            {textoIA && resumo.total > 0 && <BotaoCopiarIA texto={textoIA} />}
+            <Link href={registrar} className="btn-primary px-5 py-3">
+              <PlusCircle className="size-4" aria-hidden />
+              Registrar nesta turma
+            </Link>
+          </div>
         </div>
       </div>
 

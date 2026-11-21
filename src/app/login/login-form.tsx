@@ -90,7 +90,7 @@ export function LoginForm() {
       </label>
 
       {state?.error && (
-        <p role="alert" className="rounded-lg bg-ruim/10 px-3 py-2 text-sm text-danger">
+        <p role="alert" className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">
           {state.error}
         </p>
       )}
